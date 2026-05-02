@@ -1,14 +1,14 @@
 import * as z from 'zod';
 
 export const TinSchema = z.object({
-  id: z.number().int().positive(),
-  payeeId: z.number().int().positive(),
+  id: z.int().positive(),
+  payeeId: z.int().positive(),
   tinNumber: z.string().min(1, 'TIN number is required'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.number().int().positive(),
-  updatedBy: z.number().int().positive(),
+  createdBy: z.int().positive(),
+  updatedBy: z.int().positive(),
 });
 
 export const CreateTinSchema = TinSchema.omit({

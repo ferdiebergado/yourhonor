@@ -1,9 +1,9 @@
 import * as z from 'zod';
 
 export const SessionSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.int().positive(),
   sessionId: z.string(),
-  userId: z.number().int().positive(),
+  userId: z.int().positive(),
   expiresAt: z.iso.datetime().transform(value => new Date(value)),
   isActive: z.preprocess(Boolean, z.boolean()).optional().nullable(),
   lastActiveAt: z.iso.datetime(),

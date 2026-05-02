@@ -1,14 +1,14 @@
 import * as z from 'zod';
 
 export const PayeeOfficeSchema = z.object({
-  id: z.number().int().positive(),
-  payeeId: z.number().int().positive(),
-  officeId: z.number().int().positive(),
+  id: z.int().positive(),
+  payeeId: z.int().positive(),
+  officeId: z.int().positive(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.number().int().positive(),
-  updatedBy: z.number().int().positive(),
+  createdBy: z.int().positive(),
+  updatedBy: z.int().positive(),
 });
 
 export const CreatePayeeOfficeSchema = PayeeOfficeSchema.omit({

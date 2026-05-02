@@ -1,20 +1,20 @@
 import * as z from 'zod';
 
 export const HonorariumSchema = z.object({
-  id: z.number().int().positive(),
-  activityId: z.number().int().positive(),
-  payeeId: z.number().int().positive(),
-  roleId: z.number().int().positive(),
+  id: z.int().positive(),
+  activityId: z.int().positive(),
+  payeeId: z.int().positive(),
+  roleId: z.int().positive(),
   amount: z.number(),
   hoursRendered: z.number(),
   actual: z.number(),
   net: z.number(),
-  tinId: z.number().int().positive(),
+  tinId: z.int().positive(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.number().int().positive(),
-  updatedBy: z.number().int().positive(),
+  createdBy: z.int().positive(),
+  updatedBy: z.int().positive(),
 });
 
 export const CreateHonorariumSchema = HonorariumSchema.omit({

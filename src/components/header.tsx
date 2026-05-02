@@ -46,6 +46,12 @@ export default function Header() {
             <NavigationMenuItem>
               <NavigationMenuLink
                 className={navigationMenuTriggerStyle()}
+                render={<Link to={paths.activities}>My Activities</Link>}
+              />
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
                 render={<Link to={paths.bugReport}>Report a bug</Link>}
               />
             </NavigationMenuItem>

@@ -1,14 +1,14 @@
 import * as z from 'zod';
 
 export const FocalPositionSchema = z.object({
-  id: z.number().int().positive(),
-  focalId: z.number().int().positive(),
-  positionId: z.number().int().positive(),
+  id: z.int().positive(),
+  focalId: z.int().positive(),
+  positionId: z.int().positive(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.number().int().positive(),
-  updatedBy: z.number().int().positive(),
+  createdBy: z.int().positive(),
+  updatedBy: z.int().positive(),
 });
 
 export const CreateFocalPositionSchema = FocalPositionSchema.omit({

@@ -46,12 +46,14 @@ CREATE TABLE IF NOT EXISTS focals (
   firstname TEXT NOT NULL,
   mi TEXT,
   lastname TEXT NOT NULL,
+  position_id INTEGER NOT NULL,
   sex TEXT NOT NULL CHECK (sex IN ('M', 'F')),
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
   created_by INTEGER NOT NULL,
   updated_by INTEGER NOT NULL,
+  FOREIGN KEY (position_id) REFERENCES positions (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );
@@ -94,12 +96,14 @@ CREATE TABLE IF NOT EXISTS activities (
   end_date TEXT NOT NULL,
   code TEXT NOT NULL UNIQUE,
   fund_source TEXT NOT NULL,
+  focal_id INTEGER NOT NULL,
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
   created_by INTEGER NOT NULL,
   updated_by INTEGER NOT NULL,
   FOREIGN KEY (venue_id) REFERENCES venues (id),
+  FOREIGN KEY (focal_id) REFERENCES focals (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );
@@ -114,7 +118,6 @@ CREATE TABLE IF NOT EXISTS venues (
   deleted_at TEXT,
   created_by INTEGER NOT NULL,
   updated_by INTEGER NOT NULL,
-  FOREIGN KEY (venue_id) REFERENCES venues (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );

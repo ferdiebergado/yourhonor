@@ -19,6 +19,7 @@ export const paths = {
   oauthCallback: '/oauthcallback',
   me: '/me',
   bugReport: '/bug-report',
+  activities: '/activities',
 };
 
 export const routes: RouteObject[] = [
@@ -49,6 +50,10 @@ export const routes: RouteObject[] = [
           {
             path: paths.home,
             Component: Dashboard,
+          },
+          {
+            path: paths.activities,
+            Component: lazy(() => import('@/features/activity/components/activities')),
           },
         ],
       },

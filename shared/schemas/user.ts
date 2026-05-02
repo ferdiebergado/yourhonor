@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 export const UserSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.int().positive(),
 
   // Basic Profile
   googleId: z.string().min(1, 'Google ID is required'),
