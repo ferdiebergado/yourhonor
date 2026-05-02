@@ -20,8 +20,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "db:create": "sqlite3 local.db < ./init.sql",
+    "db:seed": "sqlite3 local.db < ./seed.sql",
     "db": "sqlite3 -init .sqliterc local.db",
-    "db:reset": "rm -f local.db && npm run db:create",
+    "db:reset": "rm -f local.db && npm run db:create && npm run db:seed",
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
