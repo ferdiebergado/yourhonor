@@ -32,3 +32,7 @@ export const BaseVenueSchema = VenueSchema.omit({
 });
 
 export type BaseVenue = z.infer<typeof BaseVenueSchema>;
+
+export const VenueFormSchema = BaseVenueSchema.pick({ name: true, location: true });
+
+export type VenueFormValues = z.infer<typeof VenueFormSchema>;

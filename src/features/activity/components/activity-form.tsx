@@ -7,8 +7,10 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import FocalForm from '@/features/focal/components/focal-form';
 import FocalInput from '@/features/focal/components/focal-input';
 import { useFocals } from '@/features/focal/hooks';
+import VenueForm from '@/features/venue/components/venue-form';
 import VenueInput from '@/features/venue/components/venue-input';
 import { useVenues } from '@/features/venue/hooks';
 import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
@@ -76,16 +78,20 @@ export default function ActivityForm() {
 
                 return (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="activity-venue-id">Venue</FieldLabel>
-                    <VenueInput
-                      id="activity-venue-id"
-                      value={selectedVenue}
-                      onValueChange={venue => field.onChange(venue?.id ?? 0)}
-                      aria-invalid={fieldState.invalid}
-                      placeholder={isFetchingVenues ? 'Loading venues…' : 'Select a venue'}
-                      venues={venues ?? []}
-                      disabled={isFetchingVenues}
-                    />
+                    <FieldLabel htmlFor={field.name}>Venue</FieldLabel>
+                    <div className="flex gap-2">
+                      <VenueInput
+                        id={field.name}
+                        className="flex-1"
+                        value={selectedVenue}
+                        onValueChange={venue => field.onChange(venue?.id ?? 0)}
+                        aria-invalid={fieldState.invalid}
+                        placeholder={isFetchingVenues ? 'Loading venues…' : 'Select a venue'}
+                        venues={venues ?? []}
+                        disabled={isFetchingVenues}
+                      />
+                      <VenueForm />
+                    </div>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 );
@@ -156,15 +162,19 @@ export default function ActivityForm() {
                 return (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="activity-focal-id">Focal Person</FieldLabel>
-                    <FocalInput
-                      id="activity-focal-id"
-                      value={selectedFocal}
-                      onValueChange={focal => field.onChange(focal?.id ?? 0)}
-                      aria-invalid={fieldState.invalid}
-                      placeholder={isFetchingFocals ? 'Loading focals…' : 'Select a focal'}
-                      focals={focals ?? []}
-                      disabled={isFetchingFocals}
-                    />
+                    <div className="flex gap-2">
+                      <FocalInput
+                        id="activity-focal-id"
+                        className="flex-1"
+                        value={selectedFocal}
+                        onValueChange={focal => field.onChange(focal?.id ?? 0)}
+                        aria-invalid={fieldState.invalid}
+                        placeholder={isFetchingFocals ? 'Loading focals…' : 'Select a focal'}
+                        focals={focals ?? []}
+                        disabled={isFetchingFocals}
+                      />
+                      <FocalForm />
+                    </div>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 );
@@ -178,7 +188,7 @@ export default function ActivityForm() {
           Reset
         </Button>
         <Button type="submit" form="activity-form" disabled={isPending}>
-          {isPending ? 'Saving...' : 'Create activity'}
+          {isPending ? 'Saving...' : 'Submit'}
         </Button>
       </CardFooter>
     </Card>
