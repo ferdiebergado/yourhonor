@@ -1,5 +1,5 @@
-import type { ComponentProps } from 'react';
 import * as React from 'react';
+import { type ComponentProps } from 'react';
 
 import {
   Combobox,
@@ -72,7 +72,7 @@ export default function GenericCombobox<T>({
       value={value}
       onValueChange={onValueChange}
     >
-      <ComboboxInput {...comboboxInputProps} showClear />
+      <ComboboxInput {...comboboxInputProps} />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
