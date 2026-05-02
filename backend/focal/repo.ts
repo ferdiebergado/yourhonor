@@ -1,5 +1,11 @@
 import type { Client } from '@libsql/client';
-import { FocalBaseSchema, type FocalBase } from '@shared/schemas/focal';
+import {
+  FocalBaseSchema,
+  FocalIdSchema,
+  type CreateFocal,
+  type Focal,
+  type FocalBase,
+} from '@shared/schemas/focal';
 import { snakeToCamel } from '@shared/utils';
 
 export async function findActiveFocals(db: Client): Promise<FocalBase[]> {
@@ -16,4 +22,28 @@ ORDER BY f.firstname ASC
   if (rows.length === 0) return [];
 
   return rows.map(row => FocalBaseSchema.parse(snakeToCamel(row)));
+}
+
+export async function createFocal(db: Client, focal: CreateFocal): Promise<Focal['id']> {
+  const sql = `
+INSERT INTO focals (firstname, mi, lastname, sex, position_id, created_by, updated_by)
+VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id
+`;
+
+  const { firstname, mi, lastname, sex, positionId, createdBy, updatedBy } = focal;
+  const { rows } = await db.execute(sql, [
+    firstname,
+    // eslint-disable-next-line unicorn/no-null
+    mi ?? null,
+    lastname,
+    sex,
+    positionId,
+    createdBy,
+    updatedBy,
+  ]);
+
+  if (rows.length === 0) throw new Error('Failed to create focal person');
+
+  return FocalIdSchema.parse(rows[0]).id;
 }

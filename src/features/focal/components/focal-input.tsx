@@ -4,7 +4,7 @@ import type { FocalBase } from '@shared/schemas/focal';
 import type { ComponentProps } from 'react';
 
 const getFullName = (focal: FocalBase) =>
-  `${focal.firstname} ${focal.mi ? focal.mi + ' ' : ''}${focal.lastname}`;
+  `${focal.firstname} ${focal.mi ? focal.mi + '. ' : ''}${focal.lastname}`;
 
 type FocalInputProps<T = FocalBase> = {
   focals: T[];

@@ -1,7 +1,7 @@
 import { getDb } from '@backend/db';
-import { findActiveFocals } from '@backend/focal/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
+import { findActivePositions } from '@backend/position/repo';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -9,7 +9,7 @@ export default async (req: Request) => {
     checkMethod(req, ['GET']);
 
     const db = await getDb();
-    const data = await findActiveFocals(db);
+    const data = await findActivePositions(db);
 
     const payload: ApiResponse<typeof data> = {
       success: true,

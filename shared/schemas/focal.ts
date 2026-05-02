@@ -3,10 +3,10 @@ import * as z from 'zod';
 export const FocalSchema = z.object({
   id: z.int().positive(),
   firstname: z.string().min(1, 'Firstname is required'),
-  mi: z.string().min(1).optional().nullable(),
+  mi: z.string().optional().nullable(),
   lastname: z.string().min(1, 'Lastname is required'),
   sex: z.enum(['M', 'F']),
-  positionId: z.int().positive(),
+  positionId: z.int().positive('Position is required'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
@@ -39,3 +39,13 @@ export const FocalBaseSchema = FocalSchema.omit({
 );
 
 export type FocalBase = z.infer<typeof FocalBaseSchema>;
+
+export const FocalFormSchema = FocalSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export type FocalFormValues = z.infer<typeof FocalFormSchema>;

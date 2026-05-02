@@ -32,8 +32,8 @@ export const ActivityFormSchema = z
   .object({
     title: z.string().min(1, 'Activity title is required'),
     code: z.string().min(1, 'Activity code is required'),
-    venueId: z.coerce.number<number>().positive(),
-    focalId: z.coerce.number<number>().positive(),
+    venueId: z.coerce.number<number>().positive('Venue is required'),
+    focalId: z.coerce.number<number>().positive('Focal person is required'),
     startDate: z.iso.date('Start date must be a valid date'),
     endDate: z.iso.date('End date must be a valid date'),
   })

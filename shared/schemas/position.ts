@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 export const PositionSchema = z.object({
-  id: z.int().positive(),
+  id: z.int().positive('Position is required'),
   name: z.string().min(1, 'Position name is required'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
@@ -21,3 +21,10 @@ export type Position = z.infer<typeof PositionSchema>;
 export type CreatePosition = z.infer<typeof CreatePositionSchema>;
 
 export const PositionIdSchema = PositionSchema.pick({ id: true });
+
+export const PositionBaseSchema = PositionSchema.pick({
+  id: true,
+  name: true,
+});
+
+export type PositionBase = z.infer<typeof PositionBaseSchema>;
