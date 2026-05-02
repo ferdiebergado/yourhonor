@@ -1,0 +1,23 @@
+import * as z from 'zod';
+
+export const BankSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1, 'Bank name is required'),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  deletedAt: z.iso.datetime().optional().nullable(),
+  createdBy: z.number().int().positive(),
+  updatedBy: z.number().int().positive(),
+});
+
+export const CreateBankSchema = BankSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+});
+
+export type Bank = z.infer<typeof BankSchema>;
+export type CreateBank = z.infer<typeof CreateBankSchema>;
+
+export const BankIdSchema = BankSchema.pick({ id: true });
