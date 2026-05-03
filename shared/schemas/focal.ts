@@ -6,7 +6,7 @@ export const FocalSchema = z.object({
   mi: z.string().optional().nullable(),
   lastname: z.string().min(1, 'Lastname is required'),
   sex: z.enum(['M', 'F']),
-  positionId: z.int().positive('Position is required'),
+  positionId: z.coerce.number<number>().positive('Position is required'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
@@ -41,6 +41,7 @@ export const FocalBaseSchema = FocalSchema.omit({
 export type FocalBase = z.infer<typeof FocalBaseSchema>;
 
 export const FocalFormSchema = FocalSchema.omit({
+  id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
