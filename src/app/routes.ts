@@ -9,8 +9,8 @@ const OauthCallback = lazy(() => import('@/features/auth/components/oauth-callba
 const Layout = lazy(() => import('@/components/layout'));
 const RequireUser = lazy(() => import('@/features/auth/components/require-user'));
 const Dashboard = lazy(() => import('./dashboard'));
-const BugReportForm = lazy(() => import('./bug-report'));
 const PageNotFound = lazy(() => import('./not-found'));
+const Activities = lazy(() => import('@/features/activity/components/activities'));
 
 export const paths = {
   home: '/',
@@ -53,13 +53,9 @@ export const routes: RouteObject[] = [
           },
           {
             path: paths.activities,
-            Component: lazy(() => import('@/features/activity/components/activities')),
+            Component: Activities,
           },
         ],
-      },
-      {
-        path: paths.bugReport,
-        Component: BugReportForm,
       },
     ],
   },

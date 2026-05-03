@@ -1,5 +1,8 @@
 import { api } from '@/lib/http-client';
-import type { ActivityFormValues } from '@shared/schemas/activity';
+import { type ActivityDetail, type ActivityFormValues } from '@shared/schemas/activity';
 
 export const createActivity = async (data: ActivityFormValues) =>
   await api.post('/create-activity', data);
+
+export const fetchDetailedActivities = async () =>
+  await api.get<ActivityDetail[]>('/detailed-activities');

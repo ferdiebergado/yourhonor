@@ -1,8 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createActivity } from './api';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { createActivity, fetchDetailedActivities } from './api';
 
 const QUERY_KEYS = {
   activities: ['activities'] as const,
+  detailedActivities: ['detailed_activities'] as const,
 };
 
 export function useCreateActivity() {
@@ -13,3 +14,9 @@ export function useCreateActivity() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.activities }),
   });
 }
+
+export const useDetailedActivities = () =>
+  useSuspenseQuery({
+    queryKey: QUERY_KEYS.detailedActivities,
+    queryFn: fetchDetailedActivities,
+  });

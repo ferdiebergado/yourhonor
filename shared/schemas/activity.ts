@@ -49,3 +49,17 @@ export const ActivityFormSchema = z
   });
 
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
+
+export const ActivityDetailSchema = ActivitySchema.pick({
+  title: true,
+  startDate: true,
+  endDate: true,
+  code: true,
+}).and(
+  z.object({
+    venue: z.string(),
+    focal: z.string(),
+  })
+);
+
+export type ActivityDetail = z.infer<typeof ActivityDetailSchema>;

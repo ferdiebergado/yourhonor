@@ -9,7 +9,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { RiAddCircleFill } from '@remixicon/react';
+import { Suspense } from 'react';
 import ActivityForm from './activity-form';
+import ActivityTable from './activity-table';
 
 export default function Activities() {
   return (
@@ -40,7 +42,11 @@ export default function Activities() {
       </div>
 
       <Card className="w-full">
-        <CardContent></CardContent>
+        <CardContent>
+          <Suspense fallback={<p>Loading...</p>}>
+            <ActivityTable />
+          </Suspense>
+        </CardContent>
       </Card>
     </>
   );
