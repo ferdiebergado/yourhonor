@@ -68,9 +68,5 @@ const columns: ColumnDef<ActivityDetail>[] = [
 export default function ActivityTable() {
   const { data } = useDetailedActivities();
 
-  return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data ?? []} filteredColumn="title" />
-    </div>
-  );
+  return <DataTable columns={columns} data={data ?? []} filteredColumn="title" />;
 }
