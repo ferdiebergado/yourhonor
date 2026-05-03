@@ -51,6 +51,7 @@ export const ActivityFormSchema = z
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
 
 export const ActivityDetailSchema = ActivitySchema.pick({
+  id: true,
   title: true,
   startDate: true,
   endDate: true,
@@ -63,3 +64,20 @@ export const ActivityDetailSchema = ActivitySchema.pick({
 );
 
 export type ActivityDetail = z.infer<typeof ActivityDetailSchema>;
+
+export const ActivityFullSchema = ActivitySchema.omit({
+  fundSource: true,
+  venueId: true,
+  focalId: true,
+  createdBy: true,
+  updatedBy: true,
+}).and(
+  z.object({
+    venue: z.string(),
+    location: z.string(),
+    focal: z.string(),
+    focalPosition: z.string(),
+  })
+);
+
+export type ActivityFullDetail = z.infer<typeof ActivityFullSchema>;

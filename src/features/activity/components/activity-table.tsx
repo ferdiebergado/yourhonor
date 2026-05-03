@@ -1,3 +1,7 @@
+import { RiMore2Fill } from '@remixicon/react';
+import type { ColumnDef } from '@tanstack/react-table';
+import { Link } from 'react-router';
+
 import { DataTable } from '@/components/data-table';
 import SortButton from '@/components/sort-button';
 import { Button } from '@/components/ui/button';
@@ -10,9 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { RiMore2Fill } from '@remixicon/react';
 import type { ActivityDetail } from '@shared/schemas/activity';
-import type { ColumnDef } from '@tanstack/react-table';
 import { useDetailedActivities } from '../hooks';
 
 const columns: ColumnDef<ActivityDetail>[] = [
@@ -55,7 +57,11 @@ const columns: ColumnDef<ActivityDetail>[] = [
                 Copy activity title
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View activity details</DropdownMenuItem>
+              <DropdownMenuItem
+                render={
+                  <Link to={`/activity/${activity.id.toString()}`}>View activity details</Link>
+                }
+              />
               <DropdownMenuItem>Delete</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

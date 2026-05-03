@@ -11,6 +11,7 @@ const RequireUser = lazy(() => import('@/features/auth/components/require-user')
 const Dashboard = lazy(() => import('./dashboard'));
 const PageNotFound = lazy(() => import('./not-found'));
 const Activities = lazy(() => import('@/features/activity/components/activities'));
+const ActivityPage = lazy(() => import('@/features/activity/components/activity-page'));
 
 export const paths = {
   home: '/',
@@ -20,6 +21,7 @@ export const paths = {
   me: '/me',
   bugReport: '/bug-report',
   activities: '/activities',
+  activity: '/activity/:id',
 };
 
 export const routes: RouteObject[] = [
@@ -54,6 +56,10 @@ export const routes: RouteObject[] = [
           {
             path: paths.activities,
             Component: Activities,
+          },
+          {
+            path: paths.activity,
+            Component: ActivityPage,
           },
         ],
       },
