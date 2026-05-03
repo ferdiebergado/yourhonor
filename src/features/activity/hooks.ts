@@ -3,7 +3,6 @@ import { createActivity, fetchDetailedActivities } from './api';
 
 const QUERY_KEYS = {
   activities: ['activities'] as const,
-  detailedActivities: ['detailed_activities'] as const,
 };
 
 export function useCreateActivity() {
@@ -17,6 +16,6 @@ export function useCreateActivity() {
 
 export const useDetailedActivities = () =>
   useSuspenseQuery({
-    queryKey: QUERY_KEYS.detailedActivities,
+    queryKey: QUERY_KEYS.activities,
     queryFn: fetchDetailedActivities,
   });
