@@ -9,6 +9,7 @@ import { Link } from 'react-router';
 import { toast } from 'sonner';
 
 import { paths } from '@/app/routes';
+import config from '@/config';
 import { useSignout } from '@/features/auth/hooks';
 import { useTheme } from '@/features/theme';
 import NavMenuButton from './navmenu-button';
@@ -33,7 +34,7 @@ export default function Header() {
   return (
     <header className="mb-15 w-full bg-white shadow dark:bg-neutral-900 dark:text-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-8 py-4">
-        <h1 className="font-heading text-2xl font-bold">App</h1>
+        <h1 className="font-heading text-2xl font-bold">{config.appTitle}</h1>
 
         <NavigationMenu>
           <NavigationMenuList>
@@ -47,12 +48,6 @@ export default function Header() {
               <NavigationMenuLink
                 className={navigationMenuTriggerStyle()}
                 render={<Link to={paths.activities}>My Activities</Link>}
-              />
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={navigationMenuTriggerStyle()}
-                render={<Link to={paths.bugReport}>Report a bug</Link>}
               />
             </NavigationMenuItem>
             <NavigationMenuItem>
