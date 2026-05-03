@@ -11,10 +11,7 @@ export function checkMethod(req: Request, allowedMethods: HttpMethod[]) {
     throw new MethodNotAllowedError(`Method ${req.method} is not allowed`, allowedMethods);
 }
 
-export async function parseJson<T extends z.ZodType>(
-  req: Request,
-  schema: T
-): Promise<z.infer<typeof schema>> {
+export async function parseJson<T extends z.ZodType>(req: Request, schema: T): Promise<z.infer<T>> {
   try {
     const jsonData = await req.json();
     return schema.parse(jsonData);
