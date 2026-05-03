@@ -55,10 +55,10 @@ export default function ActivityForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="activity-title">Title</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Title</FieldLabel>
                   <Textarea
                     {...field}
-                    id="activity-title"
+                    id={field.name}
                     placeholder="Lesson Exemplars on Biology (Development Workshop)"
                     aria-invalid={fieldState.invalid}
                     autoComplete="off"
@@ -104,10 +104,10 @@ export default function ActivityForm() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="activity-start-date">Start Date</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Start Date</FieldLabel>
                     <Input
                       {...field}
-                      id="activity-start-date"
+                      id={field.name}
                       type="date"
                       aria-invalid={fieldState.invalid}
                     />
@@ -121,10 +121,10 @@ export default function ActivityForm() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="activity-end-date">End Date</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>End Date</FieldLabel>
                     <Input
                       {...field}
-                      id="activity-end-date"
+                      id={field.name}
                       type="date"
                       aria-invalid={fieldState.invalid}
                     />
@@ -139,10 +139,10 @@ export default function ActivityForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="activity-code">Activity Code</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Activity Code</FieldLabel>
                   <Input
                     {...field}
-                    id="activity-code"
+                    id={field.name}
                     placeholder="ACT-001"
                     aria-invalid={fieldState.invalid}
                     autoComplete="off"
@@ -161,10 +161,10 @@ export default function ActivityForm() {
 
                 return (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="activity-focal-id">Focal Person</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Focal Person</FieldLabel>
                     <div className="flex gap-2">
                       <FocalInput
-                        id="activity-focal-id"
+                        id={field.name}
                         className="flex-1"
                         value={selectedFocal}
                         onValueChange={focal => field.onChange(focal?.id ?? 0)}
