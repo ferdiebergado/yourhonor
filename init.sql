@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS focals (
   deleted_at TEXT,
   created_by INTEGER NOT NULL,
   updated_by INTEGER NOT NULL,
+  UNIQUE (firstname, lastname),
   FOREIGN KEY (position_id) REFERENCES positions (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id)
