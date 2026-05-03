@@ -1,15 +1,17 @@
-import { findActiveActivitiesDetailed } from '@backend/activity/repo';
+import { findActiveActivitiesDetailedByUser } from '@backend/activity/repo';
 import { getDb } from '@backend/db';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
+import { getSession } from '@backend/session';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
   try {
     checkMethod(req, ['GET']);
 
+    const { userId } = await getSession(req);
     const db = await getDb();
-    const data = await findActiveActivitiesDetailed(db);
+    const data = await findActiveActivitiesDetailedByUser(db, userId);
 
     const payload: ApiResponse<typeof data> = {
       success: true,

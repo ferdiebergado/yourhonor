@@ -37,17 +37,20 @@ RETURNING id;`;
   return ActivityIdSchema.parse(rows[0]).id;
 }
 
-export async function findActiveActivitiesDetailed(db: Client): Promise<ActivityDetail[]> {
+export async function findActiveActivitiesDetailedByUser(
+  db: Client,
+  userId: number
+): Promise<ActivityDetail[]> {
   const sql = `
 SELECT a.title AS title, a.start_date AS start_date, a.end_date AS end_date, a.code AS code, v.name AS venue, CONCAT(f.firstname, ' ', f.lastname) focal
 FROM activities a
 LEFT JOIN venues v ON v.id = a.venue_id
 LEFT JOIN focals f ON f.id = a.focal_id
-WHERE a.deleted_at IS NULL
+WHERE a.deleted_at IS NULL AND a.created_by = ?
 ORDER BY a.created_at DESC
   `;
 
-  const { rows } = await db.execute(sql);
+  const { rows } = await db.execute(sql, [userId]);
 
   if (rows.length === 0) return [];
 
