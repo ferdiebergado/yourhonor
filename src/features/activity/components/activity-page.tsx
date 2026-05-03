@@ -12,6 +12,7 @@ import { RiAddCircleFill } from '@remixicon/react';
 import { Suspense } from 'react';
 import { useParams } from 'react-router';
 import Activity from './activity';
+import ActivitySkeletonCard from './activity-skeleton-card';
 
 export default function ActivityPage() {
   const params = useParams();
@@ -44,7 +45,7 @@ export default function ActivityPage() {
 
       <Card className="w-full">
         <CardContent>
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<ActivitySkeletonCard />}>
             <Activity id={Number(params.id)} />
           </Suspense>
         </CardContent>
