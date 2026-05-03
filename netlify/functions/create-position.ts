@@ -3,7 +3,7 @@ import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { createPosition } from '@backend/position/repo';
 import { getSession } from '@backend/session';
-import { PositionFormSchema, type CreatePosition, type Position } from '@shared/schemas/position';
+import { PositionFormSchema, type CreatePosition } from '@shared/schemas/position';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -21,11 +21,10 @@ export default async (req: Request) => {
     };
 
     const db = await getDb();
-    const created = await createPosition(db, position);
+    await createPosition(db, position);
 
-    const payload: ApiResponse<Position> = {
+    const payload: ApiResponse = {
       success: true,
-      data: created,
     };
 
     return Response.json(payload, { status: 201 });

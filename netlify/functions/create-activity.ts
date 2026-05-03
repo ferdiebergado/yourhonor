@@ -22,11 +22,10 @@ export default async (req: Request) => {
     };
 
     const db = await getDb();
-    const activityId = await createActivity(db, data);
+    await createActivity(db, data);
 
-    const payload: ApiResponse<typeof data & { id: number }> = {
+    const payload: ApiResponse = {
       success: true,
-      data: { id: activityId, ...data },
     };
 
     return Response.json(payload, { status: 201 });

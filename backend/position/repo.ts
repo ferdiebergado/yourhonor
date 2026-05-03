@@ -1,9 +1,7 @@
 import type { Client } from '@libsql/client';
 import {
   PositionBaseSchema,
-  PositionSchema,
   type CreatePosition,
-  type Position,
   type PositionBase,
 } from '@shared/schemas/position';
 
@@ -21,18 +19,13 @@ ORDER BY name ASC
   return rows.map(row => PositionBaseSchema.parse(row));
 }
 
-export async function createPosition(db: Client, position: CreatePosition): Promise<Position> {
+export async function createPosition(db: Client, position: CreatePosition): Promise<void> {
   const sql = `
 INSERT INTO positions (name, created_by, updated_by)
 VALUES (?, ?, ?)
-RETURNING *
 `;
 
   const { name, createdBy, updatedBy } = position;
 
-  const { rows } = await db.execute(sql, [name, createdBy, updatedBy]);
-
-  if (rows.length === 0) throw new Error('Failed to create position');
-
-  return PositionSchema.parse(rows[0]);
+  await db.execute(sql, [name, createdBy, updatedBy]);
 }
