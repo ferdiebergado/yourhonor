@@ -38,8 +38,6 @@ const SECURITY_HEADERS = {
     'ambient-light-sensor': '()',
     autoplay: '()',
     battery: '()',
-    'clipboard-read': '()',
-    'clipboard-write': '()',
     'display-capture': '()',
     'document-domain': '()',
     'encrypted-media': '()',
