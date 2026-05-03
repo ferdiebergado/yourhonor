@@ -8,7 +8,7 @@ export default function GuestLayout() {
       <div className="pointer-events-none opacity-0">
         <Header />
       </div>
-      <main className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center p-3">
+      <main className="flex w-full flex-1 items-center justify-center p-3 md:mx-auto md:max-w-5xl">
         <Outlet />
       </main>
       <Footer />

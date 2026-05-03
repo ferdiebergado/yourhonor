@@ -46,7 +46,7 @@ export default function ActivityForm() {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-2xl">
+    <Card className="w-full max-w-2xl md:mx-auto">
       <CardContent>
         <form id="activity-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <FieldGroup>
