@@ -28,3 +28,9 @@ export const PositionBaseSchema = PositionSchema.pick({
 });
 
 export type PositionBase = z.infer<typeof PositionBaseSchema>;
+
+export const PositionFormSchema = PositionSchema.pick({
+  name: true,
+});
+
+export type PositionFormValues = z.infer<typeof PositionFormSchema>;

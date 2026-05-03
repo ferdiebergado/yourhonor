@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchPositions } from './api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createPosition, fetchPositions } from './api';
 
 const QUERY_KEYS = {
   positions: ['positions'] as const,
@@ -10,3 +10,14 @@ export const usePositions = () =>
     queryKey: QUERY_KEYS.positions,
     queryFn: fetchPositions,
   });
+
+export function useCreatePosition() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createPosition,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.positions });
+    },
+  });
+}
