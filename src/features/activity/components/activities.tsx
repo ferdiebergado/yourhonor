@@ -16,7 +16,7 @@ import ActivityTable from './activity-table';
 export default function Activities() {
   return (
     <>
-      <div className="flex items-center justify-between gap-5 p-5">
+      <div className="flex items-center justify-between gap-5 px-7 py-5">
         <div>
           <h1 className="font-heading text-2xl font-semibold">My Activities</h1>
           <p className="text-muted-foreground">View, create and update your activities</p>
