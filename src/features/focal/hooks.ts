@@ -11,7 +11,7 @@ export const useFocals = () =>
     queryFn: fetchFocals,
   });
 
-export const useCreateFocal = () => {
+export function useCreateFocal() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -20,4 +20,4 @@ export const useCreateFocal = () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.focals });
     },
   });
-};
+}
