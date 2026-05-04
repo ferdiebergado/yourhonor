@@ -1,3 +1,4 @@
+import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,11 +19,7 @@ export default function ActivityPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-5 p-5">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">Activity Details</h1>
-          <p className="text-muted-foreground">View and update your activity</p>
-        </div>
+      <PageHeader title="Activity Details" description="View and update your activity">
         <Dialog>
           <DialogTrigger
             render={
@@ -40,7 +37,7 @@ export default function ActivityPage() {
             </DialogHeader>
           </DialogContent>
         </Dialog>
-      </div>
+      </PageHeader>
 
       <Suspense fallback={<ActivitySkeletonCard />}>
         <Activity id={Number(params.id)} />

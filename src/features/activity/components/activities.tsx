@@ -1,6 +1,7 @@
 import { RiAddCircleFill } from '@remixicon/react';
 import { Suspense } from 'react';
 
+import PageHeader from '@/components/page-header';
 import SkeletonDatatable from '@/components/skeleton-datatable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,11 +19,7 @@ import ActivityTable from './activity-table';
 export default function Activities() {
   return (
     <>
-      <div className="flex items-center justify-between gap-5 p-5">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">My Activities</h1>
-          <p className="text-muted-foreground">View, create and update your activities</p>
-        </div>
+      <PageHeader title="My Activities" description="View, create and update your activities">
         <Dialog>
           <DialogTrigger
             render={
@@ -41,7 +38,7 @@ export default function Activities() {
             <ActivityForm />
           </DialogContent>
         </Dialog>
-      </div>
+      </PageHeader>
 
       <Card className="w-full">
         <CardContent>

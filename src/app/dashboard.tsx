@@ -1,3 +1,4 @@
+import PageHeader from '@/components/page-header';
 import {
   Card,
   CardAction,
@@ -11,12 +12,8 @@ import {
 export default function Dashboard() {
   return (
     <>
-      <div className="flex items-center justify-between gap-5 p-5">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of activities</p>
-        </div>
-      </div>
+      <PageHeader title="Dashboard" description="Overview of activities" />
+
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="font-heading text-2xl font-semibold">Welcome idol!</CardTitle>
