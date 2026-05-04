@@ -1,18 +1,10 @@
-import PageHeader from '@/components/page-header';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { RiAddCircleFill } from '@remixicon/react';
 import { Suspense } from 'react';
 import { useParams } from 'react-router';
+
+import PageHeader from '@/components/page-header';
 import Activity from './activity';
 import ActivitySkeletonCard from './activity-skeleton-card';
+import HonorariumDialog from './honorarium-dialog';
 
 export default function ActivityPage() {
   const params = useParams();
@@ -20,23 +12,7 @@ export default function ActivityPage() {
   return (
     <>
       <PageHeader title="Activity Details" description="View and update your activity">
-        <Dialog>
-          <DialogTrigger
-            render={
-              <Button size="lg">
-                <RiAddCircleFill data-icon="inline-start" /> Add Honorarium
-              </Button>
-            }
-          />
-          <DialogContent className="bg-secondary">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-semibold">New Honorarium</DialogTitle>
-              <DialogDescription>
-                Add a new honorarium by filling out the form below.
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
+        <HonorariumDialog />
       </PageHeader>
 
       <Suspense fallback={<ActivitySkeletonCard />}>
