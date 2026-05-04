@@ -1,55 +1,66 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import { formatDateRange } from '@/lib/utils';
+import type { ActivityFullDetail } from '@shared/schemas/activity';
 import { useActivity } from '../hooks';
 
 type ActivityProps = {
   id: number;
 };
 
+type SingleFieldConfig = { key: keyof ActivityFullDetail; label: string };
+
+type MultiFieldConfig = {
+  keys: [keyof ActivityFullDetail, keyof ActivityFullDetail];
+  label: string;
+  format: (val1: string, val2: string) => string;
+};
+
+type ActivityFieldConfig = SingleFieldConfig | MultiFieldConfig;
+
+const isMultiFieldConfig = (field: ActivityFieldConfig): field is MultiFieldConfig =>
+  'keys' in field && 'format' in field;
+
 export default function Activity({ id }: ActivityProps) {
   const { data: activity } = useActivity(id);
 
-  if (!activity) return <div>Activity not found</div>;
+  // eslint-disable-next-line unicorn/no-null
+  if (!activity) return null;
+
+  // Define activity fields for dynamic rendering
+  const activityFields: ActivityFieldConfig[] = [
+    { key: 'code', label: 'Code' },
+    {
+      keys: ['startDate', 'endDate'],
+      label: 'Date Range',
+      format: (startDate: string, endDate: string) => formatDateRange(startDate, endDate),
+    },
+    { key: 'venue', label: 'Venue' },
+    { key: 'location', label: 'Location' },
+    { key: 'focal', label: 'Focal Person' },
+    { key: 'focalPosition', label: 'Position' },
+  ];
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-2xl">{activity.title}</CardTitle>
+        <CardTitle className="text-xl font-semibold">{activity.title}</CardTitle>
         <div className="text-muted-foreground text-sm">Activity ID: {activity.id}</div>
       </CardHeader>
       <CardContent className="grid gap-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <h3 className="font-medium">Code</h3>
-            <p className="text-muted-foreground">{activity.code}</p>
-          </div>
-
-          <div>
-            <h3 className="font-medium">Date Range</h3>
-            <p className="text-muted-foreground">
-              {formatDateRange(activity.startDate, activity.endDate)}
-            </p>
-          </div>
-
-          <div>
-            <h3 className="font-medium">Venue</h3>
-            <p className="text-muted-foreground">{activity.venue}</p>
-          </div>
-
-          <div>
-            <h3 className="font-medium">Location</h3>
-            <p className="text-muted-foreground">{activity.location}</p>
-          </div>
-
-          <div>
-            <h3 className="font-medium">Focal Person</h3>
-            <p className="text-muted-foreground">{activity.focal}</p>
-          </div>
-
-          <div>
-            <h3 className="font-medium">Position</h3>
-            <p className="text-muted-foreground">{activity.focalPosition}</p>
-          </div>
+          {activityFields.map((field, index) => (
+            <Item className="p-0" key={index}>
+              <ItemContent>
+                <ItemTitle>{field.label}</ItemTitle>
+                <ItemDescription>
+                  {isMultiFieldConfig(field)
+                    ? field.format(String(activity[field.keys[0]]), String(activity[field.keys[1]]))
+                    : String(activity[field.key])}
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          ))}
         </div>
       </CardContent>
     </Card>
