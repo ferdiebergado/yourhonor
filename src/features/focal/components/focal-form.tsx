@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import PositionForm from '@/features/position/components/position-form';
 import PositionInput from '@/features/position/components/position-input';
 import { usePositions } from '@/features/position/hooks';
 import { FocalFormSchema, type FocalFormValues } from '@shared/schemas/focal';
@@ -114,7 +115,7 @@ export default function FocalForm() {
                   {...field}
                   id={field.name}
                   aria-invalid={fieldState.invalid}
-                  placeholder="Simara"
+                  placeholder="Ureta"
                   autoComplete="off"
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -149,12 +150,15 @@ export default function FocalForm() {
             render={({ field, fieldState }) => (
               <Field orientation="responsive" data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Position</FieldLabel>
-                <PositionInput
-                  field={field}
-                  fieldState={fieldState}
-                  isLoading={isLoadingPositions}
-                  positions={positions ?? []}
-                />
+                <div className="flex gap-2">
+                  <PositionInput
+                    field={field}
+                    fieldState={fieldState}
+                    isLoading={isLoadingPositions}
+                    positions={positions ?? []}
+                  />
+                  <PositionForm />
+                </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
