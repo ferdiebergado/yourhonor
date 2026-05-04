@@ -32,7 +32,7 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full bg-white shadow dark:bg-neutral-900 dark:text-white">
+    <header className="bg-background w-full shadow">
       <div className="flex items-center justify-between px-8 py-4 md:mx-auto md:max-w-5xl">
         <h1 className="font-heading text-2xl font-bold">{config.appTitle}</h1>
 
