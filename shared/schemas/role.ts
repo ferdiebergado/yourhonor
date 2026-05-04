@@ -21,3 +21,16 @@ export type Role = z.infer<typeof RoleSchema>;
 export type CreateRole = z.infer<typeof CreateRoleSchema>;
 
 export const RoleIdSchema = RoleSchema.pick({ id: true });
+
+export const RoleBaseSchema = RoleSchema.pick({
+  id: true,
+  name: true,
+});
+
+export type RoleBase = z.infer<typeof RoleBaseSchema>;
+
+export const RoleFormSchema = RoleSchema.pick({
+  name: true,
+});
+
+export type RoleFormValues = z.infer<typeof RoleFormSchema>;
