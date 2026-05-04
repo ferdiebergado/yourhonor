@@ -11,7 +11,7 @@ import {
 export default function Dashboard() {
   return (
     <>
-      <div className="flex items-center justify-between gap-5 px-7 py-5">
+      <div className="flex items-center justify-between gap-5 p-5">
         <div>
           <h1 className="font-heading text-2xl font-semibold">Dashboard</h1>
           <p className="text-muted-foreground">Overview of activities</p>

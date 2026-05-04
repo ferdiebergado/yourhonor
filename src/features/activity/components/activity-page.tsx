@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -19,7 +18,7 @@ export default function ActivityPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-5 px-7 py-5">
+      <div className="flex items-center justify-between gap-5 p-5">
         <div>
           <h1 className="font-heading text-2xl font-semibold">Activity Details</h1>
           <p className="text-muted-foreground">View and update your activity</p>
@@ -43,13 +42,9 @@ export default function ActivityPage() {
         </Dialog>
       </div>
 
-      <Card className="w-full">
-        <CardContent>
-          <Suspense fallback={<ActivitySkeletonCard />}>
-            <Activity id={Number(params.id)} />
-          </Suspense>
-        </CardContent>
-      </Card>
+      <Suspense fallback={<ActivitySkeletonCard />}>
+        <Activity id={Number(params.id)} />
+      </Suspense>
     </>
   );
 }
