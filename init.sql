@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS banks (
 );
 
 -- Payee bank accounts
-CREATE TABLE IF NOT EXISTS payee_bank_accounts (
+CREATE TABLE IF NOT EXISTS accounts (
   id INTEGER PRIMARY KEY,
   payee_id INTEGER NOT NULL,
   bank_id INTEGER NOT NULL,
@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 -- Honoraria
-CREATE TABLE IF NOT EXISTS honorarium (
+CREATE TABLE IF NOT EXISTS honoraria (
   id INTEGER PRIMARY KEY,
   activity_id INTEGER NOT NULL,
   payee_id INTEGER NOT NULL,
@@ -236,6 +236,7 @@ CREATE TABLE IF NOT EXISTS honorarium (
   hours_rendered REAL NOT NULL,
   actual REAL NOT NULL,
   net REAL NOT NULL,
+  account_id INTEGER NOT NULL,
   tin_id INTEGER NOT NULL,
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
@@ -245,6 +246,7 @@ CREATE TABLE IF NOT EXISTS honorarium (
   FOREIGN KEY (activity_id) REFERENCES activities (id),
   FOREIGN KEY (role_id) REFERENCES roles (id),
   FOREIGN KEY (payee_id) REFERENCES payees (id),
+  FOREIGN KEY (account_id) REFERENCES accounts (id),
   FOREIGN KEY (tin_id) REFERENCES tins (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id)
