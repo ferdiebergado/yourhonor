@@ -1,5 +1,5 @@
 import { getDb } from '@backend/db';
-import { createFocal } from '@backend/focal/repo';
+import { createFocal } from '@backend/features/focal/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';

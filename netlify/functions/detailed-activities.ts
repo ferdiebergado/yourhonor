@@ -1,5 +1,5 @@
-import { findActiveActivitiesDetailedByUser } from '@backend/activity/repo';
 import { getDb } from '@backend/db';
+import { findActiveActivitiesDetailedByUser } from '@backend/features/activity/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';

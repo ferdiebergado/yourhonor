@@ -1,7 +1,7 @@
 import { getDb } from '@backend/db';
+import { findActiveVenues } from '@backend/features/venue/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
-import { findActiveVenues } from '@backend/venue/repo';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {

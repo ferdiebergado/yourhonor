@@ -1,5 +1,5 @@
-import { createActivity } from '@backend/activity/repo';
 import { getDb } from '@backend/db';
+import { createActivity } from '@backend/features/activity/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';

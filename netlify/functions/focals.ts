@@ -1,5 +1,5 @@
 import { getDb } from '@backend/db';
-import { findActiveFocals } from '@backend/focal/repo';
+import { findActiveFocals } from '@backend/features/focal/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import type { ApiResponse } from '@shared/types';

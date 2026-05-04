@@ -1,7 +1,7 @@
 import { getDb } from '@backend/db';
+import { findActivePositions } from '@backend/features/position/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
-import { findActivePositions } from '@backend/position/repo';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {

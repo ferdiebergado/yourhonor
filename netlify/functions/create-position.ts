@@ -1,7 +1,7 @@
 import { getDb } from '@backend/db';
+import { createPosition } from '@backend/features/position/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
-import { createPosition } from '@backend/position/repo';
 import { getSession } from '@backend/session';
 import { PositionFormSchema, type CreatePosition } from '@shared/schemas/position';
 import type { ApiResponse } from '@shared/types';

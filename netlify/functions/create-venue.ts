@@ -1,8 +1,8 @@
 import { getDb } from '@backend/db';
+import { createVenue } from '@backend/features/venue/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { createVenue } from '@backend/venue/repo';
 import { VenueFormSchema, type CreateVenue, type Venue } from '@shared/schemas/venue';
 import type { ApiResponse } from '@shared/types';
 
