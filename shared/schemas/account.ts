@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-export const PayeeBankAccountSchema = z.object({
+export const AccountSchema = z.object({
   id: z.int().positive(),
   payeeId: z.int().positive(),
   bankId: z.int().positive(),
@@ -13,14 +13,14 @@ export const PayeeBankAccountSchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreatePayeeBankAccountSchema = PayeeBankAccountSchema.omit({
+export const CreateAccountSchema = AccountSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export type PayeeBankAccount = z.infer<typeof PayeeBankAccountSchema>;
-export type CreatePayeeBankAccount = z.infer<typeof CreatePayeeBankAccountSchema>;
+export type Account = z.infer<typeof AccountSchema>;
+export type CreateAccount = z.infer<typeof CreateAccountSchema>;
 
-export const PayeeBankAccountIdSchema = PayeeBankAccountSchema.pick({ id: true });
+export const AccountIdSchema = AccountSchema.pick({ id: true });
