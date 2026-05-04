@@ -202,7 +202,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS tins (
   id INTEGER PRIMARY KEY,
   payee_id INTEGER NOT NULL,
-  tin_number TEXT NOT NULL UNIQUE,
+  tin TEXT NOT NULL UNIQUE,
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
