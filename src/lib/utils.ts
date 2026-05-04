@@ -23,3 +23,6 @@ export function formatDateRange(startDate: string, endDate: string): string {
 
   return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 }
+
+export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
+  `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;
