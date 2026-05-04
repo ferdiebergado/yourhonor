@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import HonorariumForm from '@/features/honorarium/components/honorarium-form';
 
 export default function HonorariumDialog() {
   return (
@@ -25,6 +26,7 @@ export default function HonorariumDialog() {
           <DialogTitle className="text-2xl font-semibold">New Honorarium</DialogTitle>
           <DialogDescription>Add a new honorarium by filling out the form below.</DialogDescription>
         </DialogHeader>
+        <HonorariumForm />
       </DialogContent>
     </Dialog>
   );
