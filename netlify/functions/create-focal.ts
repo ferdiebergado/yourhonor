@@ -3,7 +3,7 @@ import { createFocal } from '@backend/features/focal/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { FocalFormSchema, type CreateFocal, type Focal } from '@shared/schemas/focal';
+import { FocalFormSchema, type CreateFocal } from '@shared/schemas/focal';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -23,7 +23,7 @@ export default async (req: Request) => {
     const db = await getDb();
     await createFocal(db, focal);
 
-    const payload: ApiResponse<Focal> = {
+    const payload: ApiResponse = {
       success: true,
     };
 
