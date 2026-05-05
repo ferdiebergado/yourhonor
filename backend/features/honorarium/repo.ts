@@ -19,6 +19,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     actual,
     net,
     accountId,
-    tinId,
+    // eslint-disable-next-line unicorn/no-null
+    tinId ?? null,
   ]);
 }
