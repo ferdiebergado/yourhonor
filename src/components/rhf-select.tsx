@@ -1,4 +1,4 @@
-import type { ControllerFieldState, ControllerRenderProps } from 'react-hook-form';
+import type { ControllerFieldState, ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 import {
   Select,
@@ -7,28 +7,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 
 type Item = {
   label: string;
   value: string;
 };
 
-type RHFSelectProps = {
-  field: ControllerRenderProps<HonorariumFormValues>;
+type RHFSelectProps<T extends FieldValues> = {
+  field: ControllerRenderProps<T>;
   fieldState: ControllerFieldState;
   isLoading: boolean;
   items: Item[];
   placeholder?: string;
 };
 
-export default function RHFSelect({
+export default function RHFSelect<T extends FieldValues>({
   field,
   fieldState,
   isLoading,
   items,
-  placeholder,
-}: RHFSelectProps) {
+  placeholder = 'Select an item',
+}: RHFSelectProps<T>) {
   return (
     <Select
       items={items}
@@ -37,7 +36,7 @@ export default function RHFSelect({
       onValueChange={field.onChange}
     >
       <SelectTrigger id={field.name} aria-invalid={fieldState.invalid} className="w-full">
-        <SelectValue placeholder={(placeholder ?? isLoading) ? 'Loading...' : 'Select payee'} />
+        <SelectValue placeholder={isLoading ? 'Loading...' : placeholder} />
       </SelectTrigger>
       <SelectContent>
         {items.map(item => (
