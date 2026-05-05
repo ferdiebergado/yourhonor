@@ -21,3 +21,14 @@ export type Bank = z.infer<typeof BankSchema>;
 export type CreateBank = z.infer<typeof CreateBankSchema>;
 
 export const BankIdSchema = BankSchema.pick({ id: true });
+
+export const BankBaseSchema = BankSchema.pick({
+  id: true,
+  name: true,
+});
+
+export type BankBase = z.infer<typeof BankBaseSchema>;
+
+export const BankFormSchema = BankSchema.pick({ name: true });
+
+export type BankFormValues = z.infer<typeof BankFormSchema>;
