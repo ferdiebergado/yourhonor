@@ -14,8 +14,6 @@ import PayeeForm from '@/features/payee/components/payee-form';
 import { useActivePayees } from '@/features/payee/hooks';
 import RoleForm from '@/features/role/components/role-form';
 import { useActiveRoles } from '@/features/role/hooks';
-import TinForm from '@/features/tin/components/tin-form';
-import { useActiveTINs } from '@/features/tin/hooks';
 import { getFullName } from '@/lib/utils';
 import { HonorariumFormSchema, type HonorariumFormValues } from '@shared/schemas/honorarium';
 import { useCreateHonorarium } from '../hooks';
@@ -23,7 +21,6 @@ import { useCreateHonorarium } from '../hooks';
 export default function HonorariumForm() {
   const { isLoading: isFetchingPayees, data: payees } = useActivePayees();
   const { isLoading: isFetchingRoles, data: roles } = useActiveRoles();
-  const { isLoading: isFetchingTINs, data: tins } = useActiveTINs();
   const { isLoading: isFetchingAccounts, data: accounts } = useActiveAccounts();
 
   const { isPending, mutate: createHonorarium } = useCreateHonorarium();
@@ -33,8 +30,6 @@ export default function HonorariumForm() {
 
   const roleItems = roles?.map(({ id, name }) => ({ label: name, value: id.toString() })) ?? [];
 
-  const tinItems = tins?.map(({ id, tin }) => ({ label: tin, value: id.toString() })) ?? [];
-
   const form = useForm<HonorariumFormValues>({
     resolver: zodResolver(HonorariumFormSchema),
     defaultValues: {
@@ -43,7 +38,6 @@ export default function HonorariumForm() {
       roleId: 0,
       amount: 0,
       hoursRendered: 0,
-      tinId: '',
       accountId: 0,
     },
   });
@@ -74,6 +68,7 @@ export default function HonorariumForm() {
                       fieldState={fieldState}
                       items={payeeItems}
                       isLoading={isFetchingPayees}
+                      placeholder="Select a payee..."
                     />
                     <PayeeForm />
                   </div>
@@ -94,6 +89,7 @@ export default function HonorariumForm() {
                       fieldState={fieldState}
                       items={roleItems}
                       isLoading={isFetchingRoles}
+                      placeholder="Select a role..."
                     />
                     <RoleForm />
                   </div>
@@ -143,26 +139,6 @@ export default function HonorariumForm() {
                 )}
               />
             </div>
-
-            <Controller
-              name="tinId"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>TIN</FieldLabel>
-                  <div className="flex gap-2">
-                    <RHFSelect
-                      field={field}
-                      fieldState={fieldState}
-                      items={tinItems}
-                      isLoading={isFetchingTINs}
-                    />
-                    <TinForm />
-                  </div>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
 
             <Controller
               name="accountId"

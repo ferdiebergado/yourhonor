@@ -3,6 +3,7 @@ import { RiAddLargeLine } from '@remixicon/react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import FormButtons from '@/components/form-buttons';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ export default function PayeeForm() {
       firstname: '',
       mi: '',
       lastname: '',
+      tin: '',
     },
   });
 
@@ -112,15 +114,31 @@ export default function PayeeForm() {
               </Field>
             )}
           />
+
+          <Controller
+            name="tin"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel htmlFor={field.name} className="w-1/2">
+                  Tax Identification Number (TIN)
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                  placeholder="123456789"
+                  autoComplete="off"
+                  value={field.value ?? ''}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
         </FieldGroup>
 
         <Field orientation="horizontal" className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
-          </Button>
-          <Button type="button" onClick={form.handleSubmit(handleSubmit)} disabled={isPending}>
-            {isPending ? 'Saving...' : 'Submit'}
-          </Button>
+          <FormButtons form={form} onSubmit={handleSubmit} isPending={isPending} />
         </Field>
       </PopoverContent>
     </Popover>

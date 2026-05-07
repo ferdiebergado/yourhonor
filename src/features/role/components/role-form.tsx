@@ -58,13 +58,13 @@ export default function RoleForm() {
             render={({ field, fieldState }) => (
               <Field>
                 <FieldLabel htmlFor={field.name} className="w-1/2">
-                  First Name
+                  Role
                 </FieldLabel>
                 <Input
                   {...field}
                   id={field.name}
                   aria-invalid={fieldState.invalid}
-                  placeholder="Bryan"
+                  placeholder="Resource Person"
                   autoComplete="off"
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

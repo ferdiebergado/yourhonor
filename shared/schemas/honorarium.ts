@@ -9,7 +9,6 @@ export const HonorariumSchema = z.object({
   hoursRendered: z.coerce.number<number>().positive('Hours rendered is required'),
   actual: z.number(),
   net: z.number(),
-  tinId: z.string().optional().nullable(),
   accountId: z.coerce.number<number>().positive('Bank account is required.'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
@@ -28,15 +27,12 @@ export const CreateHonorariumSchema = HonorariumSchema.omit({
 export type Honorarium = z.infer<typeof HonorariumSchema>;
 export type CreateHonorarium = z.infer<typeof CreateHonorariumSchema>;
 
-export const HonorariumIdSchema = HonorariumSchema.pick({ id: true });
-
 export const HonorariumFormSchema = HonorariumSchema.pick({
   activityId: true,
   payeeId: true,
   roleId: true,
   amount: true,
   hoursRendered: true,
-  tinId: true,
   accountId: true,
 });
 

@@ -72,22 +72,6 @@ CREATE TABLE IF NOT EXISTS positions (
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );
 
--- Focal person positions
-CREATE TABLE IF NOT EXISTS focal_positions (
-  id INTEGER PRIMARY KEY,
-  focal_id INTEGER NOT NULL,
-  position_id INTEGER NOT NULL,
-  created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
-  updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
-  deleted_at TEXT,
-  created_by INTEGER NOT NULL,
-  updated_by INTEGER NOT NULL,
-  FOREIGN KEY (focal_id) REFERENCES focals (id),
-  FOREIGN KEY (position_id) REFERENCES positions (id),
-  FOREIGN KEY (created_by) REFERENCES users (id),
-  FOREIGN KEY (updated_by) REFERENCES users (id)
-);
-
 -- Activities
 CREATE TABLE IF NOT EXISTS activities (
   id INTEGER PRIMARY KEY,
@@ -129,6 +113,7 @@ CREATE TABLE IF NOT EXISTS payees (
   firstname TEXT NOT NULL,
   mi TEXT,
   lastname TEXT NOT NULL,
+  tin TEXT,
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
@@ -198,21 +183,6 @@ CREATE TABLE IF NOT EXISTS accounts (
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );
 
--- TIN
-CREATE TABLE IF NOT EXISTS tins (
-  id INTEGER PRIMARY KEY,
-  payee_id INTEGER NOT NULL,
-  tin TEXT NOT NULL UNIQUE,
-  created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
-  updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
-  deleted_at TEXT,
-  created_by INTEGER NOT NULL,
-  updated_by INTEGER NOT NULL,
-  FOREIGN KEY (payee_id) REFERENCES payees (id),
-  FOREIGN KEY (created_by) REFERENCES users (id),
-  FOREIGN KEY (updated_by) REFERENCES users (id)
-);
-
 -- Roles
 CREATE TABLE IF NOT EXISTS roles (
   id INTEGER PRIMARY KEY,
@@ -237,7 +207,6 @@ CREATE TABLE IF NOT EXISTS honoraria (
   actual REAL NOT NULL,
   net REAL NOT NULL,
   account_id INTEGER NOT NULL,
-  tin_id INTEGER NOT NULL,
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
@@ -247,7 +216,6 @@ CREATE TABLE IF NOT EXISTS honoraria (
   FOREIGN KEY (role_id) REFERENCES roles (id),
   FOREIGN KEY (payee_id) REFERENCES payees (id),
   FOREIGN KEY (account_id) REFERENCES accounts (id),
-  FOREIGN KEY (tin_id) REFERENCES tins (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );

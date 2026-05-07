@@ -5,6 +5,7 @@ export const PayeeSchema = z.object({
   firstname: z.string().min(1, 'Firstname is required'),
   mi: z.string().optional().nullable(),
   lastname: z.string().min(1, 'Lastname is required'),
+  tin: z.string().optional().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
@@ -22,12 +23,11 @@ export const CreatePayeeSchema = PayeeSchema.omit({
 export type Payee = z.infer<typeof PayeeSchema>;
 export type CreatePayee = z.infer<typeof CreatePayeeSchema>;
 
-export const PayeeIdSchema = PayeeSchema.pick({ id: true });
-
 export const PayeeFormSchema = PayeeSchema.pick({
   firstname: true,
   mi: true,
   lastname: true,
+  tin: true,
 });
 
 export type PayeeFormValues = z.infer<typeof PayeeFormSchema>;
