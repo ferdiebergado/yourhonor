@@ -4,10 +4,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import HonorariumTable from '@/features/honorarium/components/honorarium-table';
 import SkeletonHonorariumTable from '@/features/honorarium/components/skeleton-honorarium-table';
-import { useActiveHonoraria, useGenCert } from '@/features/honorarium/hooks';
-import { formatDateRange } from '@/lib/utils';
+import { useActiveHonoraria, useGenCert, useGenComp } from '@/features/honorarium/hooks';
 import type { ActivityFullDetail } from '@shared/schemas/activity';
+import { toDateRange } from '@shared/utils';
 import { Suspense } from 'react';
+import { toast } from 'sonner';
 import { useActivity, useActivityCode } from '../hooks';
 
 type SingleFieldConfig = { key: keyof ActivityFullDetail; label: string };
@@ -28,6 +29,7 @@ export default function Activity() {
   const { data: activity } = useActivity(activityCode);
   const { data: honoraria } = useActiveHonoraria(activityCode);
   const { isPending: isGeneratingCert, mutate: genCert } = useGenCert();
+  const { isPending: isGeneratingComp, mutate: genComp } = useGenComp();
 
   // eslint-disable-next-line unicorn/no-null
   if (!activity) return null;
@@ -38,7 +40,7 @@ export default function Activity() {
     {
       keys: ['startDate', 'endDate'],
       label: 'Date Range',
-      format: (startDate: string, endDate: string) => formatDateRange(startDate, endDate),
+      format: (startDate: string, endDate: string) => toDateRange(startDate, endDate),
     },
     { key: 'venue', label: 'Venue' },
     { key: 'location', label: 'Location' },
@@ -81,10 +83,31 @@ export default function Activity() {
           </Suspense>
         </CardContent>
         {honoraria && honoraria.length > 0 && (
-          <CardFooter>
-            <Button onClick={() => genCert(activityCode)} disabled={isGeneratingCert}>
-              {isGeneratingCert ? <Spinner /> : 'Certification'}
+          <CardFooter className="flex gap-3">
+            <Button
+              className="w-35"
+              onClick={() =>
+                genCert(activityCode, {
+                  onSuccess: () => toast.success('Certification generated.'),
+                })
+              }
+              disabled={isGeneratingCert}
+            >
+              {isGeneratingCert ? <Spinner text="Generating..." /> : 'Certification'}
             </Button>
+
+            <Button
+              className="w-35"
+              onClick={() =>
+                genComp(activityCode, { onSuccess: () => toast.success('Computation generated.') })
+              }
+              disabled={isGeneratingComp}
+            >
+              {isGeneratingComp ? <Spinner text="Generating..." /> : 'Computation'}
+            </Button>
+
+            <Button className="w-35">ORS/DV</Button>
+            <Button className="w-35">Payroll</Button>
           </CardFooter>
         )}
       </Card>
