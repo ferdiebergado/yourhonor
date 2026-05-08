@@ -31,11 +31,12 @@ export async function generateCertification(data: HonorariumDetail[]): Promise<C
 
   const patchedDocs = await Promise.all(patchDocs);
 
-  const doc = patchedDocs.reduce((acc, curr) => {
-    const merged = mergeDocx(acc, curr, { insertEnd: true });
+  let doc = firstCert;
+  for (const curr of patchedDocs) {
+    const merged = mergeDocx(doc, curr, { insertEnd: true });
     if (!merged) throw new Error('failed to merge documents');
-    return merged;
-  }, firstCert);
+    doc = merged;
+  }
 
   return { doc, filename };
 }
