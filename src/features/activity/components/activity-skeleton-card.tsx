@@ -1,16 +1,12 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
+import { Item, ItemContent } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ItemSkeleton = () => (
   <Item>
     <ItemContent className="space-y-1">
-      <ItemTitle>
-        <Skeleton className="h-5 w-30" />
-      </ItemTitle>
-      <ItemDescription>
-        <Skeleton className="h-5 w-60" />
-      </ItemDescription>
+      <Skeleton className="h-5 w-30" />
+      <Skeleton className="h-5 w-60" />
     </ItemContent>
   </Item>
 );
