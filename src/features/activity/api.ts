@@ -12,4 +12,4 @@ export const fetchDetailedActivities = async () =>
   await api.get<ActivityDetail[]>('/detailed-activities');
 
 export const fetchActivity = async (code: string) =>
-  await api.get<ActivityFullDetail>('/activity?code=' + code);
+  await api.get<ActivityFullDetail>('/activity?code=' + encodeURIComponent(code));

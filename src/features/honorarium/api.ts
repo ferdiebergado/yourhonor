@@ -6,4 +6,5 @@ export const createHonorarium = async (data: HonorariumFormValues) =>
 
 export const fetchActiveHonorariaByActivity = async (
   code: string
-): Promise<HonorariumDetail[] | null> => await api.get('/honoraria?code=' + code);
+): Promise<HonorariumDetail[] | null> =>
+  await api.get('/honoraria?code=' + encodeURIComponent(code));
