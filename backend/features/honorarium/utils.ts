@@ -1,51 +1,5 @@
 import type { IPatch } from 'docx';
 
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-export function toDateRange(startDate: string, endDate: string): string {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  const startMonth = start.getMonth();
-  const endMonth = end.getMonth();
-
-  const startDay = start.getDate();
-  const endDay = end.getDate();
-
-  console.debug('startDay:', startDay, 'endDay:', endDay);
-  const startYear = start.getFullYear();
-  const endYear = end.getFullYear();
-
-  if (startYear === endYear) {
-    if (startMonth === endMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${endDay.toString()}, ${startYear.toString()}`;
-    } else if (endMonth > startMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${months[endMonth]} ${endDay.toString()}, ${startYear.toString()}`;
-    }
-  } else if (endYear > startYear) {
-    if (startMonth === endMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${endDay.toString()}, ${endYear.toString()}`;
-    } else if (endMonth > startMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${months[endMonth]} ${endDay.toString()}, ${endYear.toString()}`;
-    }
-  }
-
-  throw new Error('invalid date range');
-}
-
 export async function amountToWords(amount: number): Promise<string> {
   const { ToWords } = await import('to-words');
 

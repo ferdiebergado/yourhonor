@@ -20,7 +20,7 @@ export const snakeToCamel = <T extends Record<string, unknown>>(
   return result as CamelCasedProperties<T>;
 };
 
-const getMaxSalary = (salary: number) => Math.min(SG29, salary);
+export const getMaxSalary = (salary: number) => Math.min(SG29, salary);
 
 export function computeHonorarium(
   gross: number,
@@ -53,7 +53,53 @@ export const formatAmount = (amount: number) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'PHP',
+    currencyDisplay: 'code',
   }).format(amount);
 
 export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
   `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;
+
+export function toDateRange(startDate: string, endDate: string): string {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  const startMonth = start.getMonth();
+  const endMonth = end.getMonth();
+
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+
+  const startYear = start.getFullYear();
+  const endYear = end.getFullYear();
+
+  if (startYear === endYear) {
+    if (startMonth === endMonth) {
+      return `${months[startMonth]} ${startDay.toString()}-${endDay.toString()}, ${startYear.toString()}`;
+    } else if (endMonth > startMonth) {
+      return `${months[startMonth]} ${startDay.toString()}-${months[endMonth]} ${endDay.toString()}, ${startYear.toString()}`;
+    }
+  } else if (endYear > startYear) {
+    if (startMonth === endMonth) {
+      return `${months[startMonth]} ${startDay.toString()}-${endDay.toString()}, ${endYear.toString()}`;
+    } else if (endMonth > startMonth) {
+      return `${months[startMonth]} ${startDay.toString()}-${months[endMonth]} ${endDay.toString()}, ${endYear.toString()}`;
+    }
+  }
+
+  throw new Error('invalid date range');
+}
