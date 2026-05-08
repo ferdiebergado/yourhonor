@@ -7,8 +7,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useActivityCode } from '@/features/activity/hooks';
-import { getFullName } from '@/lib/utils';
-import { formatAmount } from '@shared/utils';
+import { formatAmount, getFullName } from '@shared/utils';
 import { useActiveHonoraria } from '../hooks';
 
 export default function HonorariumTable() {
@@ -37,7 +36,7 @@ export default function HonorariumTable() {
             <TableCell className="font-medium">{getFullName(honorarium)}</TableCell>
             <TableCell className="font-medium">{honorarium.role}</TableCell>
             <TableCell className="font-medium">{formatAmount(honorarium.amount)}</TableCell>
-            <TableCell className="font-medium">{honorarium.hoursRendered.toFixed(2)}</TableCell>
+            <TableCell className="font-medium">{honorarium.hoursRendered}</TableCell>
             <TableCell className="font-medium">{formatAmount(honorarium.actual)}</TableCell>
             <TableCell className="font-medium">{honorarium.taxRate.toFixed(2)}%</TableCell>
             <TableCell className="font-medium">{formatAmount(honorarium.net)}</TableCell>

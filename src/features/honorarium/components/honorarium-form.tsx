@@ -17,9 +17,8 @@ import PayeeForm from '@/features/payee/components/payee-form';
 import { useActivePayees } from '@/features/payee/hooks';
 import RoleForm from '@/features/role/components/role-form';
 import { useActiveRoles } from '@/features/role/hooks';
-import { getFullName } from '@/lib/utils';
 import { HonorariumFormSchema, type HonorariumFormValues } from '@shared/schemas/honorarium';
-import { computeHonorarium, formatAmount } from '@shared/utils';
+import { computeHonorarium, formatAmount, getFullName } from '@shared/utils';
 import { useEffect } from 'react';
 import { useCreateHonorarium } from '../hooks';
 
@@ -166,7 +165,7 @@ export default function HonorariumForm() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field className="w-1/2" data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Monthly basic salary</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Basic Monthly Salary</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -207,7 +206,7 @@ export default function HonorariumForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field className="w-1/2" data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Tax rate (%)</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Tax Rate (%)</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
@@ -227,7 +226,7 @@ export default function HonorariumForm() {
               <Item className="p-0">
                 <ItemContent>
                   <ItemTitle className="text-balance">Hours Rendered</ItemTitle>
-                  <ItemDescription>{hoursRendered.toFixed(2)}</ItemDescription>
+                  <ItemDescription>{hoursRendered}</ItemDescription>
                 </ItemContent>
               </Item>
               <Item className="p-0">

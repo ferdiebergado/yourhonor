@@ -29,7 +29,7 @@ export function computeHonorarium(
 ): Pick<NewHonorarium, 'hoursRendered' | 'actual' | 'net'> {
   const maxSalary = getMaxSalary(salary);
 
-  let hoursRendered = 1;
+  let hoursRendered = 0;
   let actual: number;
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -54,3 +54,6 @@ export const formatAmount = (amount: number) =>
     style: 'currency',
     currency: 'PHP',
   }).format(amount);
+
+export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
+  `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;

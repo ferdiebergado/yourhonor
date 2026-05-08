@@ -24,8 +24,5 @@ export function formatDateRange(startDate: string, endDate: string): string {
   return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 }
 
-export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
-  `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;
-
 export const randomBase64 = (length: number) =>
   btoa(String.fromCodePoint(...crypto.getRandomValues(new Uint8Array(length))));

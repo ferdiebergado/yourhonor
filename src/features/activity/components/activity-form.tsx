@@ -13,8 +13,8 @@ import FocalForm from '@/features/focal/components/focal-form';
 import { useFocals } from '@/features/focal/hooks';
 import VenueForm from '@/features/venue/components/venue-form';
 import { useVenues } from '@/features/venue/hooks';
-import { getFullName } from '@/lib/utils';
 import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
+import { getFullName } from '@shared/utils';
 import { useCreateActivity } from '../hooks';
 
 export default function ActivityForm() {
