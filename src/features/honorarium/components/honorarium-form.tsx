@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -9,7 +10,6 @@ import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field
 import GenericCombobox from '@/components/ui/generic-combobox';
 import { Input } from '@/components/ui/input';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
-import { Separator } from '@/components/ui/separator';
 import AccountForm from '@/features/account/components/account-form';
 import { useActiveAccounts } from '@/features/account/hooks';
 import { useActivityCode } from '@/features/activity/hooks';
@@ -19,7 +19,6 @@ import RoleForm from '@/features/role/components/role-form';
 import { useActiveRoles } from '@/features/role/hooks';
 import { HonorariumFormSchema, type HonorariumFormValues } from '@shared/schemas/honorarium';
 import { computeHonorarium, formatAmount, getFullName } from '@shared/utils';
-import { useEffect } from 'react';
 import { useCreateHonorarium } from '../hooks';
 
 export default function HonorariumForm() {
@@ -65,9 +64,7 @@ export default function HonorariumForm() {
     });
   };
 
-  useEffect(() => {
-    form.setValue('activityCode', activityCode);
-  }, [activityCode, form]);
+  useEffect(() => form.setValue('activityCode', activityCode), [activityCode, form]);
 
   return (
     <Card className="w-full">
@@ -221,8 +218,7 @@ export default function HonorariumForm() {
               )}
             />
 
-            <Separator />
-            <div className="flex w-full items-end justify-between gap-2 p-0">
+            <div className="flex w-full items-end justify-between gap-2 rounded-md border p-3">
               <Item className="p-0">
                 <ItemContent>
                   <ItemTitle className="text-balance">Hours Rendered</ItemTitle>
@@ -242,7 +238,6 @@ export default function HonorariumForm() {
                 </ItemContent>
               </Item>
             </div>
-            <Separator />
           </FieldGroup>
         </form>
       </CardContent>
