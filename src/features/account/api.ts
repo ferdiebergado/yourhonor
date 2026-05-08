@@ -1,7 +1,7 @@
 import { api } from '@/lib/http-client';
-import type { AccountBase, AccountFormValues } from '@shared/schemas/account';
+import type { AccountDetail, AccountFormValues } from '@shared/schemas/account';
 
-export const fetchActiveAccounts = async (): Promise<AccountBase[] | null> =>
+export const fetchActiveAccounts = async (): Promise<AccountDetail[] | null> =>
   await api.get('/accounts');
 
 export const createAccount = async (data: AccountFormValues): Promise<undefined | null> =>
