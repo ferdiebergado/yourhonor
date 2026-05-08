@@ -80,15 +80,13 @@ export default function Activity() {
             <HonorariumTable />
           </Suspense>
         </CardContent>
-        <CardFooter>
-          {honoraria && (
-            <div>
-              <Button onClick={() => genCert(activityCode)} disabled={isGeneratingCert}>
-                {isGeneratingCert ? <Spinner /> : 'Certification'}
-              </Button>
-            </div>
-          )}
-        </CardFooter>
+        {honoraria && honoraria.length > 0 && (
+          <CardFooter>
+            <Button onClick={() => genCert(activityCode)} disabled={isGeneratingCert}>
+              {isGeneratingCert ? <Spinner /> : 'Certification'}
+            </Button>
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
