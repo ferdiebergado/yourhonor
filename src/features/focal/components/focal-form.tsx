@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddCircleLine } from '@remixicon/react';
+import { RiAddLargeLine } from '@remixicon/react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -51,7 +51,7 @@ export default function FocalForm() {
       <PopoverTrigger
         render={
           <Button variant="outline" title="Add focal person">
-            <RiAddCircleLine />
+            <RiAddLargeLine />
           </Button>
         }
       />
