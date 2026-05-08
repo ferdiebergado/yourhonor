@@ -10,6 +10,8 @@ import { useActivityCode } from '@/features/activity/hooks';
 import { formatAmount, getFullName } from '@shared/utils';
 import { useActiveHonoraria } from '../hooks';
 
+// TODO: Extract table header and row data
+
 export default function HonorariumTable() {
   const code = useActivityCode();
   const { data: honoraria } = useActiveHonoraria(code);
@@ -34,7 +36,13 @@ export default function HonorariumTable() {
         {honoraria && honoraria.length > 0 ? (
           honoraria.map(honorarium => (
             <TableRow key={honorarium.id}>
-              <TableCell>{getFullName(honorarium)}</TableCell>
+              <TableCell>
+                {getFullName({
+                  firstname: honorarium.firstname,
+                  mi: honorarium.mi,
+                  lastname: honorarium.lastname,
+                })}
+              </TableCell>
               <TableCell>{honorarium.role}</TableCell>
               <TableCell className="text-right">{formatAmount(honorarium.amount)}</TableCell>
               <TableCell className="text-right">{honorarium.hoursRendered}</TableCell>
@@ -44,7 +52,9 @@ export default function HonorariumTable() {
             </TableRow>
           ))
         ) : (
-          <TableCell className="text-muted-foreground">No records found.</TableCell>
+          <TableRow>
+            <TableCell className="text-muted-foreground">No records found.</TableCell>
+          </TableRow>
         )}
       </TableBody>
     </Table>
