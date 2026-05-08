@@ -1,7 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Spinner from '@/components/spinner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import HonorariumTable from '@/features/honorarium/components/honorarium-table';
 import SkeletonHonorariumTable from '@/features/honorarium/components/skeleton-honorarium-table';
+import { useActiveHonoraria, useGenCert } from '@/features/honorarium/hooks';
 import { formatDateRange } from '@/lib/utils';
 import type { ActivityFullDetail } from '@shared/schemas/activity';
 import { Suspense } from 'react';
@@ -23,6 +26,8 @@ const isMultiFieldConfig = (field: ActivityFieldConfig): field is MultiFieldConf
 export default function Activity() {
   const activityCode = useActivityCode();
   const { data: activity } = useActivity(activityCode);
+  const { data: honoraria } = useActiveHonoraria(activityCode);
+  const { isPending: isGeneratingCert, mutate: genCert } = useGenCert();
 
   // eslint-disable-next-line unicorn/no-null
   if (!activity) return null;
@@ -75,6 +80,15 @@ export default function Activity() {
             <HonorariumTable />
           </Suspense>
         </CardContent>
+        <CardFooter>
+          {honoraria && (
+            <div>
+              <Button onClick={() => genCert(activityCode)} disabled={isGeneratingCert}>
+                {isGeneratingCert ? <Spinner /> : 'Certification'}
+              </Button>
+            </div>
+          )}
+        </CardFooter>
       </Card>
     </div>
   );

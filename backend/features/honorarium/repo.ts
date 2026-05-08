@@ -49,16 +49,24 @@ export async function findActiveHonorariaPerActivity(
 ): Promise<HonorariumDetail[]> {
   const sql = `
 SELECT
-  h.id id, h.salary salary, h.amount amount, h.tax_rate tax_rate, h.hours_rendered hours_rendered, h.actual actual, h.net net,
+  h.id id, h.activity_code activity_code, h.salary salary, h.amount amount, h.tax_rate tax_rate, h.hours_rendered hours_rendered, h.actual actual, h.net net,
   p.firstname firstname, p.mi mi, p.lastname lastname, p.tin tin,
   r.name role,
   b.name bank,
-  a.branch branch, a.account_number account_number
+  a.branch branch, a.account_number account_number,
+  act.title activityTitle, act.start_date start_date, act.end_date end_date,
+  v.name venue,
+  f.firstname focal_firstname, f.mi focal_mi, f.lastname focal_lastname,
+  pos.name position
 FROM honoraria h
 LEFT JOIN payees p ON p.id = h.payee_id
 LEFT JOIN roles r ON r.id = h.role_id
 LEFT JOIN accounts a ON a.id = h.account_id
+LEFT JOIN activities act ON act.code = h.activity_code
+JOIN focals f ON f.id = act.focal_id
 JOIN banks b ON b.id = a.bank_id
+JOIN venues v ON v.id = act.venue_id
+JOIN positions pos ON pos.id = f.position_id
 WHERE h.activity_code = ? AND h.deleted_at IS NULL
 ORDER BY firstname
   `;
