@@ -5,14 +5,15 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import GenericCombobox from '@/components/ui/generic-combobox';
 import { Input } from '@/components/ui/input';
+import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import { Textarea } from '@/components/ui/textarea';
 import FocalForm from '@/features/focal/components/focal-form';
-import FocalInput from '@/features/focal/components/focal-input';
 import { useFocals } from '@/features/focal/hooks';
 import VenueForm from '@/features/venue/components/venue-form';
-import VenueInput from '@/features/venue/components/venue-input';
 import { useVenues } from '@/features/venue/hooks';
+import { getFullName } from '@/lib/utils';
 import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
 import { useCreateActivity } from '../hooks';
 
@@ -80,14 +81,24 @@ export default function ActivityForm() {
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>Venue</FieldLabel>
                     <div className="flex gap-2">
-                      <VenueInput
+                      <GenericCombobox
                         id={field.name}
                         className="flex-1"
-                        value={selectedVenue}
-                        onValueChange={venue => field.onChange(venue?.id ?? 0)}
+                        items={venues ?? []}
                         aria-invalid={fieldState.invalid}
                         placeholder={isFetchingVenues ? 'Loading venues…' : 'Select a venue'}
-                        venues={venues ?? []}
+                        itemToStringLabel={item => item.name}
+                        itemToStringValue={item => item.id.toString()}
+                        value={selectedVenue}
+                        onValueChange={venue => field.onChange(venue?.id ?? 0)}
+                        renderItem={item => (
+                          <Item size="xs" className="p-0">
+                            <ItemContent>
+                              <ItemTitle className="whitespace-nowrap">{item.name}</ItemTitle>
+                              <ItemDescription>{item.location}</ItemDescription>
+                            </ItemContent>
+                          </Item>
+                        )}
                         disabled={isFetchingVenues}
                       />
                       <VenueForm />
@@ -163,15 +174,27 @@ export default function ActivityForm() {
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>Focal Person</FieldLabel>
                     <div className="flex gap-2">
-                      <FocalInput
+                      <GenericCombobox
                         id={field.name}
                         className="flex-1"
+                        aria-invalid={fieldState.invalid}
+                        items={focals ?? []}
+                        itemToStringLabel={item => getFullName(item)}
+                        itemToStringValue={item => item.id.toString()}
                         value={selectedFocal}
                         onValueChange={focal => field.onChange(focal?.id ?? 0)}
-                        aria-invalid={fieldState.invalid}
                         placeholder={isFetchingFocals ? 'Loading focals…' : 'Select a focal'}
-                        focals={focals ?? []}
                         disabled={isFetchingFocals}
+                        renderItem={item => (
+                          <Item size="xs" className="p-0">
+                            <ItemContent>
+                              <ItemTitle className="whitespace-nowrap">
+                                {getFullName(item)}
+                              </ItemTitle>
+                              <ItemDescription>{item.position}</ItemDescription>
+                            </ItemContent>
+                          </Item>
+                        )}
                       />
                       <FocalForm />
                     </div>
