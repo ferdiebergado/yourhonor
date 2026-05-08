@@ -2,7 +2,8 @@ import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, getFullName, getMaxSalary, toDateRange } from '@shared/utils';
 import { certification } from './certification';
 import { computation } from './computation';
-import { amountToWords, patchDoc } from './utils';
+import { ors } from './ors';
+import { amountToWords, parseActivityCode, patchDoc } from './utils';
 
 type Document = {
   filename: string;
@@ -178,4 +179,47 @@ export function createCompPatches(honorarium: HonorariumDetail): ComputationPatc
   };
 
   return tags;
+}
+
+export async function createORS(honorarium: HonorariumDetail[]) {
+  const Excel = await import('exceljs');
+  const workbook = new Excel.default.Workbook();
+  const buf = Buffer.from(ors, 'base64');
+  const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+
+  await workbook.xlsx.load(arrayBuffer);
+
+  const orsSheet = workbook.getWorksheet('ORS');
+  if (!orsSheet) throw new Error('Workbook does not have a sheet named ORS.');
+
+  const dvSheet = workbook.getWorksheet('DV');
+  if (!dvSheet) throw new Error('Workbook does not have a sheet named DV.');
+
+  const { firstname, mi, lastname, activityTitle, activityCode, venue, startDate, endDate } =
+    honorarium[0];
+
+  let payee = getFullName({ firstname: firstname, mi: mi, lastname: lastname }).toLocaleUpperCase();
+
+  const numPayees = honorarium.length;
+  let other = 'OTHER';
+  if (numPayees > 2) other += 'S';
+  if (numPayees > 1) payee += ` AND ${(numPayees - 1).toString()} ${other}`;
+
+  orsSheet.getCell('E7').value = payee;
+  dvSheet.getCell('F11').value = payee;
+
+  const dateRange = toDateRange(startDate, endDate);
+
+  const particulars = `To payment of honorarium as Resource Person during the ${activityTitle} held at ${venue} on ${dateRange}`;
+  orsSheet.getCell('E16').value = particulars;
+  dvSheet.getCell('B16').value = particulars;
+
+  const amount = honorarium.reduce((acc, payment) => acc + payment.amount, 0);
+  orsSheet.getCell('N16').value = amount;
+  dvSheet.getCell('AC17').value = amount;
+
+  orsSheet.getCell('E34').value = activityCode;
+  orsSheet.getCell('K16').value = parseActivityCode(activityCode).mfoCode;
+
+  return await workbook.xlsx.writeBuffer();
 }

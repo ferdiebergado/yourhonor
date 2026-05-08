@@ -1,14 +1,15 @@
+import { Suspense } from 'react';
+import { toast } from 'sonner';
+
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import HonorariumTable from '@/features/honorarium/components/honorarium-table';
 import SkeletonHonorariumTable from '@/features/honorarium/components/skeleton-honorarium-table';
-import { useActiveHonoraria, useGenCert, useGenComp } from '@/features/honorarium/hooks';
+import { useActiveHonoraria, useGenCert, useGenComp, useGenORS } from '@/features/honorarium/hooks';
 import type { ActivityFullDetail } from '@shared/schemas/activity';
 import { toDateRange } from '@shared/utils';
-import { Suspense } from 'react';
-import { toast } from 'sonner';
 import { useActivity, useActivityCode } from '../hooks';
 
 type SingleFieldConfig = { key: keyof ActivityFullDetail; label: string };
@@ -30,6 +31,7 @@ export default function Activity() {
   const { data: honoraria } = useActiveHonoraria(activityCode);
   const { isPending: isGeneratingCert, mutate: genCert } = useGenCert();
   const { isPending: isGeneratingComp, mutate: genComp } = useGenComp();
+  const { isPending: isGeneratingORS, mutate: genORS } = useGenORS();
 
   // eslint-disable-next-line unicorn/no-null
   if (!activity) return null;
@@ -106,7 +108,15 @@ export default function Activity() {
               {isGeneratingComp ? <Spinner text="Generating..." /> : 'Computation'}
             </Button>
 
-            <Button className="w-35">ORS/DV</Button>
+            <Button
+              className="w-35"
+              onClick={() =>
+                genORS(activityCode, { onSuccess: () => toast.success('ORS/DV generated.') })
+              }
+              disabled={isGeneratingORS}
+            >
+              {isGeneratingORS ? <Spinner text="Generating..." /> : 'ORS/DV'}
+            </Button>
             <Button className="w-35">Payroll</Button>
           </CardFooter>
         )}
