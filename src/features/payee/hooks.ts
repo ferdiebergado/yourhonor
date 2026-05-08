@@ -1,5 +1,5 @@
 import type { PayeeFormValues } from '@shared/schemas/payee';
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPayee, fetchActivePayees } from './api';
 
 const QUERY_KEYS = {
@@ -21,4 +21,4 @@ const getActivePayeesOptions = () =>
     queryFn: fetchActivePayees,
   });
 
-export const useActivePayees = () => useSuspenseQuery(getActivePayeesOptions());
+export const useActivePayees = () => useQuery(getActivePayeesOptions());

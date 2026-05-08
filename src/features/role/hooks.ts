@@ -1,5 +1,5 @@
 import type { RoleFormValues } from '@shared/schemas/role';
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createRole, fetchActiveRoles } from './api';
 
 const QUERY_KEYS = {
@@ -21,4 +21,4 @@ const getActiveRolesOptions = () =>
     queryFn: fetchActiveRoles,
   });
 
-export const useActiveRoles = () => useSuspenseQuery(getActiveRolesOptions());
+export const useActiveRoles = () => useQuery(getActiveRolesOptions());
