@@ -29,10 +29,7 @@ type GenericComboboxProps<T> = {
 
   /** Custom render function for each item */
   renderItem?: (item: T) => React.ReactNode;
-
-  /** Additional props passed to ComboboxInput */
-  comboboxInputProps?: Omit<ComponentProps<typeof ComboboxInput>, 'value' | 'onValueChange'>;
-};
+} & Omit<ComponentProps<typeof ComboboxInput>, 'value' | 'onValueChange'>;
 
 export default function GenericCombobox<T>({
   items = [],
@@ -41,7 +38,7 @@ export default function GenericCombobox<T>({
   value,
   onValueChange,
   renderItem,
-  comboboxInputProps = {},
+  ...props
 }: GenericComboboxProps<T>) {
   // Default render function if none provided
   const defaultRenderItem = (item: T) => {
@@ -72,7 +69,7 @@ export default function GenericCombobox<T>({
       value={value}
       onValueChange={onValueChange}
     >
-      <ComboboxInput {...comboboxInputProps} />
+      <ComboboxInput {...props} />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
