@@ -1,5 +1,10 @@
 import type { Client } from '@libsql/client';
-import type { NewHonorarium } from '@shared/schemas/honorarium';
+import {
+  HonorariumDetailSchema,
+  type HonorariumDetail,
+  type NewHonorarium,
+} from '@shared/schemas/honorarium';
+import { snakeToCamel } from '@shared/utils';
 
 export async function createHonorarium(db: Client, honorarium: NewHonorarium): Promise<void> {
   const sql = `
@@ -36,4 +41,31 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     createdBy,
     updatedBy,
   ]);
+}
+
+export async function findActiveHonorariaPerActivity(
+  db: Client,
+  activityCode: string
+): Promise<HonorariumDetail[]> {
+  const sql = `
+SELECT
+  h.id id, h.salary salary, h.amount amount, h.tax_rate tax_rate, h.hours_rendered hours_rendered, h.actual actual, h.net net,
+  p.firstname firstname, p.mi mi, p.lastname lastname, p.tin tin,
+  r.name role,
+  b.name bank,
+  a.branch branch, a.account_number account_number
+FROM honoraria h
+LEFT JOIN payees p ON p.id = h.payee_id
+LEFT JOIN roles r ON r.id = h.role_id
+LEFT JOIN accounts a ON a.id = h.account_id
+JOIN banks b ON b.id = a.bank_id
+WHERE h.activity_code = ? AND h.deleted_at IS NULL
+ORDER BY firstname
+  `;
+
+  const { rows } = await db.execute(sql, [activityCode]);
+
+  if (rows.length === 0) return [];
+
+  return rows.map(row => HonorariumDetailSchema.parse(snakeToCamel(row)));
 }

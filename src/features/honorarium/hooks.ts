@@ -1,8 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createHonorarium } from './api';
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { createHonorarium, fetchActiveHonorariaByActivity } from './api';
 
 const QUERY_KEYS = {
   honoraria: ['honoraria'] as const,
+  honorariaByCode: (code: string) => ['honoraria', code],
 };
 
 export function useCreateHonorarium() {
@@ -13,3 +14,12 @@ export function useCreateHonorarium() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.honoraria }),
   });
 }
+
+const fetchActiveHonorariaOptions = (code: string) =>
+  queryOptions({
+    queryKey: QUERY_KEYS.honorariaByCode(code),
+    queryFn: () => fetchActiveHonorariaByActivity(code),
+  });
+
+export const useActiveHonoraria = (code: string) =>
+  useSuspenseQuery(fetchActiveHonorariaOptions(code));

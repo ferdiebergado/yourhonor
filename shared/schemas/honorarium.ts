@@ -41,3 +41,23 @@ export const HonorariumFormSchema = HonorariumRowSchema.pick({
 });
 
 export type HonorariumFormValues = z.infer<typeof HonorariumFormSchema>;
+
+export const HonorariumDetailSchema = HonorariumRowSchema.pick({
+  id: true,
+  salary: true,
+  hoursRendered: true,
+  net: true,
+  amount: true,
+  actual: true,
+  taxRate: true,
+}).extend({
+  bank: z.string(),
+  role: z.string(),
+  firstname: z.string(),
+  mi: z.string(),
+  lastname: z.string(),
+  branch: z.string(),
+  accountNumber: z.string(),
+});
+
+export type HonorariumDetail = z.infer<typeof HonorariumDetailSchema>;
