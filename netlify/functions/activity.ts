@@ -11,14 +11,14 @@ export default async (req: Request) => {
     checkMethod(req, ['GET']);
 
     const schema = z.object({
-      id: z.coerce.number().positive(),
+      code: z.string().min(1, 'Activity code is required.'),
     });
 
-    const { id } = parseSearchParams(req, schema);
+    const { code } = parseSearchParams(req, schema);
 
     const { userId } = await getSession(req);
     const db = await getDb();
-    const data = await findActiveActivityDetailedByUser(db, id, userId);
+    const data = await findActiveActivityDetailedByUser(db, code, userId);
 
     const payload: ApiResponse<typeof data> = {
       success: true,

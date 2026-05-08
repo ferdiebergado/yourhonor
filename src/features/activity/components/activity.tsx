@@ -2,11 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import { formatDateRange } from '@/lib/utils';
 import type { ActivityFullDetail } from '@shared/schemas/activity';
-import { useActivity } from '../hooks';
-
-type ActivityProps = {
-  id: number;
-};
+import { useActivity, useActivityCode } from '../hooks';
 
 type SingleFieldConfig = { key: keyof ActivityFullDetail; label: string };
 
@@ -21,8 +17,9 @@ type ActivityFieldConfig = SingleFieldConfig | MultiFieldConfig;
 const isMultiFieldConfig = (field: ActivityFieldConfig): field is MultiFieldConfig =>
   'keys' in field && 'format' in field;
 
-export default function Activity({ id }: ActivityProps) {
-  const { data: activity } = useActivity(id);
+export default function Activity() {
+  const activityCode = useActivityCode();
+  const { data: activity } = useActivity(activityCode);
 
   // eslint-disable-next-line unicorn/no-null
   if (!activity) return null;

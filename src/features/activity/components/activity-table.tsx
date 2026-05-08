@@ -58,9 +58,7 @@ const columns: ColumnDef<ActivityDetail>[] = [
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                render={
-                  <Link to={`/activity/${activity.id.toString()}`}>View activity details</Link>
-                }
+                render={<Link to={`/activity/${activity.code}`}>View activity details</Link>}
               />
               <DropdownMenuItem>Delete</DropdownMenuItem>
             </DropdownMenuGroup>

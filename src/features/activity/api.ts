@@ -11,5 +11,5 @@ export const createActivity = async (data: ActivityFormValues) =>
 export const fetchDetailedActivities = async () =>
   await api.get<ActivityDetail[]>('/detailed-activities');
 
-export const fetchActivity = async (id: number) =>
-  await api.get<ActivityFullDetail>('/activity?id=' + id.toString());
+export const fetchActivity = async (code: string) =>
+  await api.get<ActivityFullDetail>('/activity?code=' + code);

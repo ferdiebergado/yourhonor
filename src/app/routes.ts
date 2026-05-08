@@ -21,7 +21,7 @@ export const paths = {
   me: '/me',
   bugReport: '/bug-report',
   activities: '/activities',
-  activity: '/activity/:id',
+  activity: '/activity/:code',
 };
 
 export const routes: RouteObject[] = [

@@ -35,7 +35,7 @@ export async function findActiveActivitiesDetailedByUser(
   userId: number
 ): Promise<ActivityDetail[]> {
   const sql = `
-SELECT a.id AS id, a.title AS title, a.start_date AS start_date, a.end_date AS end_date, a.code AS code, v.name AS venue, CONCAT(f.firstname, ' ', f.lastname) focal
+SELECT a.id id, a.title title, a.start_date start_date, a.end_date end_date, a.code code, v.name venue, CONCAT(f.firstname, ' ', f.lastname) focal
 FROM activities a
 LEFT JOIN venues v ON v.id = a.venue_id
 LEFT JOIN focals f ON f.id = a.focal_id
@@ -52,23 +52,23 @@ ORDER BY a.created_at DESC
 
 export async function findActiveActivityDetailedByUser(
   db: Client,
-  id: number,
+  code: string,
   userId: number
 ): Promise<ActivityFullDetail | undefined> {
   const sql = `
 SELECT
-  a.id AS id, a.title AS title, a.start_date AS start_date, a.end_date AS end_date, a.code AS code, a.created_at AS created_at, a.updated_at AS updated_at,
-  v.name AS venue, v.location AS location,
-  CONCAT(f.firstname, ' ', f.lastname) focal, p.name AS focal_position
+  a.id id, a.title title, a.start_date start_date, a.end_date end_date, a.code code, a.created_at created_at, a.updated_at updated_at,
+  v.name venue, v.location location,
+  CONCAT(f.firstname, ' ', f.lastname) focal, p.name focal_position
 FROM activities a
 LEFT JOIN venues v ON v.id = a.venue_id
 LEFT JOIN focals f ON f.id = a.focal_id
 JOIN positions p ON p.id = f.position_id
-WHERE a.deleted_at IS NULL AND a.id = ? AND a.created_by = ?
+WHERE a.deleted_at IS NULL AND a.code = ? AND a.created_by = ?
 LIMIT 1
   `;
 
-  const { rows } = await db.execute(sql, [id, userId]);
+  const { rows } = await db.execute(sql, [code, userId]);
 
   if (rows.length === 0) return;
 

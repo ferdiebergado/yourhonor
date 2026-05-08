@@ -1,23 +1,21 @@
 import { Suspense } from 'react';
-import { useParams } from 'react-router';
 
 import PageHeader from '@/components/page-header';
 import Activity from './activity';
+import ActivityCodeProvider from './activity-provider';
 import ActivitySkeletonCard from './activity-skeleton-card';
 import HonorariumDialog from './honorarium-dialog';
 
 export default function ActivityPage() {
-  const params = useParams();
-
   return (
-    <>
+    <ActivityCodeProvider>
       <PageHeader title="Activity Details" description="View and update your activity">
         <HonorariumDialog />
       </PageHeader>
 
       <Suspense fallback={<ActivitySkeletonCard />}>
-        <Activity id={Number(params.id)} />
+        <Activity />
       </Suspense>
-    </>
+    </ActivityCodeProvider>
   );
 }
