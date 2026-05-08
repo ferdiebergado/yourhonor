@@ -67,6 +67,13 @@ export const HonorariumDetailSchema = HonorariumRowSchema.pick({
   focalMi: z.string().optional().nullable(),
   focalLastname: z.string(),
   position: z.string(),
+  tin: z.string().optional().nullable(),
 });
 
 export type HonorariumDetail = z.infer<typeof HonorariumDetailSchema>;
+
+export const GenerateDocSchema = z.object({
+  code: z.string().min(1, 'Activity code is required.'),
+});
+
+export type GenerateDoc = z.infer<typeof GenerateDocSchema>;
