@@ -1,4 +1,3 @@
-import { mergeDocx } from '@benedicte/docx-merge';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, getFullName } from '@shared/utils';
 import { certification } from './certification';
@@ -10,9 +9,7 @@ type Certification = {
 };
 
 export async function generateCertification(data: HonorariumDetail[]): Promise<Certification> {
-  if (data.length === 0) {
-    throw new Error('cannot generate certification: no data provided');
-  }
+  if (data.length === 0) throw new Error('cannot generate certification: no data provided');
 
   const firstPayment = data[0];
   const filename = 'certification-' + firstPayment.activityCode;
@@ -31,6 +28,7 @@ export async function generateCertification(data: HonorariumDetail[]): Promise<C
 
   const patchedDocs = await Promise.all(patchDocs);
 
+  const { mergeDocx } = await import('@benedicte/docx-merge');
   let doc = firstCert;
   for (const curr of patchedDocs) {
     const merged = mergeDocx(doc, curr, { insertEnd: true });
