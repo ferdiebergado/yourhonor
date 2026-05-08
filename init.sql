@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS roles (
 -- Honoraria
 CREATE TABLE IF NOT EXISTS honoraria (
   id INTEGER PRIMARY KEY,
-  activity_code INTEGER NOT NULL,
+  activity_code TEXT NOT NULL,
   payee_id INTEGER NOT NULL,
   role_id INTEGER NOT NULL,
   salary REAL NOT NULL,
