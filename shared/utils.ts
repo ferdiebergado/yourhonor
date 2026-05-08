@@ -1,7 +1,6 @@
-import { randomBytes } from 'node:crypto';
 import type { CamelCasedProperties } from 'type-fest';
-
-export const randBase64 = (length: number) => randomBytes(length).toString('base64');
+import { SG29 } from './constants';
+import type { NewHonorarium } from './schemas/honorarium';
 
 const snakeKeyToCamelKey = (key: string): string =>
   key.replaceAll(/_([a-z])/g, (_, char: string) => char.toUpperCase());
@@ -20,3 +19,38 @@ export const snakeToCamel = <T extends Record<string, unknown>>(
 
   return result as CamelCasedProperties<T>;
 };
+
+const getMaxSalary = (salary: number) => Math.min(SG29, salary);
+
+export function computeHonorarium(
+  gross: number,
+  salary: number,
+  taxRate: number
+): Pick<NewHonorarium, 'hoursRendered' | 'actual' | 'net'> {
+  const maxSalary = getMaxSalary(salary);
+
+  let hoursRendered = 1;
+  let actual: number;
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  while (true) {
+    actual = 0.023 * maxSalary * hoursRendered;
+
+    if (actual >= gross) break;
+    hoursRendered++;
+  }
+
+  const net = gross - gross * (taxRate / 100);
+
+  return {
+    hoursRendered,
+    actual,
+    net,
+  };
+}
+
+export const formatAmount = (amount: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'PHP',
+  }).format(amount);

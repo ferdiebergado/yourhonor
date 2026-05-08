@@ -1,28 +1,30 @@
 import { getDb } from '@backend/db';
-import { createActivity } from '@backend/features/activity/repo';
+import { createHonorarium } from '@backend/features/honorarium/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { ActivityFormSchema, type CreateActivity } from '@shared/schemas/activity';
+import { HonorariumFormSchema, type NewHonorarium } from '@shared/schemas/honorarium';
 import type { ApiResponse } from '@shared/types';
+import { computeHonorarium } from '@shared/utils';
 
 export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
 
-    const activity = await parseJson(req, ActivityFormSchema);
+    const data = await parseJson(req, HonorariumFormSchema);
 
     const { userId } = await getSession(req);
 
-    const data: CreateActivity = {
-      ...activity,
-      fundSource: 'TODO: create fund source helper',
+    const computed = computeHonorarium(data.amount, data.salary, data.taxRate);
+    const honorarium: NewHonorarium = {
+      ...data,
+      ...computed,
       createdBy: userId,
       updatedBy: userId,
     };
 
     const db = await getDb();
-    await createActivity(db, data);
+    await createHonorarium(db, honorarium);
 
     const payload: ApiResponse = {
       success: true,

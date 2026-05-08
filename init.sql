@@ -199,10 +199,12 @@ CREATE TABLE IF NOT EXISTS roles (
 -- Honoraria
 CREATE TABLE IF NOT EXISTS honoraria (
   id INTEGER PRIMARY KEY,
-  activity_id INTEGER NOT NULL,
+  activity_code INTEGER NOT NULL,
   payee_id INTEGER NOT NULL,
   role_id INTEGER NOT NULL,
+  salary REAL NOT NULL,
   amount REAL NOT NULL,
+  tax_rate REAL NOT NULL,
   hours_rendered REAL NOT NULL,
   actual REAL NOT NULL,
   net REAL NOT NULL,
@@ -212,7 +214,7 @@ CREATE TABLE IF NOT EXISTS honoraria (
   deleted_at TEXT,
   created_by INTEGER NOT NULL,
   updated_by INTEGER NOT NULL,
-  FOREIGN KEY (activity_id) REFERENCES activities (id),
+  FOREIGN KEY (activity_code) REFERENCES activities (code),
   FOREIGN KEY (role_id) REFERENCES roles (id),
   FOREIGN KEY (payee_id) REFERENCES payees (id),
   FOREIGN KEY (account_id) REFERENCES accounts (id),

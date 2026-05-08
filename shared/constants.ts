@@ -7,3 +7,4 @@ export const SESSION = {
   DURATION_MINUTES: 60 * 24 * 30 * 3, // 90 days
   HEADER_NAME: 'x-session-id',
 } as const;
+export const SG29 = 187_531;
