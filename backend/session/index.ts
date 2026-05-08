@@ -1,7 +1,7 @@
+import { randBase64 } from '@backend/utils';
 import { SESSION } from '@shared/constants';
 import type { CreateSession, Session } from '@shared/schemas/session';
 import type { CreateUser } from '@shared/schemas/user';
-import { randBase64 } from '@shared/utils';
 import { getDb } from '../db';
 import { UnauthorizedError } from '../http/errors';
 import { upsertUser } from '../user/repo';
