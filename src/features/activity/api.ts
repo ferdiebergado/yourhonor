@@ -8,8 +8,7 @@ import {
 export const createActivity = async (data: ActivityFormValues) =>
   await api.post('/create-activity', data);
 
-export const fetchDetailedActivities = async () =>
-  await api.get<ActivityDetail[]>('/detailed-activities');
+export const fetchDetailedActivities = async () => await api.get<ActivityDetail[]>('/activities');
 
 export const fetchActivity = async (code: string) =>
   await api.get<ActivityFullDetail>('/activity?code=' + encodeURIComponent(code));
