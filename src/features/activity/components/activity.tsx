@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import HonorariumTable from '@/features/honorarium/components/honorarium-table';
@@ -30,6 +31,20 @@ type ActivityFieldConfig = SingleFieldConfig | MultiFieldConfig;
 
 const isMultiFieldConfig = (field: ActivityFieldConfig): field is MultiFieldConfig =>
   'keys' in field && 'format' in field;
+
+type GeneratorButtonProps = {
+  title: string;
+  isLoading: boolean;
+  onClick: () => void;
+};
+
+function GeneratorButton({ title, isLoading, onClick }: GeneratorButtonProps) {
+  return (
+    <Button variant="outline" className="w-35" onClick={onClick} disabled={isLoading}>
+      {isLoading ? <Spinner text="Generating..." /> : title}
+    </Button>
+  );
+}
 
 export default function Activity() {
   const activityCode = useActivityCode();
@@ -59,6 +74,36 @@ export default function Activity() {
     { key: 'focalPosition', label: 'Position' },
     { key: 'code', label: 'Activity Code' },
     { key: 'fundSource', label: 'Fund Source' },
+  ];
+
+  const buttonData: GeneratorButtonProps[] = [
+    {
+      title: 'Certification',
+      isLoading: isGeneratingCert,
+      onClick: () =>
+        genCert(activityCode, {
+          onSuccess: () => toast.success('Certification generated.'),
+        }),
+    },
+    {
+      title: 'Computation',
+      isLoading: isGeneratingComp,
+      onClick: () =>
+        genComp(activityCode, {
+          onSuccess: () => toast.success('Computation generated.'),
+        }),
+    },
+    {
+      title: 'ORS/DV',
+      isLoading: isGeneratingORS,
+      onClick: () => genORS(activityCode, { onSuccess: () => toast.success('ORS/DV generated.') }),
+    },
+    {
+      title: 'Payroll',
+      isLoading: isGeneratingPayroll,
+      onClick: () =>
+        genPayroll(activityCode, { onSuccess: () => toast.success('Payroll generated.') }),
+    },
   ];
 
   return (
@@ -95,47 +140,17 @@ export default function Activity() {
           </Suspense>
         </CardContent>
         {honoraria && honoraria.length > 0 && (
-          <CardFooter className="flex gap-3">
-            <Button
-              className="w-35"
-              onClick={() =>
-                genCert(activityCode, {
-                  onSuccess: () => toast.success('Certification generated.'),
-                })
-              }
-              disabled={isGeneratingCert}
-            >
-              {isGeneratingCert ? <Spinner text="Generating..." /> : 'Certification'}
-            </Button>
-
-            <Button
-              className="w-35"
-              onClick={() =>
-                genComp(activityCode, { onSuccess: () => toast.success('Computation generated.') })
-              }
-              disabled={isGeneratingComp}
-            >
-              {isGeneratingComp ? <Spinner text="Generating..." /> : 'Computation'}
-            </Button>
-
-            <Button
-              className="w-35"
-              onClick={() =>
-                genORS(activityCode, { onSuccess: () => toast.success('ORS/DV generated.') })
-              }
-              disabled={isGeneratingORS}
-            >
-              {isGeneratingORS ? <Spinner text="Generating..." /> : 'ORS/DV'}
-            </Button>
-            <Button
-              className="w-35"
-              onClick={() =>
-                genPayroll(activityCode, { onSuccess: () => toast.success('Payroll generated.') })
-              }
-              disabled={isGeneratingPayroll}
-            >
-              {isGeneratingPayroll ? <Spinner text="Generating..." /> : 'Payroll'}
-            </Button>
+          <CardFooter className="flex justify-center p-3">
+            <ButtonGroup>
+              {buttonData.map(({ title, isLoading, onClick }) => (
+                <GeneratorButton
+                  key={title}
+                  title={title}
+                  isLoading={isLoading}
+                  onClick={onClick}
+                />
+              ))}
+            </ButtonGroup>
           </CardFooter>
         )}
       </Card>
