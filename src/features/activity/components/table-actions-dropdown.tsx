@@ -1,3 +1,6 @@
+import { Link } from 'react-router';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,13 +13,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { RiDeleteBinLine, RiFileCopyLine, RiInformationLine, RiMore2Fill } from '@remixicon/react';
 import type { ActivityDetail } from '@shared/schemas/activity';
-import { Link } from 'react-router';
 
 type TableActionsDropdownProps = {
   activity: ActivityDetail;
 };
 
 export default function TableActionsDropdown({ activity }: TableActionsDropdownProps) {
+  const handleCopy = () => {
+    navigator.clipboard.writeText(activity.title);
+    toast.info('Copied activity title.');
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -31,17 +38,17 @@ export default function TableActionsDropdown({ activity }: TableActionsDropdownP
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(activity.title)}>
-            <RiFileCopyLine data-icon="inline-start" /> Copy activity title
+          <DropdownMenuItem onClick={handleCopy}>
+            <RiFileCopyLine data-icon="inline-start" /> Copy title
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem
             render={
               <Link to={`/activity/${activity.code}`}>
-                <RiInformationLine data-icon="inline-start" /> View activity details
+                <RiInformationLine data-icon="inline-start" /> View details
               </Link>
             }
           />
+          <DropdownMenuSeparator />
           <DropdownMenuItem className="text-destructive">
             <RiDeleteBinLine data-icon="inline-start" /> Delete
           </DropdownMenuItem>
