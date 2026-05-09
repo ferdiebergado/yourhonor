@@ -38,6 +38,7 @@ export default function AccountForm({ payeeId }: AccountFormProps) {
       payeeId,
       bankId: 0,
       branch: '',
+      accountName: '',
       accountNumber: '',
     },
   });
@@ -107,6 +108,26 @@ export default function AccountForm({ payeeId }: AccountFormProps) {
                   id={field.name}
                   aria-invalid={fieldState.invalid}
                   placeholder="Waltermart Carmona"
+                  autoComplete="off"
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="accountName"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel htmlFor={field.name} className="w-1/2">
+                  Account Name
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                  placeholder="Marilyn B. Ureta"
                   autoComplete="off"
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
