@@ -167,7 +167,7 @@ export function createCompPatches(honorarium: HonorariumDetail): ComputationPatc
     }).toLocaleUpperCase(),
     date: toDateRange(honorarium.startDate, honorarium.endDate),
     bank_branch: honorarium.branch,
-    account_name: payee,
+    account_name: honorarium.accountName,
     account_no: honorarium.accountNumber,
     actual_honorarium: formatAmount(honorarium.actual),
     net_honorarium: formatAmount(honorarium.net),
