@@ -22,7 +22,7 @@
     "db:create": "sqlite3 local.db < ./init.sql",
     "db:seed": "sqlite3 local.db < ./seed.sql",
     "db": "sqlite3 -init .sqliterc local.db",
-    "db:reset": "rm -f local.db && npm run db:create && npm run db:seed",
+    "db:reset": "read -p 'Are you sure you want to reset the DB? (y/n) ' res && [ \"$res\" = \"y\" ] && rm -f local.db && npm run db:create && npm run db:seed",
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
