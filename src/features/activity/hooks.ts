@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createContext, useContext } from 'react';
-import { createActivity, fetchActivity, fetchDetailedActivities } from './api';
+import { createActivity, fetchActivities, fetchActivity } from './api';
 
 const QUERY_KEYS = {
   activities: ['activities'] as const,
@@ -16,17 +16,21 @@ export function useCreateActivity() {
   });
 }
 
-export const useDetailedActivities = () =>
-  useSuspenseQuery({
+const fetchActivitiesOptions = () =>
+  queryOptions({
     queryKey: QUERY_KEYS.activities,
-    queryFn: fetchDetailedActivities,
+    queryFn: fetchActivities,
   });
 
-export const useActivity = (code: string) =>
-  useSuspenseQuery({
+export const useActivities = () => useSuspenseQuery(fetchActivitiesOptions());
+
+const fetchActivityOptions = (code: string) =>
+  queryOptions({
     queryKey: QUERY_KEYS.activity(code),
     queryFn: () => fetchActivity(code),
   });
+
+export const useActivity = (code: string) => useSuspenseQuery(fetchActivityOptions(code));
 
 export type ActivityState = {
   id: number;

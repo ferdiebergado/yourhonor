@@ -1,15 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPosition, fetchPositions } from './api';
 
 const QUERY_KEYS = {
   positions: ['positions'] as const,
 };
 
-export const usePositions = () =>
-  useQuery({
+const fetchPositionsOptions = () =>
+  queryOptions({
     queryKey: QUERY_KEYS.positions,
     queryFn: fetchPositions,
   });
+
+export const usePositions = () => useQuery(fetchPositionsOptions());
 
 export function useCreatePosition() {
   const queryClient = useQueryClient();
