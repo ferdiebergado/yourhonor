@@ -7,7 +7,13 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import HonorariumTable from '@/features/honorarium/components/honorarium-table';
 import SkeletonHonorariumTable from '@/features/honorarium/components/skeleton-honorarium-table';
-import { useActiveHonoraria, useGenCert, useGenComp, useGenORS } from '@/features/honorarium/hooks';
+import {
+  useActiveHonoraria,
+  useGenCert,
+  useGenComp,
+  useGenORS,
+  useGenPayroll,
+} from '@/features/honorarium/hooks';
 import type { ActivityFullDetail } from '@shared/schemas/activity';
 import { toDateRange } from '@shared/utils';
 import { useActivity, useActivityCode } from '../hooks';
@@ -32,6 +38,7 @@ export default function Activity() {
   const { isPending: isGeneratingCert, mutate: genCert } = useGenCert();
   const { isPending: isGeneratingComp, mutate: genComp } = useGenComp();
   const { isPending: isGeneratingORS, mutate: genORS } = useGenORS();
+  const { isPending: isGeneratingPayroll, mutate: genPayroll } = useGenPayroll();
 
   // eslint-disable-next-line unicorn/no-null
   if (!activity) return null;
@@ -117,7 +124,15 @@ export default function Activity() {
             >
               {isGeneratingORS ? <Spinner text="Generating..." /> : 'ORS/DV'}
             </Button>
-            <Button className="w-35">Payroll</Button>
+            <Button
+              className="w-35"
+              onClick={() =>
+                genPayroll(activityCode, { onSuccess: () => toast.success('Payroll generated.') })
+              }
+              disabled={isGeneratingPayroll}
+            >
+              {isGeneratingPayroll ? <Spinner text="Generating..." /> : 'Payroll'}
+            </Button>
           </CardFooter>
         )}
       </Card>

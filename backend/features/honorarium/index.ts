@@ -1,27 +1,29 @@
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, getFullName, getMaxSalary, toDateRange } from '@shared/utils';
+import type { CellValue } from 'exceljs';
 import { certification } from './certification';
 import { computation } from './computation';
 import { ors } from './ors';
-import { amountToWords, parseActivityCode, patchDoc } from './utils';
+import { payroll } from './payroll';
+import { amountToWords, getFundCluster, parseActivityCode, patchDoc } from './utils';
 
 type Document = {
   filename: string;
   doc: Buffer;
 };
 
-export async function generateCertification(data: HonorariumDetail[]): Promise<Document> {
-  if (data.length === 0) throw new Error('cannot generate certification: no data provided');
+export async function generateCertification(honoraria: HonorariumDetail[]): Promise<Document> {
+  if (honoraria.length === 0) throw new Error('cannot generate certification: no data provided');
 
-  const firstPayment = data[0];
+  const firstPayment = honoraria[0];
   const filename = 'certification-' + firstPayment.activityCode;
 
   const patches = await createCertPatches(firstPayment);
   const firstCert = await patchDoc(certification, patches);
 
-  if (data.length === 1) return { doc: firstCert, filename };
+  if (honoraria.length === 1) return { doc: firstCert, filename };
 
-  const patchDocs = data.slice(1).map(async payment => {
+  const patchDocs = honoraria.slice(1).map(async payment => {
     const patches = await createCertPatches(payment);
     const patched = await patchDoc(certification, patches);
 
@@ -181,9 +183,9 @@ export function createCompPatches(honorarium: HonorariumDetail): ComputationPatc
   return tags;
 }
 
-export async function createORS(honorarium: HonorariumDetail[]) {
-  const Excel = await import('exceljs');
-  const workbook = new Excel.default.Workbook();
+export async function createORS(honoraria: HonorariumDetail[]) {
+  const { default: Excel } = await import('exceljs');
+  const workbook = new Excel.Workbook();
   const buf = Buffer.from(ors, 'base64');
   const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 
@@ -196,11 +198,11 @@ export async function createORS(honorarium: HonorariumDetail[]) {
   if (!dvSheet) throw new Error('Workbook does not have a sheet named DV.');
 
   const { firstname, mi, lastname, activityTitle, activityCode, venue, startDate, endDate } =
-    honorarium[0];
+    honoraria[0];
 
   let payee = getFullName({ firstname: firstname, mi: mi, lastname: lastname }).toLocaleUpperCase();
 
-  const numPayees = honorarium.length;
+  const numPayees = honoraria.length;
   let other = 'OTHER';
   if (numPayees > 2) other += 'S';
   if (numPayees > 1) payee += ` AND ${(numPayees - 1).toString()} ${other}`;
@@ -214,12 +216,101 @@ export async function createORS(honorarium: HonorariumDetail[]) {
   orsSheet.getCell('E16').value = particulars;
   dvSheet.getCell('B16').value = particulars;
 
-  const amount = honorarium.reduce((acc, payment) => acc + payment.amount, 0);
+  const amount = honoraria.reduce((acc, payment) => acc + payment.amount, 0);
   orsSheet.getCell('N16').value = amount;
   dvSheet.getCell('AC17').value = amount;
 
   orsSheet.getCell('E34').value = activityCode;
   orsSheet.getCell('K16').value = parseActivityCode(activityCode).mfoCode;
+
+  return await workbook.xlsx.writeBuffer();
+}
+
+export async function createPayroll(honoraria: HonorariumDetail[]) {
+  const { default: Excel } = await import('exceljs');
+  const workbook = new Excel.Workbook();
+
+  const sheetName = 'PAYROLL';
+  const buf = Buffer.from(payroll, 'base64');
+  const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+
+  await workbook.xlsx.load(arrayBuffer);
+
+  const sheet = workbook.getWorksheet(sheetName);
+  if (!sheet) throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
+
+  const { activityCode, activityTitle, venue, startDate, endDate } = honoraria[0];
+
+  const fundCluster = getFundCluster(activityCode);
+  const fundClusterCell = sheet.getCell('A7');
+  const fundClusterText = `${fundClusterCell.text} ${fundCluster}`;
+  sheet.getCell('A7').value = fundClusterText;
+
+  const particularsCell = sheet.getCell('A9');
+  const particulars = `${particularsCell.text} ${activityTitle} held at ${venue} on ${toDateRange(startDate, endDate)}`;
+  particularsCell.value = particulars;
+
+  let currentRow = 13;
+
+  for (const [index, honorarium] of honoraria.entries()) {
+    if (index > 1) sheet.insertRow(currentRow, [], 'i');
+
+    const num = index + 1;
+    const { firstname, mi, lastname, position, branch, accountNumber, bank, tin, amount } =
+      honorarium;
+    const payee = getFullName({ firstname, mi, lastname });
+
+    const cells: { cell: string; value: CellValue }[] = [
+      {
+        cell: 'A',
+        value: num,
+      },
+      {
+        cell: 'B',
+        value: payee,
+      },
+      {
+        cell: 'C',
+        value: position,
+      },
+      {
+        cell: 'D',
+        value: accountNumber,
+      },
+      {
+        cell: 'E',
+        value: bank,
+      },
+      {
+        cell: 'F',
+        value: branch,
+      },
+      {
+        cell: 'I',
+        value: tin,
+      },
+      {
+        cell: 'J',
+        value: amount,
+      },
+      {
+        cell: 'K',
+        value: { formula: `J${currentRow.toString()}*${(honorarium.taxRate / 100).toString()}` },
+      },
+      {
+        cell: 'L',
+        value: { formula: `J${currentRow.toString()}-K${currentRow.toString()}` },
+      },
+      {
+        cell: 'M',
+        value: num,
+      },
+    ];
+
+    for (const { cell, value } of cells) sheet.getRow(currentRow).getCell(cell).value = value;
+
+    currentRow++;
+  }
 
   return await workbook.xlsx.writeBuffer();
 }

@@ -1,5 +1,12 @@
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { createHonorarium, fetchActiveHonorariaByActivity, genCert, genComp, genORS } from './api';
+import {
+  createHonorarium,
+  fetchActiveHonorariaByActivity,
+  genCert,
+  genComp,
+  genORS,
+  genPayroll,
+} from './api';
 
 const QUERY_KEYS = {
   honoraria: ['honoraria'] as const,
@@ -37,4 +44,9 @@ export const useGenComp = () =>
 export const useGenORS = () =>
   useMutation({
     mutationFn: genORS,
+  });
+
+export const useGenPayroll = () =>
+  useMutation({
+    mutationFn: genPayroll,
   });

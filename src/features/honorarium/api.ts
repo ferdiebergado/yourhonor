@@ -95,3 +95,31 @@ export async function genORS(code: string): Promise<void | null> {
     throw new Error('Failed to generate ORS/DV', { cause: error });
   }
 }
+
+export async function genPayroll(code: string): Promise<void | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/payroll`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    });
+
+    if (!res.ok) {
+      // eslint-disable-next-line unicorn/no-null
+      if (res.status === 401) return null;
+
+      const data = (await res.json()) as ApiResponse;
+
+      if (!data.success) throw new Error(data.error.message);
+    }
+
+    const filename = `Payroll-${code}.xlsx`;
+
+    await startDownload(res, filename);
+  } catch (error) {
+    console.error(error);
+    throw new Error('Failed to generate Payroll', { cause: error });
+  }
+}
