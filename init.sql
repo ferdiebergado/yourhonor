@@ -220,3 +220,11 @@ CREATE TABLE IF NOT EXISTS honoraria (
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_is_active ON users (is_active);
+
+CREATE INDEX IF NOT EXISTS idx_activities_code ON activities (code);
+
+CREATE INDEX IF NOT EXISTS idx_activity_created_by ON activities (created_by);
+
+CREATE INDEX IF NOT EXISTS idx_honoraria_activity_code ON honoraria (activity_code);
