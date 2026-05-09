@@ -1,4 +1,4 @@
-import { RiAddCircleFill } from '@remixicon/react';
+import { RiAddLargeLine } from '@remixicon/react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +17,7 @@ export default function HonorariumDialog() {
       <DialogTrigger
         render={
           <Button size="lg">
-            <RiAddCircleFill data-icon="inline-start" /> Add Honorarium
+            <RiAddLargeLine data-icon="inline-start" /> Add Honorarium
           </Button>
         }
       />

@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { RiAddCircleFill } from '@remixicon/react';
+import { RiAddLargeLine } from '@remixicon/react';
 import ActivityForm from './activity-form';
 
 export default function ActivityDialog() {
@@ -16,7 +16,8 @@ export default function ActivityDialog() {
       <DialogTrigger
         render={
           <Button size="lg">
-            <RiAddCircleFill data-icon="inline-start" /> New Activity
+            <RiAddLargeLine data-icon="inline-start" />
+            New Activity
           </Button>
         }
       />
