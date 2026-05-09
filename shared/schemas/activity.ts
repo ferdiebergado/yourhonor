@@ -56,6 +56,7 @@ export const ActivityDetailSchema = ActivitySchema.pick({
   startDate: true,
   endDate: true,
   code: true,
+  fundSource: true,
 }).and(
   z.object({
     venue: z.string(),
@@ -66,7 +67,6 @@ export const ActivityDetailSchema = ActivitySchema.pick({
 export type ActivityDetail = z.infer<typeof ActivityDetailSchema>;
 
 export const ActivityFullSchema = ActivitySchema.omit({
-  fundSource: true,
   venueId: true,
   focalId: true,
   createdBy: true,

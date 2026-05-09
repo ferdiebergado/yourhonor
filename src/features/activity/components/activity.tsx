@@ -45,16 +45,20 @@ export default function Activity() {
 
   // Define activity fields for dynamic rendering
   const activityFields: ActivityFieldConfig[] = [
-    { key: 'code', label: 'Code' },
     {
       keys: ['startDate', 'endDate'],
-      label: 'Date Range',
+      label: 'Date of Conduct',
       format: (startDate: string, endDate: string) => toDateRange(startDate, endDate),
     },
-    { key: 'venue', label: 'Venue' },
-    { key: 'location', label: 'Location' },
+    {
+      keys: ['venue', 'location'],
+      label: 'Venue',
+      format: (venue: string, location: string) => `${venue}, ${location}`,
+    },
     { key: 'focal', label: 'Focal Person' },
     { key: 'focalPosition', label: 'Position' },
+    { key: 'code', label: 'Activity Code' },
+    { key: 'fundSource', label: 'Fund Source' },
   ];
 
   return (
@@ -62,7 +66,6 @@ export default function Activity() {
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">{activity.title}</CardTitle>
-          <div className="text-muted-foreground text-sm">Activity ID: {activity.id}</div>
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

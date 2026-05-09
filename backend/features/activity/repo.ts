@@ -35,7 +35,7 @@ export async function findActiveActivitiesDetailedByUser(
   userId: number
 ): Promise<ActivityDetail[]> {
   const sql = `
-SELECT a.id id, a.title title, a.start_date start_date, a.end_date end_date, a.code code, v.name venue, CONCAT(f.firstname, ' ', f.lastname) focal
+SELECT a.id id, a.title title, a.start_date start_date, a.end_date end_date, a.code code, a.fund_source fund_source, v.name venue, CONCAT(f.firstname, ' ', f.lastname) focal
 FROM activities a
 LEFT JOIN venues v ON v.id = a.venue_id
 LEFT JOIN focals f ON f.id = a.focal_id
@@ -57,7 +57,7 @@ export async function findActiveActivityDetailedByUser(
 ): Promise<ActivityFullDetail | undefined> {
   const sql = `
 SELECT
-  a.id id, a.title title, a.start_date start_date, a.end_date end_date, a.code code, a.created_at created_at, a.updated_at updated_at,
+  a.id id, a.title title, a.start_date start_date, a.end_date end_date, a.code code, a.fund_source fund_source, a.created_at created_at, a.updated_at updated_at,
   v.name venue, v.location location,
   CONCAT(f.firstname, ' ', f.lastname) focal, p.name focal_position
 FROM activities a

@@ -1,5 +1,6 @@
 import { getDb } from '@backend/db';
 import { createActivity } from '@backend/features/activity/repo';
+import { getFundCluster } from '@backend/features/honorarium/utils';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
@@ -16,7 +17,7 @@ export default async (req: Request) => {
 
     const data: CreateActivity = {
       ...activity,
-      fundSource: 'TODO: create fund source helper',
+      fundSource: getFundCluster(activity.code),
       createdBy: userId,
       updatedBy: userId,
     };
