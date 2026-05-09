@@ -3,7 +3,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
 import SortButton from '@/components/sort-button';
 import type { ActivityDetail } from '@shared/schemas/activity';
-import { useDetailedActivities } from '../hooks';
+import { useActivities } from '../hooks';
 import TableActionsDropdown from './table-actions-dropdown';
 
 const columns: ColumnDef<ActivityDetail>[] = [
@@ -30,7 +30,7 @@ const columns: ColumnDef<ActivityDetail>[] = [
 ];
 
 export default function ActivityTable() {
-  const { data } = useDetailedActivities();
+  const { data } = useActivities();
 
   return <DataTable columns={columns} data={data ?? []} filteredColumn="title" />;
 }
