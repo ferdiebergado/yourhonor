@@ -48,6 +48,14 @@ export function docxResponse(body: Buffer, filename: string) {
   });
 }
 
+export const xlsxResponse = (body: Blob, filename: string) =>
+  new Response(body, {
+    headers: {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=${filename}`,
+    },
+  });
+
 const mfoCodes = {
   BEC: '310100100003000',
   ELLN: '310100100007000',

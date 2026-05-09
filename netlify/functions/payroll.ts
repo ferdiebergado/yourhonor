@@ -2,6 +2,7 @@ import { getDb } from '@backend/db';
 import { deserializeDetails } from '@backend/features/account';
 import { createPayroll } from '@backend/features/honorarium';
 import { findActiveHonorariaPerActivity } from '@backend/features/honorarium/repo';
+import { xlsxResponse } from '@backend/features/honorarium/utils';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { GenerateDocSchema, type HonorariumDetail } from '@shared/schemas/honorarium';
@@ -27,13 +28,7 @@ export default async (req: Request) => {
     const blob = new Blob([excelBuffer]);
     const filename = `Payroll-${code}.xlsx`;
 
-    return new Response(blob, {
-      status: 200,
-      headers: {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': `attachment; filename=${filename}`,
-      },
-    });
+    return xlsxResponse(blob, filename);
   } catch (error) {
     return respondWithError(error);
   }
