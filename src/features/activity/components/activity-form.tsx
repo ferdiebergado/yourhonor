@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import GenericCombobox from '@/components/generic-combobox';
@@ -15,7 +15,7 @@ import VenueForm from '@/features/venue/components/venue-form';
 import { useVenues } from '@/features/venue/hooks';
 import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
 import { getFullName } from '@shared/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCreateActivity } from '../hooks';
 
 export default function ActivityForm() {
@@ -38,6 +38,9 @@ export default function ActivityForm() {
     },
   });
 
+  const startDate = useWatch({ control: form.control, name: 'startDate' });
+  const endDate = useWatch({ control: form.control, name: 'endDate' });
+
   const handleSubmit = (values: ActivityFormValues) => {
     createActivity(values, {
       onSuccess: () => {
@@ -49,6 +52,12 @@ export default function ActivityForm() {
       },
     });
   };
+
+  function updateEndDate() {
+    if (!endDate || new Date(startDate) > new Date(endDate)) form.setValue('endDate', startDate);
+  }
+
+  useEffect(updateEndDate, [endDate, form, startDate]);
 
   return (
     <Card className="w-full max-w-2xl md:mx-auto">
