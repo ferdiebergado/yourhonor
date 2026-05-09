@@ -43,6 +43,7 @@ const envSchema = z.object({
   GOOGLE_REDIRECT_URI: z.url({ error: 'GOOGLE_REDIRECT_URI not set.' }),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
   ENV: z.enum(['development', 'production', 'testing']).default('production'),
+  APP_KEY: z.string().min(1, 'APP_KEY is not set'),
 });
 
 const { success, error, data } = envSchema.safeParse(process.env);
@@ -61,6 +62,7 @@ const config = {
   googleRedirectUri: data.GOOGLE_REDIRECT_URI,
   logLevel: data.LOG_LEVEL,
   env: data.ENV,
+  appKey: data.APP_KEY,
 };
 
 export default config;

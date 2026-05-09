@@ -1,4 +1,5 @@
 import { getDb } from '@backend/db';
+import { serializeDetails } from '@backend/features/account';
 import { createAccount } from '@backend/features/account/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -14,8 +15,22 @@ export default async (req: Request) => {
 
     const { userId } = await getSession(req);
 
+    const details = {
+      branch: data.branch,
+      accountName: data.accountName,
+      accountNumber: data.accountNumber,
+    };
+
+    const serialized = serializeDetails(details);
+
+    const detailsBuffer = serialized.buffer.slice(
+      serialized.byteOffset,
+      serialized.byteOffset + serialized.byteLength
+    ) as ArrayBuffer;
+
     const account: NewAccountRow = {
       ...data,
+      details: detailsBuffer,
       createdBy: userId,
       updatedBy: userId,
     };

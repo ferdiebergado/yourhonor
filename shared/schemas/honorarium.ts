@@ -42,7 +42,7 @@ export const HonorariumFormSchema = HonorariumRowSchema.pick({
 
 export type HonorariumFormValues = z.infer<typeof HonorariumFormSchema>;
 
-export const HonorariumDetailSchema = HonorariumRowSchema.pick({
+export const HonorariumDetailRowSchema = HonorariumRowSchema.pick({
   id: true,
   activityCode: true,
   salary: true,
@@ -57,8 +57,7 @@ export const HonorariumDetailSchema = HonorariumRowSchema.pick({
   firstname: z.string(),
   mi: z.string(),
   lastname: z.string(),
-  branch: z.string(),
-  accountNumber: z.string(),
+  details: z.instanceof(ArrayBuffer),
   activityTitle: z.string(),
   startDate: z.iso.date(),
   endDate: z.iso.date(),
@@ -68,6 +67,16 @@ export const HonorariumDetailSchema = HonorariumRowSchema.pick({
   focalLastname: z.string(),
   position: z.string(),
   tin: z.string().optional().nullable(),
+});
+
+export type HonorariumDetailRow = z.infer<typeof HonorariumDetailRowSchema>;
+
+export const HonorariumDetailSchema = HonorariumDetailRowSchema.omit({
+  details: true,
+}).extend({
+  branch: z.string().min(1, 'Branch is required.'),
+  accountName: z.string().min(1, 'Account name is required.'),
+  accountNumber: z.string().min(1, 'Account number is required.'),
 });
 
 export type HonorariumDetail = z.infer<typeof HonorariumDetailSchema>;

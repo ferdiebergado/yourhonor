@@ -1,7 +1,7 @@
 import type { Client } from '@libsql/client';
 import {
-  HonorariumDetailSchema,
-  type HonorariumDetail,
+  HonorariumDetailRowSchema,
+  type HonorariumDetailRow,
   type NewHonorarium,
 } from '@shared/schemas/honorarium';
 import { snakeToCamel } from '@shared/utils';
@@ -46,14 +46,14 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 export async function findActiveHonorariaPerActivity(
   db: Client,
   activityCode: string
-): Promise<HonorariumDetail[]> {
+): Promise<HonorariumDetailRow[]> {
   const sql = `
 SELECT
   h.id id, h.activity_code activity_code, h.salary salary, h.amount amount, h.tax_rate tax_rate, h.hours_rendered hours_rendered, h.actual actual, h.net net,
   p.firstname firstname, p.mi mi, p.lastname lastname, p.tin tin,
   r.name role,
   b.name bank,
-  a.branch branch, a.account_number account_number,
+  a.details details,
   act.title activityTitle, act.start_date start_date, act.end_date end_date,
   v.name venue,
   f.firstname focal_firstname, f.mi focal_mi, f.lastname focal_lastname,
@@ -75,5 +75,5 @@ ORDER BY firstname
 
   if (rows.length === 0) return [];
 
-  return rows.map(row => HonorariumDetailSchema.parse(snakeToCamel(row)));
+  return rows.map(row => HonorariumDetailRowSchema.parse(snakeToCamel(row)));
 }
