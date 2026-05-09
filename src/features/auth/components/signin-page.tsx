@@ -10,10 +10,13 @@ export default function SigninPage() {
           Welcome to {config.appTitle}
         </h1>
         <h2 className="text-center text-lg text-balance">
-          Say goodbye to headaches when preparing payments for honoraria. YourHonor is here to
-          streamline these tasks.
+          Automate the complexity of honorarium payments. YourHonor ensures every honorarium is
+          accurate, timely, and stress-free.
         </h2>
         <SigninButton />
+        <p className="text-muted-foreground text-center text-sm text-balance">
+          By clicking continue, you agree to our Terms of Service and Privacy Policy.
+        </p>
       </CardContent>
     </Card>
   );
