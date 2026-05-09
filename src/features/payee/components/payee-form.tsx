@@ -67,7 +67,7 @@ export default function PayeeForm() {
                   {...field}
                   id={field.name}
                   aria-invalid={fieldState.invalid}
-                  placeholder="Bryan"
+                  placeholder="Marilyn"
                   autoComplete="off"
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -86,7 +86,7 @@ export default function PayeeForm() {
                   {...field}
                   id={field.name}
                   aria-invalid={fieldState.invalid}
-                  placeholder="R"
+                  placeholder="B"
                   autoComplete="off"
                   value={field.value ?? ''}
                 />
@@ -107,7 +107,7 @@ export default function PayeeForm() {
                   {...field}
                   id={field.name}
                   aria-invalid={fieldState.invalid}
-                  placeholder="Ureta"
+                  placeholder="Simara"
                   autoComplete="off"
                 />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
