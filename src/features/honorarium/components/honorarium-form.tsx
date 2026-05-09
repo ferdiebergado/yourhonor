@@ -4,10 +4,10 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@/components/form-buttons';
+import GenericCombobox from '@/components/generic-combobox';
 import RHFSelect from '@/components/rhf-select';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import GenericCombobox from '@/components/ui/generic-combobox';
 import { Input } from '@/components/ui/input';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import AccountForm from '@/features/account/components/account-form';
