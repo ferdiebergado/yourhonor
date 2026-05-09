@@ -4,17 +4,19 @@ import { snakeToCamel } from '@shared/utils';
 
 export async function createPayee(db: Client, focal: CreatePayee): Promise<void> {
   const sql = `
-INSERT INTO payees (firstname, mi, lastname, created_by, updated_by)
-VALUES (?, ?, ?, ?, ?)
+INSERT INTO payees (firstname, mi, lastname, tin, created_by, updated_by)
+VALUES (?, ?, ?, ?, ?, ?)
 `;
 
-  const { firstname, mi, lastname, createdBy, updatedBy } = focal;
+  const { firstname, mi, lastname, tin, createdBy, updatedBy } = focal;
 
   await db.execute(sql, [
     firstname,
     // eslint-disable-next-line unicorn/no-null
     mi ?? null,
     lastname,
+    // eslint-disable-next-line unicorn/no-null
+    tin ?? null,
     createdBy,
     updatedBy,
   ]);
