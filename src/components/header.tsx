@@ -12,7 +12,6 @@ import { paths } from '@/app/routes';
 import config from '@/config';
 import { useSignout } from '@/features/auth/hooks';
 import { useTheme } from '@/features/theme';
-import NavMenuButton from './navmenu-button';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -55,34 +54,22 @@ export default function Header() {
               <NavigationMenuContent>
                 <ul className="grid w-50">
                   <li>
-                    <NavigationMenuLink
-                      render={
-                        <NavMenuButton onClick={() => setTheme('light')}>
-                          <RiSunLine />
-                          Light
-                        </NavMenuButton>
-                      }
-                    />
+                    <NavigationMenuLink onClick={() => setTheme('light')}>
+                      <RiSunLine data-icon="inline-start" />
+                      Light
+                    </NavigationMenuLink>
                   </li>
                   <li>
-                    <NavigationMenuLink
-                      render={
-                        <NavMenuButton onClick={() => setTheme('dark')}>
-                          <RiMoonClearLine />
-                          Dark
-                        </NavMenuButton>
-                      }
-                    />
+                    <NavigationMenuLink onClick={() => setTheme('dark')}>
+                      <RiMoonClearLine data-icon="inline-start" />
+                      Dark
+                    </NavigationMenuLink>
                   </li>
                   <li>
-                    <NavigationMenuLink
-                      render={
-                        <NavMenuButton onClick={() => setTheme('system')}>
-                          <RiComputerLine />
-                          System
-                        </NavMenuButton>
-                      }
-                    />
+                    <NavigationMenuLink onClick={() => setTheme('system')}>
+                      <RiComputerLine data-icon="inline-start" />
+                      System
+                    </NavigationMenuLink>
                   </li>
                 </ul>
               </NavigationMenuContent>
@@ -92,23 +79,19 @@ export default function Header() {
               <NavigationMenuContent>
                 <ul className="grid w-50">
                   <li>
-                    <NavigationMenuLink
-                      render={
-                        <NavMenuButton onClick={handleSignout} disabled={isPending}>
-                          {isPending ? (
-                            <>
-                              <RiLoader2Line className="animate-spin" data-icon="inline-start" />
-                              Signing out...
-                            </>
-                          ) : (
-                            <>
-                              <RiLogoutBoxLine data-icon="inline-start" />
-                              Sign Out
-                            </>
-                          )}
-                        </NavMenuButton>
-                      }
-                    />
+                    <NavigationMenuLink onClick={handleSignout}>
+                      {isPending ? (
+                        <>
+                          <RiLoader2Line className="animate-spin" data-icon="inline-start" />
+                          Signing out...
+                        </>
+                      ) : (
+                        <>
+                          <RiLogoutBoxLine data-icon="inline-start" />
+                          Sign Out
+                        </>
+                      )}
+                    </NavigationMenuLink>
                   </li>
                 </ul>
               </NavigationMenuContent>
