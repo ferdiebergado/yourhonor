@@ -18,7 +18,7 @@ export default function SigninButton() {
         'Redirecting to Google...'
       ) : (
         <>
-          <RiGoogleFill data-icon="inline-start" /> Continue with Google
+          <RiGoogleFill className="size-5" data-icon="inline-start" /> Continue with Google
         </>
       )}
     </Button>

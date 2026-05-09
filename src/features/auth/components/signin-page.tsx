@@ -1,23 +1,50 @@
+import { RiShieldCheckFill } from '@remixicon/react';
+
 import { Card, CardContent } from '@/components/ui/card';
 import config from '@/config';
 import SigninButton from './signin-button';
 
 export default function SigninPage() {
   return (
-    <Card className="w-full px-6 py-10 md:max-w-xl">
-      <CardContent className="flex flex-col items-center gap-10">
-        <h1 className="font-heading text-center text-3xl font-semibold text-balance">
-          Welcome to {config.appTitle}
-        </h1>
-        <h2 className="text-center text-lg text-balance">
-          Automate the complexity of honorarium payments. YourHonor ensures every honorarium is
-          accurate, timely, and stress-free.
-        </h2>
-        <SigninButton />
-        <p className="text-muted-foreground text-center text-sm text-balance">
-          By clicking continue, you agree to our Terms of Service and Privacy Policy.
-        </p>
-      </CardContent>
-    </Card>
+    <div className="to-muted flex items-center justify-center">
+      <Card className="border-border/40 w-full max-w-md overflow-hidden rounded-2xl shadow-2xl">
+        <CardContent className="flex flex-col items-center space-y-6 p-8 sm:p-10">
+          {/* Stylized Logo */}
+          <div className="mb-2 flex items-center gap-3">
+            <RiShieldCheckFill className="text-primary h-8 w-8" />
+            <span className="text-2xl font-bold tracking-tight">{config.appTitle}</span>
+          </div>
+
+          {/* Heading */}
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Welcome to {config.appTitle}
+            </h1>
+            <p className="text-muted-foreground max-w-xs leading-relaxed">
+              Automate the complexity of honorarium payments. YourHonor ensures every honorarium is
+              accurate, timely, and stress-free.
+            </p>
+          </div>
+
+          {/* Sign In Button */}
+          <div className="mt-2 w-full">
+            <SigninButton />
+          </div>
+
+          {/* Legal Footer */}
+          <p className="text-muted-foreground mt-4 text-center text-xs">
+            By clicking continue, you agree to our{' '}
+            <a href="#" className="hover:text-primary underline underline-offset-4">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href="#" className="hover:text-primary underline underline-offset-4">
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
