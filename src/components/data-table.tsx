@@ -28,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { RiArrowDropDownLine, RiLayoutColumnFill } from '@remixicon/react';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -75,7 +76,10 @@ export function DataTable<TData, TValue>({
           <DropdownMenuTrigger
             render={
               <Button variant="outline" className="ml-auto">
-                Columns
+                <RiLayoutColumnFill data-icon="inline-start" />
+                <span className="hidden lg:inline">Customize Columns</span>
+                <span className="lg:hidden">Columns</span>
+                <RiArrowDropDownLine data-icon="inline-end" />
               </Button>
             }
           />
@@ -100,7 +104,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="overflow-hidden rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted">
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
