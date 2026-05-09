@@ -60,7 +60,7 @@ export default function ActivityForm() {
                   <Textarea
                     {...field}
                     id={field.name}
-                    placeholder="Lesson Exemplars on Biology (Development Workshop)"
+                    placeholder="Lesson Exemplars on Biology (Development Phase)"
                     aria-invalid={fieldState.invalid}
                     autoComplete="off"
                     className="min-h-30"
@@ -154,7 +154,7 @@ export default function ActivityForm() {
                   <Input
                     {...field}
                     id={field.name}
-                    placeholder="ACT-001"
+                    placeholder="AC-26-BLD-TLD-BEC-001"
                     aria-invalid={fieldState.invalid}
                     autoComplete="off"
                   />
