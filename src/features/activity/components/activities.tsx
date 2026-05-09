@@ -9,7 +9,7 @@ import ActivityTable from './activity-table';
 export default function Activities() {
   return (
     <>
-      <PageHeader title="My Activities" description="View, create and update your activities">
+      <PageHeader title="My Activities" description="Create, view and update your activities">
         <ActivityDialog />
       </PageHeader>
 
