@@ -2,15 +2,20 @@ import type { Client } from '@libsql/client';
 import { PayeeBaseSchema, type CreatePayee, type PayeeBase } from '@shared/schemas/payee';
 import { snakeToCamel } from '@shared/utils';
 
-export async function createPayee(db: Client, focal: CreatePayee): Promise<void> {
+type CreatePayeeResultSet = {
+  id: number;
+};
+
+export async function createPayee(db: Client, focal: CreatePayee): Promise<number> {
   const sql = `
 INSERT INTO payees (firstname, mi, lastname, tin, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id
 `;
 
   const { firstname, mi, lastname, tin, createdBy, updatedBy } = focal;
 
-  await db.execute(sql, [
+  const { rows } = await db.execute(sql, [
     firstname,
     // eslint-disable-next-line unicorn/no-null
     mi ?? null,
@@ -20,6 +25,10 @@ VALUES (?, ?, ?, ?, ?, ?)
     createdBy,
     updatedBy,
   ]);
+
+  const { id } = rows[0] as unknown as CreatePayeeResultSet;
+
+  return id;
 }
 
 export async function findActivePayees(db: Client): Promise<PayeeBase[]> {

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RiAddLargeLine } from '@remixicon/react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@/components/form-buttons';
@@ -19,14 +19,25 @@ import {
 import BankForm from '@/features/bank/components/bank-form';
 import { useActiveBanks } from '@/features/bank/hooks';
 import { AccountFormSchema, type AccountFormValues } from '@shared/schemas/account';
-import { useEffect } from 'react';
+import type { HonorariumFormValues } from '@shared/schemas/honorarium';
+import { useEffect, useState } from 'react';
 import { useCreateAccount } from '../hooks';
 
 type AccountFormProps = {
   payeeId: number;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  honorariumForm: UseFormReturn<HonorariumFormValues>;
 };
 
-export default function AccountForm({ payeeId }: AccountFormProps) {
+export default function AccountForm({
+  payeeId,
+  isOpen,
+  onOpenChange,
+  honorariumForm,
+}: AccountFormProps) {
+  const [isBankFormOpen, setIsBankFormOpen] = useState(false);
+
   const { isLoading: isLoadingBanks, data: banks } = useActiveBanks();
   const { isPending, mutate: createAccount } = useCreateAccount();
 
@@ -45,9 +56,11 @@ export default function AccountForm({ payeeId }: AccountFormProps) {
 
   const handleSubmit = (values: AccountFormValues) => {
     createAccount(values, {
-      onSuccess: () => {
+      onSuccess: id => {
         toast.success('Account created successfully.');
         form.reset();
+        if (id) honorariumForm.setValue('accountId', id);
+        onOpenChange(false);
       },
     });
   };
@@ -55,14 +68,16 @@ export default function AccountForm({ payeeId }: AccountFormProps) {
   useEffect(() => form.setValue('payeeId', payeeId), [payeeId, form]);
 
   return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button variant="outline" title="Add payee bank account">
-            <RiAddLargeLine />
-          </Button>
-        }
-      />
+    <Popover open={isOpen} onOpenChange={onOpenChange}>
+      <PopoverTrigger />
+      <Button
+        variant="outline"
+        title="Add payee bank account"
+        onClick={() => onOpenChange(true)}
+        disabled={payeeId === 0}
+      >
+        <RiAddLargeLine />
+      </Button>
       <PopoverContent align="start" className="w-90">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">
@@ -88,7 +103,11 @@ export default function AccountForm({ payeeId }: AccountFormProps) {
                     isLoading={isLoadingBanks}
                     placeholder="Select a bank..."
                   />
-                  <BankForm />
+                  <BankForm
+                    isOpen={isBankFormOpen}
+                    onOpenChange={setIsBankFormOpen}
+                    accountForm={form}
+                  />
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -157,6 +176,9 @@ export default function AccountForm({ payeeId }: AccountFormProps) {
           />
 
           <Field orientation="horizontal" className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
             <FormButtons form={form} onSubmit={handleSubmit} isPending={isPending} />
           </Field>
         </FieldGroup>

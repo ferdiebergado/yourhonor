@@ -1,4 +1,3 @@
-import type { PayeeFormValues } from '@shared/schemas/payee';
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPayee, fetchActivePayees } from './api';
 
@@ -10,7 +9,7 @@ export function useCreatePayee() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: PayeeFormValues) => createPayee(data),
+    mutationFn: createPayee,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payees }),
   });
 }

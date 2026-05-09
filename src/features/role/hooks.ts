@@ -1,4 +1,3 @@
-import type { RoleFormValues } from '@shared/schemas/role';
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createRole, fetchActiveRoles } from './api';
 
@@ -10,7 +9,7 @@ export function useCreateRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: RoleFormValues) => createRole(data),
+    mutationFn: createRole,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.roles }),
   });
 }

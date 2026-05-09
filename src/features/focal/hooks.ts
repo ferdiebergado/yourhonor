@@ -18,8 +18,6 @@ export function useCreateFocal() {
 
   return useMutation({
     mutationFn: createFocal,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.focals });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.focals }),
   });
 }

@@ -22,13 +22,21 @@ WHERE a.deleted_at IS NULL
   return rows.map(row => AccountDetailRowSchema.parse(snakeToCamel(row)));
 }
 
-export async function createAccount(db: Client, account: NewAccountRow): Promise<void> {
+type CreateAccountResultSet = {
+  id: number;
+};
+
+export async function createAccount(db: Client, account: NewAccountRow): Promise<number> {
   const sql = `
 INSERT INTO accounts (payee_id, bank_id, details, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?)
+RETURNING id
 `;
 
   const { payeeId, bankId, details, createdBy, updatedBy } = account;
 
-  await db.execute(sql, [payeeId, bankId, details, createdBy, updatedBy]);
+  const { rows } = await db.execute(sql, [payeeId, bankId, details, createdBy, updatedBy]);
+  const { id } = rows[0] as unknown as CreateAccountResultSet;
+
+  return id;
 }

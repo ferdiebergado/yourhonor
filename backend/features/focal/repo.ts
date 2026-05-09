@@ -18,15 +18,20 @@ ORDER BY f.firstname ASC
   return rows.map(row => FocalBaseSchema.parse(snakeToCamel(row)));
 }
 
-export async function createFocal(db: Client, focal: CreateFocal): Promise<void> {
+type CreateFocalResultSet = {
+  id: number;
+};
+
+export async function createFocal(db: Client, focal: CreateFocal): Promise<number> {
   const sql = `
 INSERT INTO focals (firstname, mi, lastname, sex, position_id, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?, ?)
+RETURNING id
 `;
 
   const { firstname, mi, lastname, sex, positionId, createdBy, updatedBy } = focal;
 
-  await db.execute(sql, [
+  const { rows } = await db.execute(sql, [
     firstname,
     // eslint-disable-next-line unicorn/no-null
     mi ?? null,
@@ -36,4 +41,8 @@ VALUES (?, ?, ?, ?, ?, ?, ?)
     createdBy,
     updatedBy,
   ]);
+
+  const { id } = rows[0] as unknown as CreateFocalResultSet;
+
+  return id;
 }

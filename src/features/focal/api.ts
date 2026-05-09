@@ -3,4 +3,5 @@ import type { FocalBase, FocalFormValues } from '@shared/schemas/focal';
 
 export const fetchFocals = async () => await api.get<FocalBase[]>('/focals');
 
-export const createFocal = async (data: FocalFormValues) => await api.post('/create-focal', data);
+export const createFocal = async (data: FocalFormValues): Promise<number | null> =>
+  await api.post('/create-focal', data);

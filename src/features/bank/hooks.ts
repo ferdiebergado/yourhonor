@@ -1,4 +1,3 @@
-import type { BankFormValues } from '@shared/schemas/bank';
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createBank, fetchActiveBanks } from './api';
 
@@ -10,7 +9,7 @@ export function useCreateBank() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: BankFormValues) => createBank(data),
+    mutationFn: createBank,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.banks }),
   });
 }

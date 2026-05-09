@@ -21,10 +21,11 @@ export default async (req: Request) => {
     };
 
     const db = await getDb();
-    await createFocal(db, focal);
+    const id = await createFocal(db, focal);
 
-    const payload: ApiResponse = {
+    const payload: ApiResponse<number> = {
       success: true,
+      data: id,
     };
 
     return Response.json(payload, { status: 201 });

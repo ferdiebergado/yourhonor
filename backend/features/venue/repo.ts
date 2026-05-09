@@ -16,12 +16,21 @@ ORDER BY name ASC
   return rows.map(row => BaseVenueSchema.parse(row));
 }
 
-export async function createVenue(db: Client, venue: CreateVenue): Promise<void> {
+type CreateVenueResultSet = {
+  id: number;
+};
+
+export async function createVenue(db: Client, venue: CreateVenue): Promise<number> {
   const sql = `
 INSERT INTO venues (name, location, created_by, updated_by)
 VALUES (?, ?, ?, ?)
+RETURNING id
   `;
 
   const { name, location, createdBy, updatedBy } = venue;
-  await db.execute(sql, [name, location, createdBy, updatedBy]);
+  const { rows } = await db.execute(sql, [name, location, createdBy, updatedBy]);
+
+  const { id } = rows[0] as unknown as CreateVenueResultSet;
+
+  return id;
 }

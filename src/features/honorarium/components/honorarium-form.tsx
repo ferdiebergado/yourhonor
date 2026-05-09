@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -22,6 +22,10 @@ import { computeHonorarium, formatAmount, getFullName } from '@shared/utils';
 import { useCreateHonorarium } from '../hooks';
 
 export default function HonorariumForm() {
+  const [isPayeeFormOpen, setIsPayeeFormOpen] = useState(false);
+  const [isRoleFormOpen, setIsRoleFormOpen] = useState(false);
+  const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
+
   const { isLoading: isFetchingPayees, data: payees } = useActivePayees();
   const { isLoading: isFetchingRoles, data: roles } = useActiveRoles();
   const { isLoading: isFetchingAccounts, data: accounts } = useActiveAccounts();
@@ -88,7 +92,11 @@ export default function HonorariumForm() {
                       isLoading={isFetchingPayees}
                       placeholder="Select a payee..."
                     />
-                    <PayeeForm />
+                    <PayeeForm
+                      isOpen={isPayeeFormOpen}
+                      onOpenChange={setIsPayeeFormOpen}
+                      honorariumForm={form}
+                    />
                   </div>
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -110,7 +118,11 @@ export default function HonorariumForm() {
                       isLoading={isFetchingRoles}
                       placeholder="Select a role..."
                     />
-                    <RoleForm />
+                    <RoleForm
+                      isOpen={isRoleFormOpen}
+                      onOpenChange={setIsRoleFormOpen}
+                      honorariumForm={form}
+                    />
                   </div>
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -149,7 +161,12 @@ export default function HonorariumForm() {
                         </Item>
                       )}
                     />
-                    <AccountForm payeeId={payeeId} />
+                    <AccountForm
+                      payeeId={payeeId}
+                      isOpen={isAccountFormOpen}
+                      onOpenChange={setIsAccountFormOpen}
+                      honorariumForm={form}
+                    />
                   </div>
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>

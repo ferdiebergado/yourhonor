@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddLargeLine } from '@remixicon/react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import FormButtons from '@/components/form-buttons';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -14,10 +14,18 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { RiAddLargeLine } from '@remixicon/react';
+import type { ActivityFormValues } from '@shared/schemas/activity';
 import { VenueFormSchema, type VenueFormValues } from '@shared/schemas/venue';
 import { useCreateVenue } from '../hooks';
 
-export default function VenueForm() {
+type VenueFormProps = {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  activityForm: UseFormReturn<ActivityFormValues>;
+};
+
+export default function VenueForm({ isOpen, onOpenChange, activityForm }: VenueFormProps) {
   const form = useForm<VenueFormValues>({
     resolver: zodResolver(VenueFormSchema),
     defaultValues: {
@@ -30,22 +38,21 @@ export default function VenueForm() {
 
   const handleSubmit = (values: VenueFormValues) => {
     createVenue(values, {
-      onSuccess: () => {
+      onSuccess: id => {
         toast.success('Venue created successfully.');
         form.reset();
+        if (id) activityForm.setValue('venueId', id);
+        onOpenChange(false);
       },
     });
   };
 
   return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button variant="outline" title="Add venue">
-            <RiAddLargeLine />
-          </Button>
-        }
-      />
+    <Popover open={isOpen} onOpenChange={onOpenChange}>
+      <PopoverTrigger />
+      <Button type="button" variant="outline" title="Add venue" onClick={() => onOpenChange(true)}>
+        <RiAddLargeLine />
+      </Button>
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add Venue</PopoverTitle>
@@ -93,12 +100,10 @@ export default function VenueForm() {
         </FieldGroup>
 
         <Field orientation="horizontal" className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
           </Button>
-          <Button type="button" onClick={form.handleSubmit(handleSubmit)} disabled={isPending}>
-            {isPending ? 'Saving...' : 'Submit'}
-          </Button>
+          <FormButtons form={form} isPending={isPending} onSubmit={handleSubmit} />
         </Field>
       </PopoverContent>
     </Popover>

@@ -1,15 +1,24 @@
 import type { Client } from '@libsql/client';
 import { RoleBaseSchema, type CreateRole, type RoleBase } from '@shared/schemas/role';
 
-export async function createRole(db: Client, role: CreateRole): Promise<void> {
+type CreateRoleResultSet = {
+  id: number;
+};
+
+export async function createRole(db: Client, role: CreateRole): Promise<number> {
   const sql = `
 INSERT INTO roles (name, created_by, updated_by)
 VALUES (?, ?, ?)
+RETURNING id
   `;
 
   const { name, createdBy, updatedBy } = role;
 
-  await db.execute(sql, [name, createdBy, updatedBy]);
+  const { rows } = await db.execute(sql, [name, createdBy, updatedBy]);
+
+  const { id } = rows[0] as unknown as CreateRoleResultSet;
+
+  return id;
 }
 
 export async function findActiveRoles(db: Client): Promise<RoleBase[]> {

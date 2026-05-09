@@ -15,9 +15,13 @@ import VenueForm from '@/features/venue/components/venue-form';
 import { useVenues } from '@/features/venue/hooks';
 import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
 import { getFullName } from '@shared/utils';
+import { useState } from 'react';
 import { useCreateActivity } from '../hooks';
 
 export default function ActivityForm() {
+  const [isVenueFormOpen, setIsVenueFormOpen] = useState(false);
+  const [isFocalFormOpen, setIsFocalFormOpen] = useState(false);
+
   const { isPending, mutate: createActivity } = useCreateActivity();
   const { isLoading: isFetchingVenues, data: venues } = useVenues();
   const { isLoading: isFetchingFocals, data: focals } = useFocals();
@@ -101,7 +105,12 @@ export default function ActivityForm() {
                         )}
                         disabled={isFetchingVenues}
                       />
-                      <VenueForm />
+
+                      <VenueForm
+                        isOpen={isVenueFormOpen}
+                        onOpenChange={setIsVenueFormOpen}
+                        activityForm={form}
+                      />
                     </div>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
@@ -196,7 +205,11 @@ export default function ActivityForm() {
                           </Item>
                         )}
                       />
-                      <FocalForm />
+                      <FocalForm
+                        isOpen={isFocalFormOpen}
+                        onOpenChange={setIsFocalFormOpen}
+                        activityForm={form}
+                      />
                     </div>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RiAddLargeLine } from '@remixicon/react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@/components/form-buttons';
@@ -15,10 +15,17 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { PayeeFormSchema, type PayeeFormValues } from '@shared/schemas/payee';
 import { useCreatePayee } from '../hooks';
 
-export default function PayeeForm() {
+type PayeeFormProps = {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  honorariumForm: UseFormReturn<HonorariumFormValues>;
+};
+
+export default function PayeeForm({ isOpen, onOpenChange, honorariumForm }: PayeeFormProps) {
   const { isPending, mutate: createPayee } = useCreatePayee();
 
   const form = useForm<PayeeFormValues>({
@@ -33,22 +40,21 @@ export default function PayeeForm() {
 
   const handleSubmit = (values: PayeeFormValues) => {
     createPayee(values, {
-      onSuccess: () => {
+      onSuccess: id => {
         toast.success('Payee created successfully.');
         form.reset();
+        if (id) honorariumForm.setValue('payeeId', id);
+        onOpenChange(false);
       },
     });
   };
 
   return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button variant="outline" title="Add payee">
-            <RiAddLargeLine />
-          </Button>
-        }
-      />
+    <Popover open={isOpen} onOpenChange={onOpenChange}>
+      <PopoverTrigger />
+      <Button variant="outline" title="Add payee" onClick={() => onOpenChange(true)}>
+        <RiAddLargeLine />
+      </Button>
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add payee</PopoverTitle>
@@ -138,6 +144,9 @@ export default function PayeeForm() {
         </FieldGroup>
 
         <Field orientation="horizontal" className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <FormButtons form={form} onSubmit={handleSubmit} isPending={isPending} />
         </Field>
       </PopoverContent>

@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RiAddLargeLine } from '@remixicon/react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import FormButtons from '@/components/form-buttons';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -19,10 +20,17 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import PositionForm from '@/features/position/components/position-form';
 import PositionInput from '@/features/position/components/position-input';
 import { usePositions } from '@/features/position/hooks';
+import type { ActivityFormValues } from '@shared/schemas/activity';
 import { FocalFormSchema, type FocalFormValues } from '@shared/schemas/focal';
 import { useCreateFocal } from '../hooks';
 
-export default function FocalForm() {
+type FocalFormProps = {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  activityForm: UseFormReturn<ActivityFormValues>;
+};
+
+export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalFormProps) {
   const { isLoading: isLoadingPositions, data: positions } = usePositions();
   const { isPending, mutate: createFocal } = useCreateFocal();
 
@@ -39,22 +47,22 @@ export default function FocalForm() {
 
   const handleSubmit = (values: FocalFormValues) => {
     createFocal(values, {
-      onSuccess: () => {
+      onSuccess: id => {
         toast.success('Focal person created successfully.');
         form.reset();
+        if (id) activityForm.setValue('focalId', id);
+        onOpenChange(false);
       },
     });
   };
 
   return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button variant="outline" title="Add focal person">
-            <RiAddLargeLine />
-          </Button>
-        }
-      />
+    <Popover open={isOpen} onOpenChange={onOpenChange}>
+      <PopoverTrigger />
+      <Button variant="outline" title="Add focal person" onClick={() => onOpenChange(true)}>
+        <RiAddLargeLine />
+      </Button>
+
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">
@@ -166,12 +174,10 @@ export default function FocalForm() {
         </FieldGroup>
 
         <Field orientation="horizontal" className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
           </Button>
-          <Button type="button" onClick={form.handleSubmit(handleSubmit)} disabled={isPending}>
-            {isPending ? 'Saving...' : 'Submit'}
-          </Button>
+          <FormButtons form={form} onSubmit={handleSubmit} isPending={isPending} />
         </Field>
       </PopoverContent>
     </Popover>

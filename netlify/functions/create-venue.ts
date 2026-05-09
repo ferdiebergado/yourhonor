@@ -3,7 +3,7 @@ import { createVenue } from '@backend/features/venue/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { VenueFormSchema, type CreateVenue, type Venue } from '@shared/schemas/venue';
+import { VenueFormSchema, type CreateVenue } from '@shared/schemas/venue';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -21,10 +21,11 @@ export default async (req: Request) => {
     };
 
     const db = await getDb();
-    await createVenue(db, venue);
+    const id = await createVenue(db, venue);
 
-    const payload: ApiResponse<Venue> = {
+    const payload: ApiResponse<number> = {
       success: true,
+      data: id,
     };
 
     return Response.json(payload, { status: 201 });

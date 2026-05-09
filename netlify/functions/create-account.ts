@@ -36,10 +36,11 @@ export default async (req: Request) => {
     };
 
     const db = await getDb();
-    await createAccount(db, account);
+    const id = await createAccount(db, account);
 
-    const payload: ApiResponse = {
+    const payload: ApiResponse<number> = {
       success: true,
+      data: id,
     };
 
     return Response.json(payload, { status: 201 });

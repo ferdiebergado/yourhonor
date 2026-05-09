@@ -1,15 +1,23 @@
 import type { Client } from '@libsql/client';
 import { BankBaseSchema, type BankBase, type CreateBank } from '@shared/schemas/bank';
 
-export async function createBank(db: Client, bank: CreateBank): Promise<void> {
+type CreateBankResultSet = {
+  id: number;
+};
+
+export async function createBank(db: Client, bank: CreateBank): Promise<number> {
   const sql = `
 INSERT INTO banks (name, created_by, updated_by)
 VALUES (?, ?, ?)
+RETURNING id
   `;
 
   const { name, createdBy, updatedBy } = bank;
 
-  await db.execute(sql, [name, createdBy, updatedBy]);
+  const { rows } = await db.execute(sql, [name, createdBy, updatedBy]);
+  const { id } = rows[0] as unknown as CreateBankResultSet;
+
+  return id;
 }
 
 export async function findActiveBanks(db: Client): Promise<BankBase[]> {
