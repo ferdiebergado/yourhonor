@@ -1,7 +1,13 @@
 import type { Context } from '@netlify/edge-functions';
 
 import type { ApiResponse } from '@shared/types/index.js';
-import { SESSION } from '../../shared/constants.js';
+
+export const SESSION = {
+  COOKIE_NAME: '__Host-session',
+  ID_LENGTH: 32,
+  DURATION_MINUTES: 60 * 24 * 30 * 3, // 90 days
+  HEADER_NAME: 'x-session-id',
+} as const;
 
 export default (req: Request, ctx: Context) => {
   console.log('Looking for active session...');
