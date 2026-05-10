@@ -11,9 +11,9 @@ export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
 
-    const data = await parseJson(req, HonorariumFormSchema);
-
     const { userId } = await getSession(req);
+
+    const data = await parseJson(req, HonorariumFormSchema);
 
     const computed = computeHonorarium(data.amount, data.salary, data.taxRate);
     const honorarium: NewHonorarium = {

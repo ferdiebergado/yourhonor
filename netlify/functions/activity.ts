@@ -3,20 +3,17 @@ import { findActiveActivityDetailedByUser } from '@backend/features/activity/rep
 import { checkMethod, parseSearchParams } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
+import { GenerateDocSchema } from '@shared/schemas/honorarium';
 import type { ApiResponse } from '@shared/types';
-import * as z from 'zod';
 
 export default async (req: Request) => {
   try {
     checkMethod(req, ['GET']);
 
-    const schema = z.object({
-      code: z.string().min(1, 'Activity code is required.'),
-    });
-
-    const { code } = parseSearchParams(req, schema);
-
     const { userId } = await getSession(req);
+
+    const { code } = parseSearchParams(req, GenerateDocSchema);
+
     const db = await getDb();
     const data = await findActiveActivityDetailedByUser(db, code, userId);
 

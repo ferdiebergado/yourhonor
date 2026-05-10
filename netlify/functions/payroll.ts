@@ -5,11 +5,13 @@ import { findActiveHonorariaPerActivity } from '@backend/features/honorarium/rep
 import { xlsxResponse } from '@backend/features/honorarium/utils';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
+import { getSession } from '@backend/session';
 import { GenerateDocSchema, type HonorariumDetail } from '@shared/schemas/honorarium';
 
 export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
+    await getSession(req);
 
     const { code } = await parseJson(req, GenerateDocSchema);
     const db = await getDb();

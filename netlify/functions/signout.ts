@@ -11,8 +11,9 @@ export default async (req: Request, ctx: Context) => {
   try {
     checkMethod(req, ['POST']);
 
-    const db = await getDb();
     const { sessionId } = await getSession(req);
+
+    const db = await getDb();
     const isDeleted = await softDeleteSession(db, sessionId);
 
     if (!isDeleted) throw new NotFoundError('Session not found or already deleted');

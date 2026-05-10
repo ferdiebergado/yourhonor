@@ -10,8 +10,9 @@ export default async (req: Request) => {
   try {
     checkMethod(req, ['GET']);
 
-    const db = await getDb();
     const { userId } = await getSession(req);
+
+    const db = await getDb();
     const user = await findUser(db, userId);
 
     if (!user) throw new UnauthorizedError('user not found');

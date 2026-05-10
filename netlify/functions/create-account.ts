@@ -10,10 +10,9 @@ import type { ApiResponse } from '@shared/types';
 export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
+    const { userId } = await getSession(req);
 
     const data = await parseJson(req, AccountFormSchema);
-
-    const { userId } = await getSession(req);
 
     const details = {
       branch: data.branch,

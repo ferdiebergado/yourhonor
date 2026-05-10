@@ -11,9 +11,9 @@ export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
 
-    const activity = await parseJson(req, ActivityFormSchema);
-
     const { userId } = await getSession(req);
+
+    const activity = await parseJson(req, ActivityFormSchema);
 
     const data: CreateActivity = {
       ...activity,

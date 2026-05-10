@@ -10,9 +10,9 @@ export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
 
-    const data = await parseJson(req, RoleFormSchema);
-
     const { userId } = await getSession(req);
+
+    const data = await parseJson(req, RoleFormSchema);
 
     const role: CreateRole = {
       ...data,
