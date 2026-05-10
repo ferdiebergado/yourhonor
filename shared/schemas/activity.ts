@@ -1,14 +1,17 @@
 import * as z from 'zod';
 
-export const ActivitySchema = z.object({
+export const ActivityRowSchema = z.object({
   id: z.int().positive(),
   title: z.string().min(1, 'Activity title is required'),
-  venueId: z.int().positive(),
-  startDate: z.iso.date(),
-  endDate: z.iso.date(),
-  code: z.string().min(1, 'Activity code is required'),
-  fundSource: z.string().min(1, 'Fund source is required'),
-  focalId: z.int().positive(),
+  venueId: z.coerce.number<number>().positive('Venue is required'),
+  code: z.stringFormat(
+    'activity code',
+    /^AC-\d{2}-[A-Z]{2,15}-[A-Z]{2,15}-[A-Z]{2,15}-(?:P\d+|\d+-\d+|\d+)$/
+  ),
+  fundSource: z.string(),
+  focalId: z.coerce.number<number>().positive('Focal person is required'),
+  startDate: z.iso.date('Start date must be a valid date'),
+  endDate: z.iso.date('End date must be a valid date'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
@@ -16,41 +19,39 @@ export const ActivitySchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreateActivitySchema = ActivitySchema.omit({
+export const CreateActivitySchema = ActivityRowSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export type Activity = z.infer<typeof ActivitySchema>;
+export type Activity = z.infer<typeof ActivityRowSchema>;
 export type CreateActivity = z.infer<typeof CreateActivitySchema>;
 
-export const ActivityIdSchema = ActivitySchema.pick({ id: true });
+export const ActivityIdSchema = ActivityRowSchema.pick({ id: true });
 
-export const ActivityFormSchema = z
-  .object({
-    title: z.string().min(1, 'Activity title is required'),
-    code: z.string().min(1, 'Activity code is required'),
-    venueId: z.coerce.number<number>().positive('Venue is required'),
-    focalId: z.coerce.number<number>().positive('Focal person is required'),
-    startDate: z.iso.date('Start date must be a valid date'),
-    endDate: z.iso.date('End date must be a valid date'),
-  })
-  .superRefine(({ startDate, endDate }, ctx) => {
-    if (endDate < startDate) {
-      ctx.addIssue({
-        code: 'invalid_value',
-        values: [startDate, endDate],
-        path: ['endDate'],
-        message: 'End date must be on or after start date',
-      });
-    }
-  });
+export const ActivityFormSchema = ActivityRowSchema.pick({
+  title: true,
+  code: true,
+  venueId: true,
+  focalId: true,
+  startDate: true,
+  endDate: true,
+}).superRefine(({ startDate, endDate }, ctx) => {
+  if (endDate < startDate) {
+    ctx.addIssue({
+      code: 'invalid_value',
+      values: [startDate, endDate],
+      path: ['endDate'],
+      message: 'End date must be on or after start date',
+    });
+  }
+});
 
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
 
-export const ActivityDetailSchema = ActivitySchema.pick({
+export const ActivityDetailSchema = ActivityRowSchema.pick({
   id: true,
   title: true,
   startDate: true,
@@ -66,7 +67,7 @@ export const ActivityDetailSchema = ActivitySchema.pick({
 
 export type ActivityDetail = z.infer<typeof ActivityDetailSchema>;
 
-export const ActivityFullSchema = ActivitySchema.omit({
+export const ActivityFullSchema = ActivityRowSchema.omit({
   venueId: true,
   focalId: true,
   createdBy: true,
