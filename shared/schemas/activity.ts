@@ -38,15 +38,9 @@ export const ActivityFormSchema = ActivityRowSchema.pick({
   focalId: true,
   startDate: true,
   endDate: true,
-}).superRefine(({ startDate, endDate }, ctx) => {
-  if (endDate < startDate) {
-    ctx.addIssue({
-      code: 'invalid_value',
-      values: [startDate, endDate],
-      path: ['endDate'],
-      message: 'End date must be on or after start date',
-    });
-  }
+}).refine(data => new Date(data.endDate) >= new Date(data.startDate), {
+  path: ['endDate'],
+  message: 'End date must be on or after start date',
 });
 
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
