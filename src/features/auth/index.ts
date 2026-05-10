@@ -25,5 +25,5 @@ export function validateState(returnedState: string | null): boolean {
   const expected = sessionStorage.getItem(STATE_KEY);
   sessionStorage.removeItem(STATE_KEY);
 
-  return !returnedState || returnedState !== expected;
+  return Boolean(returnedState && returnedState === expected);
 }
