@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Dispatch, SetStateAction } from 'react';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -14,10 +15,10 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCreatePosition } from '@/features/position/hooks';
 import type { FocalFormValues } from '@shared/schemas/focal';
 import { PositionFormSchema, type PositionFormValues } from '@shared/schemas/position';
-import type { Dispatch, SetStateAction } from 'react';
 
 type PositionFormProps = {
   isOpen: boolean;
@@ -49,7 +50,10 @@ export default function PositionForm({ isOpen, onOpenChange, focalForm }: Positi
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger render={<AddButton title="Add position" />} />
+      <Tooltip>
+        <TooltipTrigger render={<PopoverTrigger render={<AddButton />} />} />
+        <TooltipContent>Add position</TooltipContent>
+      </Tooltip>
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add position</PopoverTitle>

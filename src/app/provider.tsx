@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 import { BrowserRouter } from 'react-router';
 
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import ThemeProvider from '@/features/theme/theme-provider';
 import { queryClient } from '@/lib/query-client';
 
@@ -15,7 +16,9 @@ export default function Provider({ children }: ProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <BrowserRouter>{children}</BrowserRouter>
+        <BrowserRouter>
+          <TooltipProvider>{children}</TooltipProvider>
+        </BrowserRouter>
         <Toaster position="top-right" richColors />
       </ThemeProvider>
       <ReactQueryDevtools />

@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import PositionForm from '@/features/position/components/position-form';
 import PositionInput from '@/features/position/components/position-input';
 import { usePositions } from '@/features/position/hooks';
@@ -61,7 +62,10 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger render={<AddButton title="Add focal person" />} />
+      <Tooltip>
+        <TooltipTrigger render={<PopoverTrigger render={<AddButton />} />} />
+        <TooltipContent>Add focal person</TooltipContent>
+      </Tooltip>
 
       <PopoverContent align="start" className="md:w-96">
         <PopoverHeader>

@@ -14,6 +14,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { AccountFormValues } from '@shared/schemas/account';
 import { BankFormSchema, type BankFormValues } from '@shared/schemas/bank';
 import type { Dispatch, SetStateAction } from 'react';
@@ -49,7 +50,10 @@ export default function BankForm({ isOpen, onOpenChange, accountForm }: BankForm
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger render={<AddButton title="Add Bank" />} />
+      <Tooltip>
+        <TooltipTrigger render={<PopoverTrigger render={<AddButton />} />} />
+        <TooltipContent>Add Bank</TooltipContent>
+      </Tooltip>
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add Bank</PopoverTitle>

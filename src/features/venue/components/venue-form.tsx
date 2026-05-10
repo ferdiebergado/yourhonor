@@ -14,6 +14,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { ActivityFormValues } from '@shared/schemas/activity';
 import { VenueFormSchema, type VenueFormValues } from '@shared/schemas/venue';
 import { useCreateVenue } from '../hooks';
@@ -49,7 +50,10 @@ export default function VenueForm({ isOpen, onOpenChange, activityForm }: VenueF
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger render={<AddButton title="Add venue" />} />
+      <Tooltip>
+        <TooltipTrigger render={<PopoverTrigger render={<AddButton />} />} />
+        <TooltipContent>Add venue</TooltipContent>
+      </Tooltip>
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add Venue</PopoverTitle>

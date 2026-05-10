@@ -14,6 +14,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { RoleFormSchema, type RoleFormValues } from '@shared/schemas/role';
 import type { Dispatch, SetStateAction } from 'react';
@@ -49,7 +50,10 @@ export default function RoleForm({ isOpen, onOpenChange, honorariumForm }: RoleF
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger render={<AddButton title="Add role" />} />
+      <Tooltip>
+        <TooltipTrigger render={<PopoverTrigger render={<AddButton />} />} />
+        <TooltipContent>Add role</TooltipContent>
+      </Tooltip>
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add role</PopoverTitle>

@@ -15,6 +15,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BankForm from '@/features/bank/components/bank-form';
 import { useActiveBanks } from '@/features/bank/hooks';
 import { AccountFormSchema, type AccountFormValues } from '@shared/schemas/account';
@@ -69,9 +70,12 @@ export default function AccountForm({
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger
-        render={<AddButton title="Add payee bank account" disabled={payeeId === 0} />}
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={<PopoverTrigger render={<AddButton disabled={payeeId === 0} />} />}
+        />
+        <TooltipContent>Add payee bank account</TooltipContent>
+      </Tooltip>
       <PopoverContent align="start" className="w-90">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">

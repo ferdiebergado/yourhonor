@@ -14,6 +14,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { PayeeFormSchema, type PayeeFormValues } from '@shared/schemas/payee';
 import type { Dispatch, SetStateAction } from 'react';
@@ -52,7 +53,10 @@ export default function PayeeForm({ isOpen, onOpenChange, honorariumForm }: Paye
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger render={<AddButton title="Add payee" />} />
+      <Tooltip>
+        <TooltipTrigger render={<PopoverTrigger render={<AddButton />} />} />
+        <TooltipContent>Add payee</TooltipContent>
+      </Tooltip>
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add payee</PopoverTitle>
