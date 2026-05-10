@@ -1,5 +1,5 @@
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
-import { formatAmount, getFullName, getMaxSalary, toDateRange } from '@shared/utils';
+import { formatAmount, formatDateRange, getFullName, getMaxSalary } from '@shared/utils';
 import type { CellValue } from 'exceljs';
 import { certification } from './certification';
 import { computation } from './computation';
@@ -94,7 +94,7 @@ async function createCertPatches(honorarium: HonorariumDetail): Promise<Certific
       lastname: honorarium.focalLastname,
     }).toLocaleUpperCase(),
     position: honorarium.position,
-    date: toDateRange(honorarium.startDate, honorarium.endDate),
+    date: formatDateRange(honorarium.startDate, honorarium.endDate),
     amount_words: await amountToWords(honorarium.amount),
   };
 }
@@ -165,7 +165,7 @@ export function createCompPatches(honorarium: HonorariumDetail): ComputationPatc
       mi: honorarium.focalMi,
       lastname: honorarium.focalLastname,
     }).toLocaleUpperCase(),
-    date: toDateRange(honorarium.startDate, honorarium.endDate),
+    date: formatDateRange(honorarium.startDate, honorarium.endDate),
     bank_branch: honorarium.branch,
     account_name: honorarium.accountName,
     account_no: honorarium.accountNumber,
@@ -210,7 +210,7 @@ export async function createORS(honoraria: HonorariumDetail[]) {
   orsSheet.getCell('E7').value = payee;
   dvSheet.getCell('F11').value = payee;
 
-  const dateRange = toDateRange(startDate, endDate);
+  const dateRange = formatDateRange(startDate, endDate);
 
   const particulars = `To payment of honorarium as Resource Person during the ${activityTitle} held at ${venue} on ${dateRange}`;
   orsSheet.getCell('E16').value = particulars;
@@ -247,7 +247,7 @@ export async function createPayroll(honoraria: HonorariumDetail[]) {
   sheet.getCell('A7').value = fundClusterText;
 
   const particularsCell = sheet.getCell('A9');
-  const particulars = `${particularsCell.text} ${activityTitle} held at ${venue} on ${toDateRange(startDate, endDate)}`;
+  const particulars = `${particularsCell.text} ${activityTitle} held at ${venue} on ${formatDateRange(startDate, endDate)}`;
   particularsCell.value = particulars;
 
   let currentRow = 13;

@@ -59,47 +59,37 @@ export const formatAmount = (amount: number) =>
 export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
   `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;
 
-export function toDateRange(startDate: string, endDate: string): string {
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+export function formatDateRange(startInput: string | Date, endInput: string | Date): string {
+  const start = new Date(startInput);
+  const end = new Date(endInput);
 
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()))
+    throw new TypeError('Invalid date');
 
-  const startMonth = start.getMonth();
-  const endMonth = end.getMonth();
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+  });
 
-  const startDay = start.getDate();
-  const endDay = end.getDate();
+  const startMonth = formatter.format(start);
+  const endMonth = formatter.format(end);
 
-  const startYear = start.getFullYear();
-  const endYear = end.getFullYear();
+  const startDay = String(start.getDate());
+  const endDay = String(end.getDate());
 
-  if (startYear === endYear) {
-    if (startMonth === endMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${endDay.toString()}, ${startYear.toString()}`;
-    } else if (endMonth > startMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${months[endMonth]} ${endDay.toString()}, ${startYear.toString()}`;
-    }
-  } else if (endYear > startYear) {
-    if (startMonth === endMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${endDay.toString()}, ${endYear.toString()}`;
-    } else if (endMonth > startMonth) {
-      return `${months[startMonth]} ${startDay.toString()}-${months[endMonth]} ${endDay.toString()}, ${endYear.toString()}`;
-    }
-  }
+  const startYear = String(start.getFullYear());
+  const endYear = String(end.getFullYear());
 
-  throw new Error('invalid date range');
+  const sameDay = start.getTime() === end.getTime();
+
+  const sameMonth = start.getMonth() === end.getMonth() && startYear === endYear;
+
+  const sameYear = startYear === endYear;
+
+  if (sameDay) return `${startMonth} ${startDay}, ${startYear}`;
+
+  if (sameMonth) return `${startMonth} ${startDay}-${endDay}, ${startYear}`;
+
+  if (sameYear) return `${startMonth} ${startDay}-${endMonth} ${endDay}, ${startYear}`;
+
+  return `${startMonth} ${startDay}, ${startYear}-${endMonth} ${endDay}, ${endYear}`;
 }

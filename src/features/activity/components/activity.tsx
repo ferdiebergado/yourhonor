@@ -16,7 +16,7 @@ import {
   useGenPayroll,
 } from '@/features/honorarium/hooks';
 import type { ActivityFullDetail } from '@shared/schemas/activity';
-import { toDateRange } from '@shared/utils';
+import { formatDateRange } from '@shared/utils';
 import { useActivity, useActivityCode } from '../hooks';
 
 type SingleFieldConfig = { key: keyof ActivityFullDetail; label: string };
@@ -63,7 +63,7 @@ export default function Activity() {
     {
       keys: ['startDate', 'endDate'],
       label: 'Date of Conduct',
-      format: (startDate: string, endDate: string) => toDateRange(startDate, endDate),
+      format: (startDate: string, endDate: string) => formatDateRange(startDate, endDate),
     },
     {
       keys: ['venue', 'location'],
