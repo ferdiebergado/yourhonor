@@ -26,10 +26,10 @@ export default function HonorariumForm() {
   const [isRoleFormOpen, setIsRoleFormOpen] = useState(false);
   const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
 
+  const activityCode = useActivityCode();
   const { isLoading: isFetchingPayees, data: payees } = useActivePayees();
   const { isLoading: isFetchingRoles, data: roles } = useActiveRoles();
   const { isLoading: isFetchingAccounts, data: accounts } = useActiveAccounts();
-  const activityCode = useActivityCode();
 
   const { isPending, mutate: createHonorarium } = useCreateHonorarium();
 
@@ -69,6 +69,7 @@ export default function HonorariumForm() {
   };
 
   useEffect(() => form.setValue('activityCode', activityCode), [activityCode, form]);
+  useEffect(() => form.setValue('accountId', 0), [payeeId, form]);
 
   return (
     <Card className="w-full">
@@ -154,7 +155,7 @@ export default function HonorariumForm() {
                         <ItemContent>
                           <ItemTitle>{item.accountNumber}</ItemTitle>
                           <ItemDescription className="text-balance">
-                            {item.bank} <br></br> {item.branch}
+                            {item.bank} <br /> {item.branch}
                           </ItemDescription>
                         </ItemContent>
                       </Item>
