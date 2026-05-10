@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 
 import { paths } from '@/app/routes';
 import SplashScreen from '@/components/splash-screen';
-import { toast } from 'sonner';
 import { validateState } from '..';
 import { useSignin } from '../hooks';
 
@@ -23,7 +23,8 @@ export default function OauthCallback() {
     signin(code, {
       onSuccess: () => {
         toast.success('Successfully signed in!');
-        navigate(state?.from ?? paths.home, { replace: true });
+        const to = state?.from ?? paths.home;
+        navigate(to, { replace: true });
       },
     });
   }, [navigate, searchParams, signin, state?.from]);
