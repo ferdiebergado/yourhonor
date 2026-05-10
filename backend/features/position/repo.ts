@@ -19,13 +19,21 @@ ORDER BY name ASC
   return rows.map(row => PositionBaseSchema.parse(row));
 }
 
-export async function createPosition(db: Client, position: CreatePosition): Promise<void> {
+type CreatePositionResultSet = {
+  id: number;
+};
+
+export async function createPosition(db: Client, position: CreatePosition): Promise<number> {
   const sql = `
 INSERT INTO positions (name, created_by, updated_by)
 VALUES (?, ?, ?)
+RETURNING id
 `;
 
   const { name, createdBy, updatedBy } = position;
 
-  await db.execute(sql, [name, createdBy, updatedBy]);
+  const { rows } = await db.execute(sql, [name, createdBy, updatedBy]);
+  const { id } = rows[0] as unknown as CreatePositionResultSet;
+
+  return id;
 }

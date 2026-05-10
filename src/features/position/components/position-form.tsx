@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddCircleLine } from '@remixicon/react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import AddButton from '@/components/add-button';
 import SubmitButton from '@/components/submit-button';
-import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
@@ -16,9 +15,17 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useCreatePosition } from '@/features/position/hooks';
+import type { FocalFormValues } from '@shared/schemas/focal';
 import { PositionFormSchema, type PositionFormValues } from '@shared/schemas/position';
+import type { Dispatch, SetStateAction } from 'react';
 
-export default function PositionForm() {
+type PositionFormProps = {
+  isOpen: boolean;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
+  focalForm: UseFormReturn<FocalFormValues>;
+};
+
+export default function PositionForm({ isOpen, onOpenChange, focalForm }: PositionFormProps) {
   const { isPending, mutate: createPosition } = useCreatePosition();
 
   const form = useForm<PositionFormValues>({
@@ -30,22 +37,18 @@ export default function PositionForm() {
 
   const handleSubmit = (values: PositionFormValues) => {
     createPosition(values, {
-      onSuccess: () => {
+      onSuccess: id => {
         toast.success('Position created successfully.');
         form.reset();
+        if (id) focalForm.setValue('positionId', id);
+        onOpenChange(false);
       },
     });
   };
 
   return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button variant="outline" title="Add position">
-            <RiAddCircleLine />
-          </Button>
-        }
-      />
+    <Popover open={isOpen} onOpenChange={onOpenChange}>
+      <PopoverTrigger render={<AddButton title="Add position" />} />
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add position</PopoverTitle>
