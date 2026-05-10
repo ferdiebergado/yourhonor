@@ -19,7 +19,6 @@ export const paths = {
   signout: '/signout',
   oauthCallback: '/oauthcallback',
   me: '/me',
-  bugReport: '/bug-report',
   activities: '/activities',
   activity: '/activity/:code',
 };
