@@ -3,7 +3,7 @@ import { findActiveActivityDetailedByUser } from '@backend/features/activity/rep
 import { checkMethod, parseSearchParams } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { GenerateDocSchema } from '@shared/schemas/honorarium';
+import { ActivityCodeSchema } from '@shared/schemas/activity';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -12,7 +12,7 @@ export default async (req: Request) => {
 
     const { userId } = await getSession(req);
 
-    const { code } = parseSearchParams(req, GenerateDocSchema);
+    const { code } = parseSearchParams(req, ActivityCodeSchema);
 
     const db = await getDb();
     const data = await findActiveActivityDetailedByUser(db, code, userId);

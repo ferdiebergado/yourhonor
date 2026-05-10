@@ -76,3 +76,7 @@ export const ActivityFullSchema = ActivityRowSchema.omit({
 );
 
 export type ActivityFullDetail = z.infer<typeof ActivityFullSchema>;
+
+export const ActivityCodeSchema = ActivityRowSchema.pick({ code: true });
+
+export type ActivityCode = z.infer<typeof ActivityCodeSchema>;

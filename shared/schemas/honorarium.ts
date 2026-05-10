@@ -80,9 +80,3 @@ export const HonorariumDetailSchema = HonorariumDetailRowSchema.omit({
 });
 
 export type HonorariumDetail = z.infer<typeof HonorariumDetailSchema>;
-
-export const GenerateDocSchema = z.object({
-  code: z.string().min(1, 'Activity code is required.'),
-});
-
-export type GenerateDoc = z.infer<typeof GenerateDocSchema>;

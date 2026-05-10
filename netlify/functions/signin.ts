@@ -5,7 +5,7 @@ import { respondWithError } from '@backend/http/errors';
 import { signin } from '@backend/oauth';
 import { getSession } from '@backend/session';
 import { bakeSessionCookie } from '@backend/session/cookie';
-import { GenerateDocSchema } from '@shared/schemas/honorarium';
+import { ActivityCodeSchema } from '@shared/schemas/activity';
 import type { Profile } from '@shared/schemas/user';
 import type { ApiResponse } from '@shared/types';
 
@@ -14,7 +14,7 @@ export default async (req: Request, ctx: Context) => {
     checkMethod(req, ['POST']);
     await getSession(req);
 
-    const { code } = await parseJson(req, GenerateDocSchema);
+    const { code } = await parseJson(req, ActivityCodeSchema);
 
     const { user, sessionId, expiresAt } = await signin(code);
 

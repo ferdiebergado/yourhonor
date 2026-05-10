@@ -6,14 +6,15 @@ import { docxResponse } from '@backend/features/honorarium/utils';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { GenerateDocSchema, type HonorariumDetail } from '@shared/schemas/honorarium';
+import { ActivityCodeSchema } from '@shared/schemas/activity';
+import { type HonorariumDetail } from '@shared/schemas/honorarium';
 
 export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
     await getSession(req);
 
-    const { code } = await parseJson(req, GenerateDocSchema);
+    const { code } = await parseJson(req, ActivityCodeSchema);
     const db = await getDb();
     const honorariumDetailRows = await findActiveHonorariaPerActivity(db, code);
 
