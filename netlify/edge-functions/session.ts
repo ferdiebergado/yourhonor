@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/edge-functions';
 
-import { SESSION } from '@shared/constants.js';
 import type { ApiResponse } from '@shared/types/index.js';
+import { SESSION } from '../../shared/constants.js';
 
 export default (req: Request, ctx: Context) => {
   console.log('Looking for active session...');

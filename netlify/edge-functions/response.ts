@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/edge-functions';
 import { randomBytes } from 'node:crypto';
 
-import { CSP_NONCE_PLACEHOLDER, GOOGLE_ACCOUNTS_ORIGIN } from '@shared/constants.js';
+import { CSP_NONCE_PLACEHOLDER, GOOGLE_ACCOUNTS_ORIGIN } from '../../shared/constants.js';
 
 // Security headers configuration
 const SECURITY_HEADERS = {
