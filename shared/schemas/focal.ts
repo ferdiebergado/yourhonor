@@ -5,7 +5,6 @@ export const FocalSchema = z.object({
   firstname: z.string().min(1, 'Firstname is required'),
   mi: z.string().optional().nullable(),
   lastname: z.string().min(1, 'Lastname is required'),
-  sex: z.enum(['M', 'F']),
   positionId: z.coerce.number<number>().positive('Position is required'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),

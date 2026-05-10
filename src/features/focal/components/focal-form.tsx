@@ -7,7 +7,6 @@ import AddButton from '@/components/add-button';
 import SubmitButton from '@/components/submit-button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Popover,
   PopoverContent,
@@ -16,7 +15,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import PositionForm from '@/features/position/components/position-form';
 import PositionInput from '@/features/position/components/position-input';
@@ -43,7 +41,6 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
       firstname: '',
       mi: '',
       lastname: '',
-      sex: 'M',
       positionId: 0,
     },
   });
@@ -130,27 +127,6 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
                   placeholder="Ureta"
                   autoComplete="off"
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="sex"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field>
-                <Label htmlFor={field.name}>Sex</Label>
-                <RadioGroup name={field.name} value={field.value} onValueChange={field.onChange}>
-                  <div className="flex items-center gap-3">
-                    <RadioGroupItem value="M" id="male" />
-                    <Label htmlFor="male">Male</Label>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <RadioGroupItem value="F" id="female" />
-                    <Label htmlFor="female">Female</Label>
-                  </div>
-                </RadioGroup>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}

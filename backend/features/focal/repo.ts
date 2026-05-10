@@ -4,7 +4,7 @@ import { snakeToCamel } from '@shared/utils';
 
 export async function findActiveFocals(db: Client): Promise<FocalBase[]> {
   const sql = `
-SELECT f.id, f.firstname, f.mi, f.lastname, f.sex, f.position_id, p.name AS position
+SELECT f.id, f.firstname, f.mi, f.lastname, f.position_id, p.name AS position
 FROM focals f
 LEFT JOIN positions p ON f.position_id = p.id
 WHERE f.deleted_at IS NULL
@@ -24,19 +24,18 @@ type CreateFocalResultSet = {
 
 export async function createFocal(db: Client, focal: CreateFocal): Promise<number> {
   const sql = `
-INSERT INTO focals (firstname, mi, lastname, sex, position_id, created_by, updated_by)
-VALUES (?, ?, ?, ?, ?, ?, ?)
+INSERT INTO focals (firstname, mi, lastname,  position_id, created_by, updated_by)
+VALUES (?, ?, ?, ?, ?, ?)
 RETURNING id
 `;
 
-  const { firstname, mi, lastname, sex, positionId, createdBy, updatedBy } = focal;
+  const { firstname, mi, lastname, positionId, createdBy, updatedBy } = focal;
 
   const { rows } = await db.execute(sql, [
     firstname,
     // eslint-disable-next-line unicorn/no-null
     mi ?? null,
     lastname,
-    sex,
     positionId,
     createdBy,
     updatedBy,

@@ -47,7 +47,6 @@ CREATE TABLE IF NOT EXISTS focals (
   mi TEXT,
   lastname TEXT NOT NULL,
   position_id INTEGER NOT NULL,
-  sex TEXT NOT NULL CHECK (sex IN ('M', 'F')),
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
