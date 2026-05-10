@@ -3,7 +3,7 @@ import { RiAddLargeLine } from '@remixicon/react';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import FormButtons from '@/components/form-buttons';
+import SubmitButton from '@/components/submit-button';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -79,12 +79,7 @@ export default function RoleForm({ isOpen, onOpenChange, honorariumForm }: RoleF
           />
         </FieldGroup>
 
-        <Field orientation="horizontal" className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <FormButtons form={form} isPending={isPending} onSubmit={handleSubmit} />
-        </Field>
+        <SubmitButton form={form} isPending={isPending} onSubmit={handleSubmit} />
       </PopoverContent>
     </Popover>
   );

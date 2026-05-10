@@ -3,7 +3,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import GenericCombobox from '@/components/generic-combobox';
-import { Button } from '@/components/ui/button';
+import SubmitButton from '@/components/submit-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -228,13 +228,8 @@ export default function ActivityForm() {
           </FieldGroup>
         </form>
       </CardContent>
-      <CardFooter className="justify-end gap-2">
-        <Button type="button" variant="outline" onClick={() => form.reset()}>
-          Reset
-        </Button>
-        <Button type="submit" form="activity-form" disabled={isPending}>
-          {isPending ? 'Saving...' : 'Submit'}
-        </Button>
+      <CardFooter>
+        <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
       </CardFooter>
     </Card>
   );

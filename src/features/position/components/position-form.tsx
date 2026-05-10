@@ -3,6 +3,7 @@ import { RiAddCircleLine } from '@remixicon/react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import SubmitButton from '@/components/submit-button';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -72,14 +73,7 @@ export default function PositionForm() {
           />
         </FieldGroup>
 
-        <Field orientation="horizontal" className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
-          </Button>
-          <Button type="button" onClick={form.handleSubmit(handleSubmit)} disabled={isPending}>
-            {isPending ? 'Saving...' : 'Submit'}
-          </Button>
-        </Field>
+        <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
       </PopoverContent>
     </Popover>
   );
