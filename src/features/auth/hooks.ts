@@ -2,21 +2,21 @@ import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@ta
 import { fetchMe, signin, signout } from './api';
 
 const QUERY_KEYS = {
-  USER: ['user'] as const,
+  user: ['user'] as const,
 };
 
 export function useSignin() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (code: string) => signin(code),
-    onSuccess: user => queryClient.setQueryData(QUERY_KEYS.USER, user),
+    mutationFn: signin,
+    onSuccess: user => queryClient.setQueryData(QUERY_KEYS.user, user),
   });
 }
 
 const fetchMeOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.USER,
+    queryKey: QUERY_KEYS.user,
     queryFn: fetchMe,
     retry: false,
   });
@@ -29,9 +29,9 @@ export function useSignout() {
   return useMutation({
     mutationFn: signout,
     onSuccess: () => {
-      queryClient.cancelQueries({ queryKey: QUERY_KEYS.USER });
+      queryClient.cancelQueries({ queryKey: QUERY_KEYS.user });
       // eslint-disable-next-line unicorn/no-null
-      queryClient.setQueryData(QUERY_KEYS.USER, null);
+      queryClient.setQueryData(QUERY_KEYS.user, null);
       queryClient.removeQueries();
     },
   });
