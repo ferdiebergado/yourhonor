@@ -18,8 +18,6 @@ export function useCreatePosition() {
 
   return useMutation({
     mutationFn: createPosition,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.positions });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.positions }),
   });
 }
