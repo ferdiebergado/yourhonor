@@ -53,11 +53,30 @@ export default function ActivityForm() {
     });
   };
 
-  function updateEndDate() {
-    if (!endDate || new Date(startDate) > new Date(endDate)) form.setValue('endDate', startDate);
+  function syncDateInputs() {
+    if (!startDate && !endDate) return;
+
+    if (startDate && !endDate) {
+      form.setValue('endDate', startDate);
+      form.trigger('endDate');
+      return;
+    }
+
+    if (startDate && endDate) {
+      if (new Date(startDate) > new Date(endDate)) form.setValue('endDate', startDate);
+
+      form.trigger('endDate');
+      form.trigger('endDate');
+      return;
+    }
+
+    if (!startDate && endDate) {
+      form.setValue('startDate', endDate);
+      form.trigger('startDate');
+    }
   }
 
-  useEffect(updateEndDate, [endDate, form, startDate]);
+  useEffect(syncDateInputs, [startDate, endDate, form]);
 
   return (
     <Card className="w-full max-w-2xl md:mx-auto">
