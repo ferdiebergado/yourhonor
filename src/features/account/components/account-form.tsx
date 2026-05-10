@@ -56,9 +56,10 @@ export default function AccountForm({
   const handleSubmit = (values: AccountFormValues) => {
     createAccount(values, {
       onSuccess: id => {
+        if (!id) return;
         toast.success('Account created successfully.');
         form.reset();
-        if (id) honorariumForm.setValue('accountId', id);
+        honorariumForm.setValue('accountId', id);
         onOpenChange(false);
       },
     });

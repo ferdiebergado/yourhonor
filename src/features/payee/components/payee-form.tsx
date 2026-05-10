@@ -41,6 +41,7 @@ export default function PayeeForm({ isOpen, onOpenChange, honorariumForm }: Paye
   const handleSubmit = (values: PayeeFormValues) => {
     createPayee(values, {
       onSuccess: id => {
+        if (!id) return;
         toast.success('Payee created successfully.');
         form.reset();
         if (id) honorariumForm.setValue('payeeId', id);

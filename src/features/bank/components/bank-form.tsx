@@ -38,9 +38,10 @@ export default function BankForm({ isOpen, onOpenChange, accountForm }: BankForm
   const handleSubmit = (values: BankFormValues) => {
     createBank(values, {
       onSuccess: id => {
+        if (!id) return;
         toast.success('Bank created successfully.');
         form.reset();
-        if (id) accountForm.setValue('bankId', id);
+        accountForm.setValue('bankId', id);
         onOpenChange(false);
       },
     });

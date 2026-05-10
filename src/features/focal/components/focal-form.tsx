@@ -50,9 +50,10 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
   const handleSubmit = (values: FocalFormValues) => {
     createFocal(values, {
       onSuccess: id => {
+        if (!id) return;
         toast.success('Focal person created successfully.');
         form.reset();
-        if (id) activityForm.setValue('focalId', id);
+        activityForm.setValue('focalId', id);
         onOpenChange(false);
       },
     });
@@ -62,7 +63,7 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
     <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger render={<AddButton title="Add focal person" />} />
 
-      <PopoverContent align="start">
+      <PopoverContent align="start" className="md:w-96">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">
             Add focal person

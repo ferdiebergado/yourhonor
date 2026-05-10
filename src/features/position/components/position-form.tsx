@@ -38,9 +38,10 @@ export default function PositionForm({ isOpen, onOpenChange, focalForm }: Positi
   const handleSubmit = (values: PositionFormValues) => {
     createPosition(values, {
       onSuccess: id => {
+        if (!id) return;
         toast.success('Position created successfully.');
         form.reset();
-        if (id) focalForm.setValue('positionId', id);
+        focalForm.setValue('positionId', id);
         onOpenChange(false);
       },
     });

@@ -38,9 +38,10 @@ export default function RoleForm({ isOpen, onOpenChange, honorariumForm }: RoleF
   const handleSubmit = (values: RoleFormValues) => {
     createRole(values, {
       onSuccess: id => {
+        if (!id) return;
         toast.success('Role created successfully.');
         form.reset();
-        if (id) honorariumForm.setValue('roleId', id);
+        honorariumForm.setValue('roleId', id);
         onOpenChange(false);
       },
     });

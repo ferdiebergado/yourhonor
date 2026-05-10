@@ -38,9 +38,10 @@ export default function VenueForm({ isOpen, onOpenChange, activityForm }: VenueF
   const handleSubmit = (values: VenueFormValues) => {
     createVenue(values, {
       onSuccess: id => {
+        if (!id) return;
         toast.success('Venue created successfully.');
         form.reset();
-        if (id) activityForm.setValue('venueId', id);
+        activityForm.setValue('venueId', id);
         onOpenChange(false);
       },
     });
