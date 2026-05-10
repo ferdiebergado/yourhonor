@@ -1,11 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddLargeLine } from '@remixicon/react';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import AddButton from '@/components/add-button';
 import RHFSelect from '@/components/rhf-select';
 import SubmitButton from '@/components/submit-button';
-import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,13 +19,13 @@ import BankForm from '@/features/bank/components/bank-form';
 import { useActiveBanks } from '@/features/bank/hooks';
 import { AccountFormSchema, type AccountFormValues } from '@shared/schemas/account';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useCreateAccount } from '../hooks';
 
 type AccountFormProps = {
   payeeId: number;
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
   honorariumForm: UseFormReturn<HonorariumFormValues>;
 };
 
@@ -69,15 +68,9 @@ export default function AccountForm({
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger />
-      <Button
-        variant="outline"
-        title="Add payee bank account"
-        onClick={() => onOpenChange(true)}
-        disabled={payeeId === 0}
-      >
-        <RiAddLargeLine />
-      </Button>
+      <PopoverTrigger
+        render={<AddButton title="Add payee bank account" disabled={payeeId === 0} />}
+      />
       <PopoverContent align="start" className="w-90">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">

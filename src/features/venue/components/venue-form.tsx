@@ -2,8 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import AddButton from '@/components/add-button';
 import SubmitButton from '@/components/submit-button';
-import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,7 +14,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { RiAddLargeLine } from '@remixicon/react';
 import type { ActivityFormValues } from '@shared/schemas/activity';
 import { VenueFormSchema, type VenueFormValues } from '@shared/schemas/venue';
 import { useCreateVenue } from '../hooks';
@@ -49,10 +48,7 @@ export default function VenueForm({ isOpen, onOpenChange, activityForm }: VenueF
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger />
-      <Button type="button" variant="outline" title="Add venue" onClick={() => onOpenChange(true)}>
-        <RiAddLargeLine />
-      </Button>
+      <PopoverTrigger render={<AddButton title="Add venue" />} />
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add Venue</PopoverTitle>

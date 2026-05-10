@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddLargeLine } from '@remixicon/react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import AddButton from '@/components/add-button';
 import SubmitButton from '@/components/submit-button';
-import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,11 +26,13 @@ import { useCreateFocal } from '../hooks';
 
 type FocalFormProps = {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
   activityForm: UseFormReturn<ActivityFormValues>;
 };
 
 export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalFormProps) {
+  const [isPositionFormOpen, setIsPositionFormOpen] = useState(false);
+
   const { isLoading: isLoadingPositions, data: positions } = usePositions();
   const { isPending, mutate: createFocal } = useCreateFocal();
 
@@ -58,10 +60,7 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger />
-      <Button variant="outline" title="Add focal person" onClick={() => onOpenChange(true)}>
-        <RiAddLargeLine />
-      </Button>
+      <PopoverTrigger render={<AddButton title="Add focal person" />} />
 
       <PopoverContent align="start">
         <PopoverHeader>
@@ -165,7 +164,11 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
                     isLoading={isLoadingPositions}
                     positions={positions ?? []}
                   />
-                  <PositionForm />
+                  <PositionForm
+                    isOpen={isPositionFormOpen}
+                    onOpenChange={setIsPositionFormOpen}
+                    focalForm={form}
+                  />
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>

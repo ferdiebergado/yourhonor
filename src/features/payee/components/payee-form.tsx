@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddLargeLine } from '@remixicon/react';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import AddButton from '@/components/add-button';
 import SubmitButton from '@/components/submit-button';
-import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,11 +16,12 @@ import {
 } from '@/components/ui/popover';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { PayeeFormSchema, type PayeeFormValues } from '@shared/schemas/payee';
+import type { Dispatch, SetStateAction } from 'react';
 import { useCreatePayee } from '../hooks';
 
 type PayeeFormProps = {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
   honorariumForm: UseFormReturn<HonorariumFormValues>;
 };
 
@@ -51,10 +51,7 @@ export default function PayeeForm({ isOpen, onOpenChange, honorariumForm }: Paye
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger />
-      <Button variant="outline" title="Add payee" onClick={() => onOpenChange(true)}>
-        <RiAddLargeLine />
-      </Button>
+      <PopoverTrigger render={<AddButton title="Add payee" />} />
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add payee</PopoverTitle>

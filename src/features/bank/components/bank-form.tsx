@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RiAddLargeLine } from '@remixicon/react';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import AddButton from '@/components/add-button';
 import SubmitButton from '@/components/submit-button';
-import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,11 +16,12 @@ import {
 } from '@/components/ui/popover';
 import type { AccountFormValues } from '@shared/schemas/account';
 import { BankFormSchema, type BankFormValues } from '@shared/schemas/bank';
+import type { Dispatch, SetStateAction } from 'react';
 import { useCreateBank } from '../hooks';
 
 type BankFormProps = {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
   accountForm: UseFormReturn<AccountFormValues>;
 };
 
@@ -48,10 +48,7 @@ export default function BankForm({ isOpen, onOpenChange, accountForm }: BankForm
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger />
-      <Button variant="outline" title="Add Bank" onClick={() => onOpenChange(true)}>
-        <RiAddLargeLine />
-      </Button>
+      <PopoverTrigger render={<AddButton title="Add Bank" />} />
       <PopoverContent align="start">
         <PopoverHeader>
           <PopoverTitle className="font-heading text-xl font-semibold">Add Bank</PopoverTitle>
