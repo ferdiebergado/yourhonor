@@ -1,5 +1,5 @@
 import { getDb } from '@backend/db';
-import { deserializeDetails } from '@backend/features/account';
+import { deserializeDetails, maskAccountNo } from '@backend/features/account';
 import { findActiveAccounts } from '@backend/features/account/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -18,8 +18,9 @@ export default async (req: Request) => {
     const data: AccountDetail[] = [];
 
     for (const row of accountDetailRows) {
-      const deserialized = deserializeDetails(row.details);
-      data.push({ ...row, ...deserialized });
+      const accountDetails = deserializeDetails(row.details);
+      accountDetails.accountNumber = maskAccountNo(accountDetails.accountNumber);
+      data.push({ ...row, ...accountDetails });
     }
 
     const payload: ApiResponse<typeof data> = {
