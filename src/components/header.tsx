@@ -1,4 +1,4 @@
-import { RiLoader2Line, RiLogoutBoxLine } from '@remixicon/react';
+import { RiLoader2Line } from '@remixicon/react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 
@@ -6,13 +6,12 @@ import { paths } from '@/app/routes';
 import config from '@/config';
 import { useSignout } from '@/features/auth/hooks';
 import { ModeToggle } from '@/features/theme/mode-toggle';
+import { Button } from './ui/button';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from './ui/navigation-menu';
 
@@ -45,26 +44,16 @@ export default function Header() {
               <ModeToggle />
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Account</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-50">
-                  <li>
-                    <NavigationMenuLink onClick={handleSignout}>
-                      {isPending ? (
-                        <>
-                          <RiLoader2Line className="animate-spin" data-icon="inline-start" />
-                          Signing out...
-                        </>
-                      ) : (
-                        <>
-                          <RiLogoutBoxLine data-icon="inline-start" />
-                          Sign Out
-                        </>
-                      )}
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
+              <Button variant="ghost" onClick={handleSignout}>
+                {isPending ? (
+                  <>
+                    <RiLoader2Line className="animate-spin" data-icon="inline-start" />
+                    Signing out...
+                  </>
+                ) : (
+                  'Sign Out'
+                )}
+              </Button>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
