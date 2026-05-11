@@ -1,17 +1,11 @@
-import {
-  RiComputerLine,
-  RiLoader2Line,
-  RiLogoutBoxLine,
-  RiMoonClearLine,
-  RiSunLine,
-} from '@remixicon/react';
+import { RiLoader2Line, RiLogoutBoxLine } from '@remixicon/react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 
 import { paths } from '@/app/routes';
 import config from '@/config';
 import { useSignout } from '@/features/auth/hooks';
-import { useTheme } from '@/features/theme';
+import { ModeToggle } from '@/features/theme/mode-toggle';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,12 +17,10 @@ import {
 } from './ui/navigation-menu';
 
 export default function Header() {
-  const { setTheme } = useTheme();
   const { isPending, mutate: signout } = useSignout();
 
-  const handleSignout = () => {
+  const handleSignout = () =>
     signout(undefined, { onSuccess: () => toast.success('Successfully signed out!') });
-  };
 
   return (
     <header className="bg-background w-full shadow">
@@ -50,29 +42,7 @@ export default function Header() {
               />
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Theme</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-50">
-                  <li>
-                    <NavigationMenuLink onClick={() => setTheme('light')}>
-                      <RiSunLine data-icon="inline-start" />
-                      Light
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink onClick={() => setTheme('dark')}>
-                      <RiMoonClearLine data-icon="inline-start" />
-                      Dark
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink onClick={() => setTheme('system')}>
-                      <RiComputerLine data-icon="inline-start" />
-                      System
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
+              <ModeToggle />
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Account</NavigationMenuTrigger>
