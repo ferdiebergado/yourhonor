@@ -1,12 +1,9 @@
-import { RiLoader2Line } from '@remixicon/react';
 import { Link } from 'react-router';
-import { toast } from 'sonner';
 
 import { paths } from '@/app/routes';
 import config from '@/config';
-import { useSignout } from '@/features/auth/hooks';
 import { ModeToggle } from '@/features/theme/mode-toggle';
-import { Button } from './ui/button';
+import SignoutButton from './signout-button';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -16,11 +13,6 @@ import {
 } from './ui/navigation-menu';
 
 export default function Header() {
-  const { isPending, mutate: signout } = useSignout();
-
-  const handleSignout = () =>
-    signout(undefined, { onSuccess: () => toast.success('Successfully signed out!') });
-
   return (
     <header className="bg-background w-full shadow">
       <div className="flex items-center justify-between px-8 py-4 md:mx-auto md:max-w-5xl">
@@ -44,16 +36,7 @@ export default function Header() {
               <ModeToggle />
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Button variant="ghost" onClick={handleSignout}>
-                {isPending ? (
-                  <>
-                    <RiLoader2Line className="animate-spin" data-icon="inline-start" />
-                    Signing out...
-                  </>
-                ) : (
-                  'Sign Out'
-                )}
-              </Button>
+              <SignoutButton />
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
