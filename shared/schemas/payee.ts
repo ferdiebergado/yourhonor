@@ -2,10 +2,16 @@ import * as z from 'zod';
 
 export const PayeeSchema = z.object({
   id: z.int().positive(),
-  firstname: z.string().min(1, 'Firstname is required'),
-  mi: z.string().optional().nullable(),
-  lastname: z.string().min(1, 'Lastname is required'),
-  tin: z.string().optional().nullable(),
+  firstname: z
+    .string()
+    .min(1, 'Firstname is required')
+    .max(100, 'Firstname should not exceed 100 characters'),
+  mi: z.string().min(3, 'Middle initial should not exceed 3 characters').optional().nullable(),
+  lastname: z
+    .string()
+    .min(1, 'Lastname is required')
+    .max(100, 'Lastname should not exceed 100 characters'),
+  tin: z.string().max(15, 'TIN should not exceed 30 characters').optional().nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),

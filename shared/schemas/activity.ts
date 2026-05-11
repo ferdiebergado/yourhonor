@@ -2,7 +2,10 @@ import * as z from 'zod';
 
 export const ActivityRowSchema = z.object({
   id: z.int().positive(),
-  title: z.string().min(1, 'Activity title is required'),
+  title: z
+    .string()
+    .min(1, 'Activity title is required')
+    .max(250, 'Activity title should not exceed 250 characters'),
   venueId: z.coerce.number<number>().positive('Venue is required'),
   code: z.stringFormat(
     'activity code',
@@ -80,3 +83,9 @@ export type ActivityFullDetail = z.infer<typeof ActivityFullSchema>;
 export const ActivityCodeSchema = ActivityRowSchema.pick({ code: true });
 
 export type ActivityCode = z.infer<typeof ActivityCodeSchema>;
+
+export const ActivityUpdateSchema = CreateActivitySchema.omit({
+  createdBy: true,
+});
+
+export type ActivityUpdate = z.infer<typeof ActivityUpdateSchema>;

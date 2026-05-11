@@ -2,7 +2,10 @@ import * as z from 'zod';
 
 export const RoleSchema = z.object({
   id: z.int().positive(),
-  name: z.string().min(1, 'Role name is required'),
+  name: z
+    .string()
+    .min(1, 'Role name is required')
+    .max(100, 'Role should not exceed 100 characters'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),

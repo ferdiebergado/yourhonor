@@ -2,8 +2,14 @@ import * as z from 'zod';
 
 export const VenueSchema = z.object({
   id: z.int().positive(),
-  name: z.string().min(1, 'Venue name is required'),
-  location: z.string().min(1, 'Location is required'),
+  name: z
+    .string()
+    .min(1, 'Venue name is required')
+    .max(100, 'Venue should not exceed 100 characters'),
+  location: z
+    .string()
+    .min(1, 'Location is required')
+    .max(100, 'Location should not exceed 100 characters'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),

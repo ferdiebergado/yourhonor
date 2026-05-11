@@ -2,7 +2,10 @@ import * as z from 'zod';
 
 export const OfficeSchema = z.object({
   id: z.int().positive(),
-  name: z.string().min(1, 'Office name is required'),
+  name: z
+    .string()
+    .min(1, 'Office name is required.')
+    .max(250, 'Office name should not exceed 250 characters.'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),

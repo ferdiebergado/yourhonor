@@ -2,7 +2,10 @@ import * as z from 'zod';
 
 export const BankSchema = z.object({
   id: z.int().positive(),
-  name: z.string().min(1, 'Bank name is required'),
+  name: z
+    .string()
+    .min(1, 'Bank name is required')
+    .max(150, 'Bank name should not exceed 150 characters'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),

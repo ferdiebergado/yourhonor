@@ -2,8 +2,8 @@ import * as z from 'zod';
 
 export const FocalSchema = z.object({
   id: z.int().positive(),
-  firstname: z.string().min(1, 'Firstname is required'),
-  mi: z.string().optional().nullable(),
+  firstname: z.string().min(1, 'Firstname is required').max(50),
+  mi: z.string().max(3, 'Middle initial should not exceed 3 characters').optional().nullable(),
   lastname: z.string().min(1, 'Lastname is required'),
   positionId: z.coerce.number<number>().positive('Position is required'),
   createdAt: z.iso.datetime(),

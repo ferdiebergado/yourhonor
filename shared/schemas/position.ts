@@ -2,7 +2,10 @@ import * as z from 'zod';
 
 export const PositionSchema = z.object({
   id: z.int().positive('Position is required'),
-  name: z.string().min(1, 'Position is required'),
+  name: z
+    .string()
+    .min(1, 'Position is required')
+    .max(100, 'Position name should not exceed 100 characters'),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   deletedAt: z.iso.datetime().optional().nullable(),
