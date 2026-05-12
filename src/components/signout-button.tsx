@@ -11,7 +11,7 @@ export default function SignoutButton() {
     signout(undefined, { onSuccess: () => toast.success('Successfully signed out!') });
 
   return (
-    <Button variant="ghost" onClick={handleSignout}>
+    <Button variant="ghost" onClick={handleSignout} disabled={isPending}>
       {isPending ? (
         <>
           <RiLoader2Line className="animate-spin" data-icon="inline-start" />
