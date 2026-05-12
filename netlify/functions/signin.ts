@@ -1,21 +1,21 @@
 import type { Context } from '@netlify/functions';
+import * as z from 'zod';
 
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { signin } from '@backend/oauth';
-import { getSession } from '@backend/session';
 import { bakeSessionCookie } from '@backend/session/cookie';
-import { ActivityCodeSchema } from '@shared/schemas/activity';
 import type { Profile } from '@shared/schemas/user';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request, ctx: Context) => {
   try {
     checkMethod(req, ['POST']);
-    await getSession(req);
 
-    const { code } = await parseJson(req, ActivityCodeSchema);
-
+    const schema = z.object({
+      code: z.string().trim().min(20).max(512),
+    });
+    const { code } = await parseJson(req, schema);
     const { user, sessionId, expiresAt } = await signin(code);
 
     const sessionCookie = bakeSessionCookie(sessionId, expiresAt);
