@@ -1,6 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useState } from 'react';
+import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import GenericCombobox from '@/components/generic-combobox';
@@ -17,9 +16,9 @@ import PayeeForm from '@/features/payee/components/payee-form';
 import { useActivePayees } from '@/features/payee/hooks';
 import RoleForm from '@/features/role/components/role-form';
 import { useActiveRoles } from '@/features/role/hooks';
-import { HonorariumFormSchema, type HonorariumFormValues } from '@shared/schemas/honorarium';
+import { type HonorariumFormValues } from '@shared/schemas/honorarium';
 import { computeHonorarium, formatAmount, getFullName } from '@shared/utils';
-import { useCreateHonorarium } from '../hooks';
+import { useCreateHonorarium, useHonorariumForm } from '../hooks';
 
 export default function HonorariumForm() {
   const [isPayeeFormOpen, setIsPayeeFormOpen] = useState(false);
@@ -30,31 +29,12 @@ export default function HonorariumForm() {
   const { isLoading: isFetchingPayees, data: payees } = useActivePayees();
   const { isLoading: isFetchingRoles, data: roles } = useActiveRoles();
   const { isLoading: isFetchingAccounts, data: accounts } = useActiveAccounts();
-
   const { isPending, mutate: createHonorarium } = useCreateHonorarium();
+  const { form, payeeId, honorarium, salary, taxRate } = useHonorariumForm(activityCode);
 
   const payeeItems =
     payees?.map(payee => ({ label: getFullName(payee), value: payee.id.toString() })) ?? [];
-
   const roleItems = roles?.map(({ id, name }) => ({ label: name, value: id.toString() })) ?? [];
-
-  const form = useForm<HonorariumFormValues>({
-    resolver: zodResolver(HonorariumFormSchema),
-    defaultValues: {
-      activityCode,
-      payeeId: 0,
-      roleId: 0,
-      amount: 0,
-      accountId: 0,
-      taxRate: 10,
-      salary: 0,
-    },
-  });
-
-  const payeeId = useWatch({ control: form.control, name: 'payeeId' });
-  const honorarium = useWatch({ control: form.control, name: 'amount' });
-  const taxRate = useWatch({ control: form.control, name: 'taxRate' });
-  const salary = useWatch({ control: form.control, name: 'salary' });
 
   const filteredAccounts = accounts?.filter(account => account.payeeId === payeeId) ?? [];
   const { actual, net, hoursRendered } = computeHonorarium(honorarium, salary, taxRate);
@@ -67,9 +47,6 @@ export default function HonorariumForm() {
       },
     });
   };
-
-  useEffect(() => form.setValue('activityCode', activityCode), [activityCode, form]);
-  useEffect(() => form.setValue('accountId', 0), [payeeId, form]);
 
   return (
     <Card className="w-full">

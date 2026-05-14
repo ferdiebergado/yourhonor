@@ -1,6 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
+import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
 import { createActivity, fetchActivities, fetchActivity } from './api';
 
 const activityKeys = {
@@ -42,4 +45,48 @@ export function useActivityCode() {
     throw new Error('useActivityCode must be used inside an ActivityProvider');
 
   return activityCodeContext;
+}
+
+export function useActivityForm() {
+  const form = useForm<ActivityFormValues>({
+    resolver: zodResolver(ActivityFormSchema),
+    defaultValues: {
+      title: '',
+      code: '',
+      venueId: 0,
+      focalId: 0,
+      startDate: '',
+      endDate: '',
+    },
+  });
+
+  const startDate = useWatch({ control: form.control, name: 'startDate' });
+  const endDate = useWatch({ control: form.control, name: 'endDate' });
+
+  function syncDateInputs() {
+    if (!startDate && !endDate) return;
+
+    if (startDate && !endDate) {
+      form.setValue('endDate', startDate);
+      form.trigger('endDate');
+      return;
+    }
+
+    if (startDate && endDate) {
+      if (new Date(startDate) > new Date(endDate)) form.setValue('endDate', startDate);
+
+      form.trigger('endDate');
+      form.trigger('endDate');
+      return;
+    }
+
+    if (!startDate && endDate) {
+      form.setValue('startDate', endDate);
+      form.trigger('startDate');
+    }
+  }
+
+  useEffect(syncDateInputs, [startDate, endDate, form]);
+
+  return form;
 }

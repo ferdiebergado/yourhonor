@@ -1,5 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
+import { useState, type Dispatch, type SetStateAction } from 'react';
+import { Controller, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import AddButton from '@/components/add-button';
@@ -18,10 +18,9 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BankForm from '@/features/bank/components/bank-form';
 import { useActiveBanks } from '@/features/bank/hooks';
-import { AccountFormSchema, type AccountFormValues } from '@shared/schemas/account';
+import { type AccountFormValues } from '@shared/schemas/account';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { useCreateAccount } from '../hooks';
+import { useAccountForm, useCreateAccount } from '../hooks';
 
 type AccountFormProps = {
   payeeId: number;
@@ -40,19 +39,9 @@ export default function AccountForm({
 
   const { isLoading: isLoadingBanks, data: banks } = useActiveBanks();
   const { isPending, mutate: createAccount } = useCreateAccount();
+  const form = useAccountForm(payeeId);
 
   const bankItems = banks?.map(({ id, name }) => ({ label: name, value: id.toString() })) ?? [];
-
-  const form = useForm<AccountFormValues>({
-    resolver: zodResolver(AccountFormSchema),
-    defaultValues: {
-      payeeId,
-      bankId: 0,
-      branch: '',
-      accountName: '',
-      accountNumber: '',
-    },
-  });
 
   const handleSubmit = (values: AccountFormValues) => {
     createAccount(values, {
@@ -65,8 +54,6 @@ export default function AccountForm({
       },
     });
   };
-
-  useEffect(() => form.setValue('payeeId', payeeId), [payeeId, form]);
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>

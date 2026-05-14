@@ -1,5 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useState } from 'react';
+import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import GenericCombobox from '@/components/generic-combobox';
@@ -13,10 +13,9 @@ import FocalForm from '@/features/focal/components/focal-form';
 import { useFocals } from '@/features/focal/hooks';
 import VenueForm from '@/features/venue/components/venue-form';
 import { useVenues } from '@/features/venue/hooks';
-import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
+import { type ActivityFormValues } from '@shared/schemas/activity';
 import { getFullName } from '@shared/utils';
-import { useEffect, useState } from 'react';
-import { useCreateActivity } from '../hooks';
+import { useActivityForm, useCreateActivity } from '../hooks';
 
 export default function ActivityForm() {
   const [isVenueFormOpen, setIsVenueFormOpen] = useState(false);
@@ -26,20 +25,7 @@ export default function ActivityForm() {
   const { isLoading: isFetchingVenues, data: venues } = useVenues();
   const { isLoading: isFetchingFocals, data: focals } = useFocals();
 
-  const form = useForm<ActivityFormValues>({
-    resolver: zodResolver(ActivityFormSchema),
-    defaultValues: {
-      title: '',
-      code: '',
-      venueId: 0,
-      focalId: 0,
-      startDate: '',
-      endDate: '',
-    },
-  });
-
-  const startDate = useWatch({ control: form.control, name: 'startDate' });
-  const endDate = useWatch({ control: form.control, name: 'endDate' });
+  const form = useActivityForm();
 
   const handleSubmit = (values: ActivityFormValues) => {
     createActivity(values, {
@@ -52,31 +38,6 @@ export default function ActivityForm() {
       },
     });
   };
-
-  function syncDateInputs() {
-    if (!startDate && !endDate) return;
-
-    if (startDate && !endDate) {
-      form.setValue('endDate', startDate);
-      form.trigger('endDate');
-      return;
-    }
-
-    if (startDate && endDate) {
-      if (new Date(startDate) > new Date(endDate)) form.setValue('endDate', startDate);
-
-      form.trigger('endDate');
-      form.trigger('endDate');
-      return;
-    }
-
-    if (!startDate && endDate) {
-      form.setValue('startDate', endDate);
-      form.trigger('startDate');
-    }
-  }
-
-  useEffect(syncDateInputs, [startDate, endDate, form]);
 
   return (
     <Card className="w-full max-w-2xl md:mx-auto">
