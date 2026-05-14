@@ -13,6 +13,7 @@ const PageNotFound = lazy(() => import('./not-found'));
 const Activities = lazy(() => import('@/features/activity/components/activities'));
 const ActivityPage = lazy(() => import('@/features/activity/components/activity-page'));
 const TermsPage = lazy(() => import('@/features/auth/components/terms-page'));
+const PrivacyPage = lazy(() => import('@/features/auth/components/privacy-page'));
 
 export const paths = {
   home: '/',
@@ -23,6 +24,7 @@ export const paths = {
   activities: '/activities',
   activity: '/activity/:code',
   terms: '/terms',
+  privacy: '/privacy',
 };
 
 export const routes: RouteObject[] = [
@@ -69,6 +71,10 @@ export const routes: RouteObject[] = [
   {
     path: paths.terms,
     Component: TermsPage,
+  },
+  {
+    path: paths.privacy,
+    Component: PrivacyPage,
   },
   {
     path: '/*',

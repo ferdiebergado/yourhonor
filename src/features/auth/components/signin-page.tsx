@@ -1,5 +1,7 @@
 import { RiShieldCheckFill } from '@remixicon/react';
+import { Link } from 'react-router';
 
+import { paths } from '@/app/routes';
 import { Card, CardContent } from '@/components/ui/card';
 import config from '@/config';
 import SigninButton from './signin-button';
@@ -34,13 +36,13 @@ export default function SigninPage() {
           {/* Legal Footer */}
           <p className="text-muted-foreground mt-4 text-center text-xs">
             By clicking continue, you agree to our{' '}
-            <a href="#" className="hover:text-primary underline underline-offset-4">
+            <Link to={paths.terms} className="hover:text-primary underline underline-offset-4">
               Terms of Service
-            </a>{' '}
+            </Link>{' '}
             and{' '}
-            <a href="#" className="hover:text-primary underline underline-offset-4">
+            <Link to={paths.privacy} className="hover:text-primary underline underline-offset-4">
               Privacy Policy
-            </a>
+            </Link>
             .
           </p>
         </CardContent>
