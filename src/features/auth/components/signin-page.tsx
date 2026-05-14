@@ -1,4 +1,3 @@
-import { RiShieldCheckFill } from '@remixicon/react';
 import { Link } from 'react-router';
 
 import { paths } from '@/app/routes';
@@ -12,9 +11,11 @@ export default function SigninPage() {
       <Card className="border-border/40 w-full max-w-md overflow-hidden rounded-2xl shadow-2xl">
         <CardContent className="flex flex-col items-center space-y-6 p-8 sm:p-10">
           {/* Stylized Logo */}
-          <div className="mb-2 flex items-center gap-3">
-            <RiShieldCheckFill className="text-primary h-8 w-8" />
-            <span className="text-2xl font-bold tracking-tight">{config.appTitle}</span>
+          <div className="font-heading mb-2 flex items-center gap-2 tracking-tight">
+            <div className="bg-destructive text-background h-1/2 rounded-lg px-3 text-center text-2xl font-bold">
+              YH
+            </div>
+            <div className="text-2xl font-bold">{config.appTitle}</div>
           </div>
 
           {/* Heading */}
