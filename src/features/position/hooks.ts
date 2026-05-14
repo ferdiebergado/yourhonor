@@ -1,13 +1,13 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPosition, fetchPositions } from './api';
 
-const QUERY_KEYS = {
-  positions: ['positions'] as const,
+const positionKeys = {
+  all: ['positions'] as const,
 };
 
 const fetchPositionsOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.positions,
+    queryKey: positionKeys.all,
     queryFn: fetchPositions,
   });
 
@@ -18,6 +18,6 @@ export function useCreatePosition() {
 
   return useMutation({
     mutationFn: createPosition,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.positions }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: positionKeys.all }),
   });
 }

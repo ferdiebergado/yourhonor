@@ -8,9 +8,9 @@ import {
   genPayroll,
 } from './api';
 
-const QUERY_KEYS = {
-  honoraria: ['honoraria'] as const,
-  honorariaByCode: (code: string) => ['honoraria', code],
+const honorariumKeys = {
+  all: ['honoraria'] as const,
+  byCode: (code: string) => [...honorariumKeys.all, code],
 };
 
 export function useCreateHonorarium() {
@@ -18,13 +18,13 @@ export function useCreateHonorarium() {
 
   return useMutation({
     mutationFn: createHonorarium,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.honoraria }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: honorariumKeys.all }),
   });
 }
 
 const fetchActiveHonorariaOptions = (code: string) =>
   queryOptions({
-    queryKey: QUERY_KEYS.honorariaByCode(code),
+    queryKey: honorariumKeys.byCode(code),
     queryFn: () => fetchActiveHonorariaByActivity(code),
   });
 

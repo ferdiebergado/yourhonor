@@ -1,13 +1,13 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFocal, fetchFocals } from './api';
 
-const QUERY_KEYS = {
-  focals: ['focals'] as const,
+const focalKeys = {
+  all: ['focals'] as const,
 };
 
 const fetchFocalsOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.focals,
+    queryKey: focalKeys.all,
     queryFn: fetchFocals,
   });
 
@@ -18,6 +18,6 @@ export function useCreateFocal() {
 
   return useMutation({
     mutationFn: createFocal,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.focals }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: focalKeys.all }),
   });
 }

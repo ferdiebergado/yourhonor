@@ -1,8 +1,8 @@
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createBank, fetchActiveBanks } from './api';
 
-const QUERY_KEYS = {
-  banks: ['banks'] as const,
+const bankKeys = {
+  all: ['banks'] as const,
 };
 
 export function useCreateBank() {
@@ -10,13 +10,13 @@ export function useCreateBank() {
 
   return useMutation({
     mutationFn: createBank,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.banks }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: bankKeys.all }),
   });
 }
 
 const getActiveBanksOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.banks,
+    queryKey: bankKeys.all,
     queryFn: fetchActiveBanks,
   });
 

@@ -1,10 +1,11 @@
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createContext, useContext } from 'react';
+
 import { createActivity, fetchActivities, fetchActivity } from './api';
 
-const QUERY_KEYS = {
-  activities: ['activities'] as const,
-  activity: (code: string) => ['activities', code],
+const activityKeys = {
+  all: ['activities'] as const,
+  byCode: (code: string) => [...activityKeys.all, code] as const,
 };
 
 export function useCreateActivity() {
@@ -12,13 +13,13 @@ export function useCreateActivity() {
 
   return useMutation({
     mutationFn: createActivity,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.activities }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: activityKeys.all }),
   });
 }
 
 const fetchActivitiesOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.activities,
+    queryKey: activityKeys.all,
     queryFn: fetchActivities,
   });
 
@@ -26,15 +27,11 @@ export const useActivities = () => useSuspenseQuery(fetchActivitiesOptions());
 
 const fetchActivityOptions = (code: string) =>
   queryOptions({
-    queryKey: QUERY_KEYS.activity(code),
+    queryKey: activityKeys.byCode(code),
     queryFn: () => fetchActivity(code),
   });
 
 export const useActivity = (code: string) => useSuspenseQuery(fetchActivityOptions(code));
-
-export type ActivityState = {
-  id: number;
-};
 
 export const ActivityCodeContext = createContext<string | undefined>(undefined);
 

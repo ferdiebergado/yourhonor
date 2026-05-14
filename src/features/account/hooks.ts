@@ -1,13 +1,13 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createAccount, fetchActiveAccounts } from './api';
 
-const QUERY_KEYS = {
-  accounts: ['accounts'] as const,
+const accountKeys = {
+  all: ['accounts'] as const,
 };
 
 const getActiveAccountsOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.accounts,
+    queryKey: accountKeys.all,
     queryFn: fetchActiveAccounts,
   });
 
@@ -18,6 +18,6 @@ export function useCreateAccount() {
 
   return useMutation({
     mutationFn: createAccount,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.accounts }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: accountKeys.all }),
   });
 }

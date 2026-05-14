@@ -1,8 +1,8 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPayee, fetchActivePayees } from './api';
 
-const QUERY_KEYS = {
-  payees: ['payees'] as const,
+const payeeKeys = {
+  all: ['payees'] as const,
 };
 
 export function useCreatePayee() {
@@ -10,13 +10,13 @@ export function useCreatePayee() {
 
   return useMutation({
     mutationFn: createPayee,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payees }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: payeeKeys.all }),
   });
 }
 
 const getActivePayeesOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.payees,
+    queryKey: payeeKeys.all,
     queryFn: fetchActivePayees,
   });
 

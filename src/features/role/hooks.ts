@@ -1,8 +1,8 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createRole, fetchActiveRoles } from './api';
 
-const QUERY_KEYS = {
-  roles: ['roles'] as const,
+const roleKeys = {
+  all: ['roles'] as const,
 };
 
 export function useCreateRole() {
@@ -10,13 +10,13 @@ export function useCreateRole() {
 
   return useMutation({
     mutationFn: createRole,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.roles }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: roleKeys.all }),
   });
 }
 
 const getActiveRolesOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.roles,
+    queryKey: roleKeys.all,
     queryFn: fetchActiveRoles,
   });
 

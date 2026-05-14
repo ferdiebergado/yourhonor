@@ -1,13 +1,13 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createVenue, fetchVenues } from './api';
 
-const QUERY_KEYS = {
-  venues: ['venues'] as const,
+const venueKeys = {
+  all: ['venues'] as const,
 };
 
 const fetchVenuesOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.venues,
+    queryKey: venueKeys.all,
     queryFn: fetchVenues,
   });
 
@@ -19,7 +19,7 @@ export const useCreateVenue = () => {
   return useMutation({
     mutationFn: createVenue,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.venues });
+      queryClient.invalidateQueries({ queryKey: venueKeys.all });
     },
   });
 };
