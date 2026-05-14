@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Dispatch, SetStateAction } from 'react';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -17,7 +18,6 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { PayeeFormSchema, type PayeeFormValues } from '@shared/schemas/payee';
-import type { Dispatch, SetStateAction } from 'react';
 import { useCreatePayee } from '../hooks';
 
 type PayeeFormProps = {
