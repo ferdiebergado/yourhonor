@@ -2,12 +2,12 @@ import { lazy } from 'react';
 import type { RouteObject } from 'react-router';
 
 import GuestLayout from '@/components/guest-layout';
+import Layout from '@/components/layout';
 import RequireGuest from '@/features/auth/components/require-guest';
+import RequireUser from '@/features/auth/components/require-user';
 import SigninPage from '@/features/auth/components/signin-page';
 
 const OauthCallback = lazy(() => import('@/features/auth/components/oauth-callback'));
-const Layout = lazy(() => import('@/components/layout'));
-const RequireUser = lazy(() => import('@/features/auth/components/require-user'));
 const Dashboard = lazy(() => import('./dashboard'));
 const PageNotFound = lazy(() => import('./not-found'));
 const Activities = lazy(() => import('@/features/activity/components/activities'));
