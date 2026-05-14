@@ -6,7 +6,7 @@ export const PayeeSchema = z.object({
     .string()
     .min(1, 'Firstname is required')
     .max(100, 'Firstname should not exceed 100 characters'),
-  mi: z.string().min(3, 'Middle initial should not exceed 3 characters').optional().nullable(),
+  mi: z.string().max(3, 'Middle initial should not exceed 3 characters').optional().nullable(),
   lastname: z
     .string()
     .min(1, 'Lastname is required')
