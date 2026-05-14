@@ -16,7 +16,7 @@ export default function Header() {
   return (
     <header className="bg-background w-full shadow">
       <div className="flex items-center justify-between px-8 py-4 md:mx-auto md:max-w-5xl">
-        <h1 className="font-heading text-2xl font-bold">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">
           <span className="bg-destructive text-background size-5 rounded-lg px-3 py-1">YH</span>{' '}
           {config.appTitle}
         </h1>
