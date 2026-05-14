@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS banks (
 
 -- Payee bank accounts
 CREATE TABLE IF NOT EXISTS accounts (
-  id INTEGER PRIMARY KEY,
+  account id INTEGER PRIMARY KEY,
   payee_id INTEGER NOT NULL,
   bank_id INTEGER NOT NULL,
   details BLOB NOT NULL,
@@ -178,7 +178,8 @@ CREATE TABLE IF NOT EXISTS accounts (
   FOREIGN KEY (payee_id) REFERENCES payees (id),
   FOREIGN KEY (bank_id) REFERENCES banks (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
-  FOREIGN KEY (updated_by) REFERENCES users (id)
+  FOREIGN KEY (updated_by) REFERENCES users (id),
+  UNIQUE (payee_id, bank_id, details)
 );
 
 -- Roles
