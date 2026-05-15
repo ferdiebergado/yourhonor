@@ -21,9 +21,9 @@ export function genGoogleAuthUrl(): string {
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 }
 
-export function validateState(returnedState: string | null): boolean {
-  const expected = sessionStorage.getItem(STATE_KEY);
+export function validateState(receivedState: string): boolean {
+  const savedState = sessionStorage.getItem(STATE_KEY);
   sessionStorage.removeItem(STATE_KEY);
 
-  return Boolean(returnedState && returnedState === expected);
+  return receivedState === savedState;
 }
