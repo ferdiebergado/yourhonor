@@ -10,10 +10,12 @@ const columns: ColumnDef<ActivityDetail>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => <SortButton column={column}>Title</SortButton>,
+    cell: ({ row }) => <div className="max-w-100 text-wrap">{row.getValue('title')}</div>,
   },
   {
     accessorKey: 'venue',
     header: ({ column }) => <SortButton column={column}>Venue</SortButton>,
+    cell: ({ row }) => <div className="max-w-53.5 text-wrap">{row.getValue('venue')}</div>,
   },
   {
     accessorKey: 'startDate',
