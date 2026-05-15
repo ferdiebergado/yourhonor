@@ -15,10 +15,13 @@ export default function OauthCallback() {
 
   useEffect(() => {
     const code = searchParams.get('code');
+    if (!code) return;
+
     const stateFromUrl = searchParams.get('state');
+    if (!stateFromUrl) return;
 
     const isValidState = validateState(stateFromUrl);
-    if (!isValidState || !code) return;
+    if (!isValidState) return;
 
     signin(code, {
       onSuccess: () => {
