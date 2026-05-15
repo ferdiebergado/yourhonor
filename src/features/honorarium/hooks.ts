@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type HonorariumFormValues, HonorariumFormSchema } from '@shared/schemas/honorarium';
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+
+import { type HonorariumFormValues, HonorariumFormSchema } from '@shared/schemas/honorarium';
 import {
   createHonorarium,
   fetchActiveHonorariaByActivity,
@@ -14,7 +15,7 @@ import {
 
 const honorariumKeys = {
   all: ['honoraria'] as const,
-  byCode: (code: string) => [...honorariumKeys.all, code],
+  byCode: (code: string) => [...honorariumKeys.all, { code }],
 };
 
 export function useCreateHonorarium() {
@@ -30,6 +31,7 @@ const fetchActiveHonorariaOptions = (code: string) =>
   queryOptions({
     queryKey: honorariumKeys.byCode(code),
     queryFn: () => fetchActiveHonorariaByActivity(code),
+    staleTime: 60 * 1000 * 5,
   });
 
 export const useActiveHonoraria = (code: string) =>

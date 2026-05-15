@@ -1,14 +1,11 @@
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { fetchSummary } from './api';
 
-const QUERY_KEYS = {
-  summary: ['summary'] as const,
-};
-
 const fetchSummaryOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.summary,
+    queryKey: ['summary'] as const,
     queryFn: fetchSummary,
+    staleTime: 60 * 1000 * 5,
   });
 
 export const useSummary = () => useSuspenseQuery(fetchSummaryOptions());
