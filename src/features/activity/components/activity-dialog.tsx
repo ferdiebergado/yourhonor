@@ -9,9 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useActivityForm } from '../hooks';
 import ActivityForm from './activity-form';
 
 export default function ActivityDialog() {
+  const form = useActivityForm();
+
   return (
     <Dialog>
       <DialogTrigger
@@ -29,7 +32,7 @@ export default function ActivityDialog() {
             Create a new activity by filling out the form below.
           </DialogDescription>
         </DialogHeader>
-        <ActivityForm />
+        <ActivityForm form={form} />
       </DialogContent>
     </Dialog>
   );

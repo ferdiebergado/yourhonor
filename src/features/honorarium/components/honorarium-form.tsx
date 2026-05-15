@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import AccountForm from '@/features/account/components/account-form';
 import { useActiveAccounts } from '@/features/account/hooks';
-import { useActivityCode } from '@/features/activity/hooks';
 import PayeeForm from '@/features/payee/components/payee-form';
 import { useActivePayees } from '@/features/payee/hooks';
 import RoleForm from '@/features/role/components/role-form';
@@ -20,17 +19,20 @@ import { type HonorariumFormValues } from '@shared/schemas/honorarium';
 import { computeHonorarium, formatAmount, getFullName } from '@shared/utils';
 import { useCreateHonorarium, useHonorariumForm } from '../hooks';
 
-export default function HonorariumForm() {
+type HonorariumFormProps = {
+  form: ReturnType<typeof useHonorariumForm>;
+};
+
+export default function HonorariumForm({ form }: HonorariumFormProps) {
   const [isPayeeFormOpen, setIsPayeeFormOpen] = useState(false);
   const [isRoleFormOpen, setIsRoleFormOpen] = useState(false);
   const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
 
-  const activityCode = useActivityCode();
   const { isLoading: isFetchingPayees, data: payees } = useActivePayees();
   const { isLoading: isFetchingRoles, data: roles } = useActiveRoles();
   const { isLoading: isFetchingAccounts, data: accounts } = useActiveAccounts();
   const { isPending, mutate: createHonorarium } = useCreateHonorarium();
-  const { form, payeeId, honorarium, salary, taxRate } = useHonorariumForm(activityCode);
+  const { form: honorariumForm, payeeId, honorarium, salary, taxRate } = form;
 
   const payeeItems =
     payees?.map(payee => ({ label: getFullName(payee), value: payee.id.toString() })) ?? [];
@@ -43,7 +45,7 @@ export default function HonorariumForm() {
     createHonorarium(values, {
       onSuccess: () => {
         toast.success('Honorarium created successfully.');
-        form.reset();
+        honorariumForm.reset();
       },
     });
   };
@@ -52,11 +54,11 @@ export default function HonorariumForm() {
     <Card className="w-full">
       <CardContent className="space-y-6">
         <FieldGroup>
-          <Input type="hidden" {...form.register('activityCode')} />
+          <Input type="hidden" {...honorariumForm.register('activityCode')} />
 
           <Controller
             name="payeeId"
-            control={form.control}
+            control={honorariumForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Payee</FieldLabel>
@@ -72,7 +74,7 @@ export default function HonorariumForm() {
                   <PayeeForm
                     isOpen={isPayeeFormOpen}
                     onOpenChange={setIsPayeeFormOpen}
-                    honorariumForm={form}
+                    honorariumForm={honorariumForm}
                   />
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -82,7 +84,7 @@ export default function HonorariumForm() {
 
           <Controller
             name="roleId"
-            control={form.control}
+            control={honorariumForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Role</FieldLabel>
@@ -98,7 +100,7 @@ export default function HonorariumForm() {
                   <RoleForm
                     isOpen={isRoleFormOpen}
                     onOpenChange={setIsRoleFormOpen}
-                    honorariumForm={form}
+                    honorariumForm={honorariumForm}
                   />
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -108,7 +110,7 @@ export default function HonorariumForm() {
 
           <Controller
             name="accountId"
-            control={form.control}
+            control={honorariumForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Bank Account</FieldLabel>
@@ -142,7 +144,7 @@ export default function HonorariumForm() {
                     payeeId={payeeId}
                     isOpen={isAccountFormOpen}
                     onOpenChange={setIsAccountFormOpen}
-                    honorariumForm={form}
+                    honorariumForm={honorariumForm}
                   />
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -153,7 +155,7 @@ export default function HonorariumForm() {
           <div className="flex gap-2">
             <Controller
               name="salary"
-              control={form.control}
+              control={honorariumForm.control}
               render={({ field, fieldState }) => (
                 <Field className="w-1/2" data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Basic Monthly Salary</FieldLabel>
@@ -173,7 +175,7 @@ export default function HonorariumForm() {
 
             <Controller
               name="amount"
-              control={form.control}
+              control={honorariumForm.control}
               render={({ field, fieldState }) => (
                 <Field className="w-1/2" data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Gross Honorarium</FieldLabel>
@@ -194,7 +196,7 @@ export default function HonorariumForm() {
 
           <Controller
             name="taxRate"
-            control={form.control}
+            control={honorariumForm.control}
             render={({ field, fieldState }) => (
               <Field className="w-1/2" data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Tax Rate (%)</FieldLabel>
@@ -235,7 +237,7 @@ export default function HonorariumForm() {
         </FieldGroup>
       </CardContent>
       <CardFooter className="justify-end gap-2">
-        <SubmitButton form={form} isPending={isPending} onSubmit={handleSubmit} />
+        <SubmitButton form={honorariumForm} isPending={isPending} onSubmit={handleSubmit} />
       </CardFooter>
     </Card>
   );

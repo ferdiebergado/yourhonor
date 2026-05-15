@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import GenericCombobox from '@/components/generic-combobox';
@@ -15,17 +15,19 @@ import VenueForm from '@/features/venue/components/venue-form';
 import { useVenues } from '@/features/venue/hooks';
 import { type ActivityFormValues } from '@shared/schemas/activity';
 import { getFullName } from '@shared/utils';
-import { useActivityForm, useCreateActivity } from '../hooks';
+import { useCreateActivity } from '../hooks';
 
-export default function ActivityForm() {
+type ActivityFormProps = {
+  form: UseFormReturn<ActivityFormValues>;
+};
+
+export default function ActivityForm({ form }: ActivityFormProps) {
   const [isVenueFormOpen, setIsVenueFormOpen] = useState(false);
   const [isFocalFormOpen, setIsFocalFormOpen] = useState(false);
 
   const { isPending, mutate: createActivity } = useCreateActivity();
   const { isLoading: isFetchingVenues, data: venues } = useVenues();
   const { isLoading: isFetchingFocals, data: focals } = useFocals();
-
-  const form = useActivityForm();
 
   const handleSubmit = (values: ActivityFormValues) => {
     createActivity(values, {
