@@ -26,12 +26,7 @@ export function useCreateActivity() {
 
   return useMutation({
     mutationFn: createActivity,
-    onSuccess: newActivity => {
-      if (newActivity)
-        queryClient.setQueryData(activityKeys.all, (old: ActivityDetail[]) =>
-          old ? [...old, newActivity] : [newActivity]
-        );
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: activityKeys.all }),
   });
 }
 
@@ -39,7 +34,7 @@ const fetchActivitiesOptions = () =>
   queryOptions({
     queryKey: activityKeys.all,
     queryFn: fetchActivities,
-    staleTime: 60 * 1000 * 5,
+    staleTime: Infinity,
   });
 
 export const useActivities = () => useSuspenseQuery(fetchActivitiesOptions());
