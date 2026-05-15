@@ -13,12 +13,11 @@ export default function OauthCallback() {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const code = searchParams.get('code');
-    if (!code) return;
+  const code = searchParams.get('code');
+  const stateFromUrl = searchParams.get('state');
 
-    const stateFromUrl = searchParams.get('state');
-    if (!stateFromUrl) return;
+  useEffect(() => {
+    if (!code || !stateFromUrl) return;
 
     const isValidState = validateState(stateFromUrl);
     if (!isValidState) return;
@@ -30,7 +29,7 @@ export default function OauthCallback() {
         navigate(to, { replace: true });
       },
     });
-  }, [navigate, searchParams, signin, state?.from]);
+  }, [code, navigate, signin, state?.from, stateFromUrl]);
 
   if (isPending) return <SplashScreen />;
 
