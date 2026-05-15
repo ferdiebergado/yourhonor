@@ -1,5 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  QueryClient,
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { createContext, useContext, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
@@ -12,7 +18,7 @@ import { createActivity, fetchActivities, fetchActivity } from './api';
 
 const activityKeys = {
   all: ['activities'] as const,
-  byCode: (code: string) => [...activityKeys.all, code] as const,
+  byCode: (code: string) => [...activityKeys.all, { code }] as const,
 };
 
 export function useCreateActivity() {
@@ -21,12 +27,10 @@ export function useCreateActivity() {
   return useMutation({
     mutationFn: createActivity,
     onSuccess: newActivity => {
-      if (newActivity) {
+      if (newActivity)
         queryClient.setQueryData(activityKeys.all, (old: ActivityDetail[]) =>
           old ? [...old, newActivity] : [newActivity]
         );
-        queryClient.setQueryData(activityKeys.byCode(newActivity.code), newActivity);
-      }
     },
   });
 }
@@ -35,17 +39,26 @@ const fetchActivitiesOptions = () =>
   queryOptions({
     queryKey: activityKeys.all,
     queryFn: fetchActivities,
+    staleTime: 60 * 1000 * 5,
   });
 
 export const useActivities = () => useSuspenseQuery(fetchActivitiesOptions());
 
-const fetchActivityOptions = (code: string) =>
+const fetchActivityOptions = (queryClient: QueryClient, code: string) =>
   queryOptions({
     queryKey: activityKeys.byCode(code),
     queryFn: () => fetchActivity(code),
+    initialData: () =>
+      queryClient.getQueryData<ActivityDetail[]>(activityKeys.all)?.find(a => a.code === code),
+    initialDataUpdatedAt: () => queryClient.getQueryState(activityKeys.all)?.dataUpdatedAt,
+    staleTime: 60 * 1000 * 5,
   });
 
-export const useActivity = (code: string) => useSuspenseQuery(fetchActivityOptions(code));
+export function useActivity(code: string) {
+  const queryClient = useQueryClient();
+
+  return useSuspenseQuery(fetchActivityOptions(queryClient, code));
+}
 
 export const ActivityCodeContext = createContext<string | undefined>(undefined);
 
