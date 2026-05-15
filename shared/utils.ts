@@ -1,4 +1,5 @@
 import type { CamelCasedProperties } from 'type-fest';
+
 import { SG29 } from './constants';
 import type { NewHonorarium } from './schemas/honorarium';
 
@@ -59,37 +60,15 @@ export const formatAmount = (amount: number) =>
 export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
   `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;
 
-export function formatDateRange(startInput: string | Date, endInput: string | Date): string {
-  const start = new Date(startInput);
-  const end = new Date(endInput);
+const formatter = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
 
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()))
-    throw new TypeError('Invalid date');
+export function formatDateRange(start: string, end: string): string {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
 
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-  });
-
-  const startMonth = formatter.format(start);
-  const endMonth = formatter.format(end);
-
-  const startDay = String(start.getDate());
-  const endDay = String(end.getDate());
-
-  const startYear = String(start.getFullYear());
-  const endYear = String(end.getFullYear());
-
-  const sameDay = start.getTime() === end.getTime();
-
-  const sameMonth = start.getMonth() === end.getMonth() && startYear === endYear;
-
-  const sameYear = startYear === endYear;
-
-  if (sameDay) return `${startMonth} ${startDay}, ${startYear}`;
-
-  if (sameMonth) return `${startMonth} ${startDay}-${endDay}, ${startYear}`;
-
-  if (sameYear) return `${startMonth} ${startDay}-${endMonth} ${endDay}, ${startYear}`;
-
-  return `${startMonth} ${startDay}, ${startYear}-${endMonth} ${endDay}, ${endYear}`;
+  return formatter.formatRange(startDate, endDate);
 }
