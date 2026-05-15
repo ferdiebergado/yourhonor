@@ -10,7 +10,9 @@ const columns: ColumnDef<ActivityDetail>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => <SortButton column={column}>Title</SortButton>,
-    cell: ({ row }) => <div className="max-w-100 text-pretty">{row.getValue('title')}</div>,
+    cell: ({ row }) => (
+      <div className="line-clamp-2 max-w-100 text-pretty">{row.getValue('title')}</div>
+    ),
   },
   {
     accessorKey: 'venue',
