@@ -15,14 +15,14 @@ import {
   useGenORS,
   useGenPayroll,
 } from '@/features/honorarium/hooks';
-import type { ActivityFullDetail } from '@shared/schemas/activity';
+import type { ActivityDetail } from '@shared/schemas/activity';
 import { formatDateRange } from '@shared/utils';
 import { useActivity, useActivityCode } from '../hooks';
 
-type SingleFieldConfig = { key: keyof ActivityFullDetail; label: string };
+type SingleFieldConfig = { key: keyof ActivityDetail; label: string };
 
 type MultiFieldConfig = {
-  keys: [keyof ActivityFullDetail, keyof ActivityFullDetail];
+  keys: [keyof ActivityDetail, keyof ActivityDetail];
   label: string;
   format: (val1: string, val2: string) => string;
 };

@@ -1,5 +1,5 @@
 import { getDb } from '@backend/db';
-import { findActiveActivitiesDetailedByUser } from '@backend/features/activity/repo';
+import { findActiveActivitiesByUser } from '@backend/features/activity/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
@@ -11,7 +11,7 @@ export default async (req: Request) => {
 
     const { userId } = await getSession(req);
     const db = await getDb();
-    const data = await findActiveActivitiesDetailedByUser(db, userId);
+    const data = await findActiveActivitiesByUser(db, userId);
 
     const payload: ApiResponse<typeof data> = {
       success: true,

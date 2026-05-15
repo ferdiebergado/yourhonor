@@ -3,7 +3,11 @@ import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@ta
 import { createContext, useContext, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
-import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
+import {
+  ActivityFormSchema,
+  type ActivityDetail,
+  type ActivityFormValues,
+} from '@shared/schemas/activity';
 import { createActivity, fetchActivities, fetchActivity } from './api';
 
 const activityKeys = {
@@ -16,7 +20,14 @@ export function useCreateActivity() {
 
   return useMutation({
     mutationFn: createActivity,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: activityKeys.all }),
+    onSuccess: newActivity => {
+      if (newActivity) {
+        queryClient.setQueryData(activityKeys.all, (old: ActivityDetail[]) =>
+          old ? [...old, newActivity] : [newActivity]
+        );
+        queryClient.setQueryData(activityKeys.byCode(newActivity.code), newActivity);
+      }
+    },
   });
 }
 

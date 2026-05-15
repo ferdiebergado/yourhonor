@@ -22,17 +22,17 @@ export const ActivityRowSchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreateActivitySchema = ActivityRowSchema.omit({
+export type ActivityRow = z.infer<typeof ActivityRowSchema>;
+
+export const NewActivitySchema = ActivityRowSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
+  updatedBy: true,
 });
 
-export type Activity = z.infer<typeof ActivityRowSchema>;
-export type CreateActivity = z.infer<typeof CreateActivitySchema>;
-
-export const ActivityIdSchema = ActivityRowSchema.pick({ id: true });
+export type NewActivity = z.infer<typeof NewActivitySchema>;
 
 export const ActivityFormSchema = ActivityRowSchema.pick({
   title: true,
@@ -48,44 +48,28 @@ export const ActivityFormSchema = ActivityRowSchema.pick({
 
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
 
-export const ActivityDetailSchema = ActivityRowSchema.pick({
-  id: true,
-  title: true,
-  startDate: true,
-  endDate: true,
-  code: true,
-  fundSource: true,
-}).and(
-  z.object({
-    venue: z.string(),
-    focal: z.string(),
-  })
-);
-
-export type ActivityDetail = z.infer<typeof ActivityDetailSchema>;
-
-export const ActivityFullSchema = ActivityRowSchema.omit({
+export const ActivityDetailSchema = ActivityRowSchema.omit({
   venueId: true,
   focalId: true,
+  updatedAt: true,
   createdBy: true,
   updatedBy: true,
-}).and(
-  z.object({
-    venue: z.string(),
-    location: z.string(),
-    focal: z.string(),
-    focalPosition: z.string(),
-  })
-);
+  deletedAt: true,
+}).extend({
+  venue: z.string(),
+  location: z.string(),
+  focal: z.string(),
+  focalPosition: z.string(),
+});
 
-export type ActivityFullDetail = z.infer<typeof ActivityFullSchema>;
+export type ActivityDetail = z.infer<typeof ActivityDetailSchema>;
 
 export const ActivityCodeSchema = ActivityRowSchema.pick({ code: true });
 
 export type ActivityCode = z.infer<typeof ActivityCodeSchema>;
 
-export const ActivityUpdateSchema = CreateActivitySchema.omit({
+export const ActivityUpdateSchema = NewActivitySchema.omit({
   createdBy: true,
-});
+}).and(ActivityRowSchema.pick({ updatedBy: true }));
 
 export type ActivityUpdate = z.infer<typeof ActivityUpdateSchema>;
