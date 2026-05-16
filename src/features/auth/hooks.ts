@@ -1,7 +1,7 @@
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { fetchMe, signin, signout } from './api';
 
-const QUERY_KEYS = {
+const authKeys = {
   user: ['user'] as const,
 };
 
@@ -10,15 +10,16 @@ export function useSignin() {
 
   return useMutation({
     mutationFn: signin,
-    onSuccess: user => queryClient.setQueryData(QUERY_KEYS.user, user),
+    onSuccess: user => queryClient.setQueryData(authKeys.user, user),
   });
 }
 
 const fetchMeOptions = () =>
   queryOptions({
-    queryKey: QUERY_KEYS.user,
+    queryKey: authKeys.user,
     queryFn: fetchMe,
     retry: false,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
 export const useMe = () => useSuspenseQuery(fetchMeOptions());
@@ -29,9 +30,9 @@ export function useSignout() {
   return useMutation({
     mutationFn: signout,
     onSuccess: () => {
-      queryClient.cancelQueries({ queryKey: QUERY_KEYS.user });
+      queryClient.cancelQueries({ queryKey: authKeys.user });
       // eslint-disable-next-line unicorn/no-null
-      queryClient.setQueryData(QUERY_KEYS.user, null);
+      queryClient.setQueryData(authKeys.user, null);
       queryClient.removeQueries();
     },
   });

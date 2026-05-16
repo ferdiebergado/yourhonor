@@ -9,6 +9,7 @@ const fetchFocalsOptions = () =>
   queryOptions({
     queryKey: focalKeys.all,
     queryFn: fetchFocals,
+    staleTime: 1000 * 60 * 5,
   });
 
 export const useFocals = () => useQuery(fetchFocalsOptions());

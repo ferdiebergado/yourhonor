@@ -13,6 +13,7 @@ const getActiveAccountsOptions = () =>
   queryOptions({
     queryKey: accountKeys.all,
     queryFn: fetchActiveAccounts,
+    staleTime: 1000 * 60 * 5,
   });
 
 export const useActiveAccounts = () => useQuery(getActiveAccountsOptions());

@@ -18,6 +18,7 @@ const getActivePayeesOptions = () =>
   queryOptions({
     queryKey: payeeKeys.all,
     queryFn: fetchActivePayees,
+    staleTime: 1000 * 60 * 5,
   });
 
 export const useActivePayees = () => useQuery(getActivePayeesOptions());

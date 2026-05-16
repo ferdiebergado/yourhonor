@@ -18,6 +18,7 @@ const getActiveBanksOptions = () =>
   queryOptions({
     queryKey: bankKeys.all,
     queryFn: fetchActiveBanks,
+    staleTime: 1000 * 60 * 5,
   });
 
 export const useActiveBanks = () => useSuspenseQuery(getActiveBanksOptions());

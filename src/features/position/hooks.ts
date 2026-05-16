@@ -9,6 +9,7 @@ const fetchPositionsOptions = () =>
   queryOptions({
     queryKey: positionKeys.all,
     queryFn: fetchPositions,
+    staleTime: Infinity,
   });
 
 export const usePositions = () => useQuery(fetchPositionsOptions());

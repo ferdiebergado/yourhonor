@@ -31,7 +31,7 @@ const fetchActiveHonorariaOptions = (code: string) =>
   queryOptions({
     queryKey: honorariumKeys.byCode(code),
     queryFn: () => fetchActiveHonorariaByActivity(code),
-    staleTime: 60 * 1000 * 5,
+    staleTime: Infinity,
   });
 
 export const useActiveHonoraria = (code: string) =>

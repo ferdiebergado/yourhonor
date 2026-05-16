@@ -18,6 +18,7 @@ const getActiveRolesOptions = () =>
   queryOptions({
     queryKey: roleKeys.all,
     queryFn: fetchActiveRoles,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
 export const useActiveRoles = () => useQuery(getActiveRolesOptions());
