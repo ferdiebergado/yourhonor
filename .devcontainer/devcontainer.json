@@ -9,9 +9,7 @@
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "22.22.0",
-      "npmVersion": "10.9.4",
-      "pnpmVersion": "10.33.0"
+      "version": "22.22.2"
     },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
