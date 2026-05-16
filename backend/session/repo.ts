@@ -18,6 +18,7 @@ RETURNING *
     session.userId,
     session.expiresAt.toISOString(),
   ]);
+
   return mapRowToSession(rows[0]);
 }
 
@@ -43,26 +44,20 @@ LIMIT 1
   return mapRowToSession(rows[0]);
 }
 
-export async function touchSession(db: Client, id: string): Promise<Session | undefined> {
-  logger.info('Updating session...');
+export async function touchSession(db: Client, id: string): Promise<boolean> {
+  logger.info('[DB]: Updating session...');
 
   const sql = `
 UPDATE sessions
 SET last_active_at = ?, updated_at = ?
 WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 AND deleted_at IS NULL
-RETURNING *
-      `;
+`;
 
   const now = new Date().toISOString();
 
-  const { rows } = await db.execute(sql, [now, now, id, now]);
+  const { rowsAffected } = await db.execute(sql, [now, now, id, now]);
 
-  if (rows.length === 0) {
-    reportMissingSession(id);
-    return;
-  }
-
-  return mapRowToSession(rows[0]);
+  return rowsAffected === 1;
 }
 
 export async function softDeleteSession(db: Client, id: string): Promise<boolean> {

@@ -5,7 +5,7 @@ import { SESSION } from '@shared/constants';
 import type { CreateSession, Session } from '@shared/schemas/session';
 import { getDb } from '../db';
 import { UnauthorizedError } from '../http/errors';
-import { createSession, touchSession } from './repo';
+import { createSession, findSession, touchSession } from './repo';
 
 export async function startSession(db: Client, userId: number): Promise<Session> {
   const session = newSession(userId);
@@ -25,12 +25,17 @@ export function newSession(userId: number): CreateSession {
 }
 
 export async function getSession(req: Request): Promise<Session> {
-  const db = await getDb();
   const sessionId = req.headers.get(SESSION.HEADER_NAME);
   if (!sessionId) throw new UnauthorizedError('no session ID provided');
 
-  const session = await touchSession(db, sessionId);
+  const db = await getDb();
+  const session = await findSession(db, sessionId);
   if (!session) throw new UnauthorizedError('session not found');
+
+  const lastActiveTime = new Date(session.lastActiveAt).getTime();
+  const elapsedTime = Date.now() - lastActiveTime;
+  const minuteMs = 1000 * 60;
+  if (elapsedTime > minuteMs) await touchSession(db, sessionId);
 
   return session;
 }
