@@ -1,6 +1,5 @@
-import { Link } from 'react-router';
-
-import { paths } from '@/app/routes';
+import PrivacyLink from '@/components/PrivacyLink';
+import TermsLink from '@/components/TermsLink';
 import { Card, CardContent } from '@/components/ui/card';
 import config from '@/config';
 import SigninButton from './signin-button';
@@ -33,15 +32,7 @@ export default function SigninPage() {
 
         {/* Legal Footer */}
         <p className="text-muted-foreground mt-4 text-center text-xs">
-          By clicking continue, you agree to our{' '}
-          <Link to={paths.terms} className="hover:text-primary underline underline-offset-4">
-            Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link to={paths.privacy} className="hover:text-primary underline underline-offset-4">
-            Privacy Policy
-          </Link>
-          .
+          By clicking continue, you agree to our <TermsLink /> and <PrivacyLink />.
         </p>
       </CardContent>
     </Card>
