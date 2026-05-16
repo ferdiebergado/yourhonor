@@ -5,7 +5,7 @@ import type { CreateUser } from '@shared/schemas/user';
 import config from './config';
 import { getDb } from './db';
 import { BadRequestError, UnauthorizedError } from './http/errors';
-import { initializeSession } from './session';
+import { startSession } from './session';
 import { upsertUser } from './user/repo';
 
 export const oauthClient = new OAuth2Client({
@@ -43,10 +43,9 @@ export async function signin(
   code: string
 ): Promise<{ user: CreateUser; sessionId: string; expiresAt: Date }> {
   const user = await verifyCode(oauthClient, code);
-
   const db = await getDb();
-  await upsertUser(db, user);
-  const { sessionId, expiresAt } = await initializeSession(user);
+  const userId = await upsertUser(db, user);
+  const { sessionId, expiresAt } = await startSession(db, userId);
 
   return { user, sessionId, expiresAt };
 }

@@ -1,16 +1,14 @@
+import type { Client } from '@libsql/client';
+
 import { randBase64 } from '@backend/utils';
 import { SESSION } from '@shared/constants';
 import type { CreateSession, Session } from '@shared/schemas/session';
-import type { CreateUser } from '@shared/schemas/user';
 import { getDb } from '../db';
 import { UnauthorizedError } from '../http/errors';
-import { upsertUser } from '../user/repo';
 import { createSession, touchSession } from './repo';
 
-export async function initializeSession(user: CreateUser): Promise<Session> {
-  const db = await getDb();
-  const id = await upsertUser(db, user);
-  const session = newSession(id);
+export async function startSession(db: Client, userId: number): Promise<Session> {
+  const session = newSession(userId);
 
   return await createSession(db, session);
 }
