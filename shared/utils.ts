@@ -60,15 +60,9 @@ export const formatAmount = (amount: number) =>
 export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
   `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;
 
-const formatter = new Intl.DateTimeFormat('en-US', {
-  month: 'long',
-  day: 'numeric',
-  year: 'numeric',
-});
-
-export function formatDateRange(start: string, end: string): string {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-
-  return formatter.formatRange(startDate, endDate);
-}
+export const formatDateRange = (start: string, end: string): string =>
+  new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).formatRange(new Date(start), new Date(end));
