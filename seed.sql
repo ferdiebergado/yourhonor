@@ -32,11 +32,33 @@ INSERT INTO
     firstname,
     mi,
     lastname,
-    sex,
     position_id,
     created_by,
     updated_by
   )
 VALUES
-  ('Ferdinand', 'S', 'Bergado', 'M', 1, 1, 1),
-  ('Bryan', 'R', 'Simara', 'M', 2, 1, 1);
+  ('Ferdinand', 'S', 'Bergado', 1, 1, 1),
+  ('Bryan', 'R', 'Simara', 2, 1, 1);
+
+INSERT INTO
+  banks (name, created_by, updated_by)
+VALUES
+  ('Landbank of the Philippines', 1, 1),
+  ('Banco de Oro', 1, 1),
+  ('Metrobank', 1, 1),
+  ('Unionbank', 1, 1),
+  ('Bank of the Philippine Islands', 1, 1),
+  ('Philippine National Bank', 1, 1),
+  ('Chinabank', 1, 1),
+  ('Security Bank', 1, 1),
+  ('RCBC', 1, 1),
+  ('Development Bank of the Philippines', 1, 1),
+  ('EastWest Bank', 1, 1);
+
+INSERT INTO
+  reports (name)
+VALUES
+  ('Certification'),
+  ('Computation'),
+  ('ORS-DV'),
+  ('Payroll');

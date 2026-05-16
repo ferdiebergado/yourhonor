@@ -77,3 +77,18 @@ ORDER BY firstname
 
   return rows.map(row => HonorariumDetailRowSchema.parse(snakeToCamel(row)));
 }
+
+const reports = ['Certification', 'Computation', 'ORS-DV', 'Payroll'] as const;
+
+type Report = (typeof reports)[number];
+
+export async function recordUsage(db: Client, report: Report, userId: number): Promise<void> {
+  const sql = `
+INSERT INTO usage (report_id, created_by)
+VALUES (? , ?)
+  `;
+
+  const reportId = reports.indexOf(report) + 1;
+
+  await db.execute(sql, [reportId, userId]);
+}

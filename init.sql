@@ -221,6 +221,17 @@ CREATE TABLE IF NOT EXISTS honoraria (
   FOREIGN KEY (updated_by) REFERENCES users (id)
 );
 
+CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY, name TEXT NOT NULL);
+
+CREATE TABLE IF NOT EXISTS usage (
+  id INTEGER PRIMARY KEY,
+  report_id INTEGER NOT NULL,
+  created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
+  created_by INTEGER NOT NULL,
+  FOREIGN KEY (report_id) REFERENCES reports (id),
+  FOREIGN KEY (created_by) REFERENCES users (id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_users_is_active ON users (is_active);
 
 CREATE INDEX IF NOT EXISTS idx_activities_code ON activities (code);
