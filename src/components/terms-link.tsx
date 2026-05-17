@@ -1,5 +1,6 @@
-import { paths } from '@/app/routes';
 import { Link } from 'react-router';
+
+import { paths } from '@/app/routes';
 
 export default function TermsLink() {
   return (

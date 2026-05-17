@@ -1,5 +1,5 @@
-import PrivacyLink from '@/components/PrivacyLink';
-import TermsLink from '@/components/TermsLink';
+import PrivacyLink from '@/components/privacy-link';
+import TermsLink from '@/components/terms-link';
 import { Card, CardContent } from '@/components/ui/card';
 import config from '@/config';
 import SigninButton from './signin-button';

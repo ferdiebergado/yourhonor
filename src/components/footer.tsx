@@ -1,5 +1,5 @@
-import PrivacyLink from './PrivacyLink';
-import TermsLink from './TermsLink';
+import PrivacyLink from './privacy-link';
+import TermsLink from './terms-link';
 
 export default function Footer() {
   return (
