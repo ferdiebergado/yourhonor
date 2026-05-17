@@ -3,7 +3,13 @@ import type { CellValue } from 'exceljs';
 import { getDb } from '@backend/db';
 import type { Client } from '@libsql/client';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
-import { formatAmount, formatDateRange, getFullName, getMaxSalary } from '@shared/utils';
+import {
+  formatAmount,
+  formatDate,
+  formatDateRange,
+  getFullName,
+  getMaxSalary,
+} from '@shared/utils';
 import { deserializeDetails } from '../account';
 import { certification } from './certification';
 import { computation } from './computation';
@@ -54,11 +60,7 @@ async function buildCertPatches(honorarium: HonorariumDetail): Promise<Certifica
     role: honorarium.role,
     activity: honorarium.activityTitle,
     venue: honorarium.venue,
-    end_date: new Date().toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }),
+    end_date: formatDate(new Date()),
     amount: formatAmount(honorarium.amount),
     tax: honorarium.taxRate.toString(),
     focal: getFullName({
@@ -136,36 +138,6 @@ type ComputationPatches = {
   hours: string;
 };
 
-export async function genCompDoc(honoraria: HonorariumDetail[]): Promise<Document> {
-  const firstPayment = honoraria[0];
-  const activityCode = firstPayment.activityCode;
-  const filename = 'computation-' + activityCode;
-
-  const patches = buildCompPatches(firstPayment);
-  const firstComp = await patchDoc(computation, patches);
-
-  if (honoraria.length === 1) return { doc: firstComp, filename };
-
-  const patchDocs = honoraria.slice(1).map(async honorarium => {
-    const patches = buildCompPatches(honorarium);
-    return await patchDoc(computation, patches);
-  });
-
-  const patchedDocs = await Promise.all(patchDocs);
-
-  const { mergeDocx } = await import('@benedicte/docx-merge');
-
-  let doc = firstComp;
-
-  for (const curr of patchedDocs) {
-    const merged = mergeDocx(doc, curr, { insertEnd: true });
-    if (!merged) throw new Error('failed to merge documents');
-    doc = merged;
-  }
-
-  return { doc, filename };
-}
-
 export function buildCompPatches(honorarium: HonorariumDetail): ComputationPatches {
   const salary = getMaxSalary(honorarium.salary);
 
@@ -199,6 +171,36 @@ export function buildCompPatches(honorarium: HonorariumDetail): ComputationPatch
   };
 
   return tags;
+}
+
+export async function genCompDoc(honoraria: HonorariumDetail[]): Promise<Document> {
+  const firstPayment = honoraria[0];
+  const activityCode = firstPayment.activityCode;
+  const filename = 'computation-' + activityCode;
+
+  const patches = buildCompPatches(firstPayment);
+  const firstComp = await patchDoc(computation, patches);
+
+  if (honoraria.length === 1) return { doc: firstComp, filename };
+
+  const patchDocs = honoraria.slice(1).map(async honorarium => {
+    const patches = buildCompPatches(honorarium);
+    return await patchDoc(computation, patches);
+  });
+
+  const patchedDocs = await Promise.all(patchDocs);
+
+  const { mergeDocx } = await import('@benedicte/docx-merge');
+
+  let doc = firstComp;
+
+  for (const curr of patchedDocs) {
+    const merged = mergeDocx(doc, curr, { insertEnd: true });
+    if (!merged) throw new Error('failed to merge documents');
+    doc = merged;
+  }
+
+  return { doc, filename };
 }
 
 export async function generateComputation(activityCode: string, userId: number): Promise<Document> {
