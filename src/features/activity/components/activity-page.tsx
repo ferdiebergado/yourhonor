@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 
 import PageHeader from '@/components/page-header';
+import HonorariumDialog from '../../honorarium/components/honorarium-dialog';
 import Activity from './activity';
 import ActivityCodeProvider from './activity-provider';
 import ActivitySkeletonCard from './activity-skeleton-card';
-import HonorariumDialog from './honorarium-dialog';
 
 export default function ActivityPage() {
   return (

@@ -9,9 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useActivityCode } from '@/features/activity/hooks';
 import HonorariumForm from '@/features/honorarium/components/honorarium-form';
 import { useHonorariumForm } from '@/features/honorarium/hooks';
-import { useActivityCode } from '../hooks';
 
 export default function HonorariumDialog() {
   const activityCode = useActivityCode();
