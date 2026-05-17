@@ -1,61 +1,34 @@
+import type { CellValue } from 'exceljs';
+
+import { getDb } from '@backend/db';
+import type { Client } from '@libsql/client';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, formatDateRange, getFullName, getMaxSalary } from '@shared/utils';
-import type { CellValue } from 'exceljs';
+import { deserializeDetails } from '../account';
 import { certification } from './certification';
 import { computation } from './computation';
 import { ors } from './ors';
 import { payroll } from './payroll';
+import { findActiveHonorariaByActivity, recordUsage } from './repo';
 import { amountToWords, getFundCluster, parseActivityCode, patchDoc } from './utils';
 
 type Document = {
   filename: string;
-  doc: Buffer;
+  doc: Uint8Array;
 };
 
-export async function generateCertification(honoraria: HonorariumDetail[]): Promise<Document> {
-  if (honoraria.length === 0) throw new Error('cannot generate certification: no data provided');
+export async function getHonoraria(db: Client, activityCode: string): Promise<HonorariumDetail[]> {
+  const honorariumDetailRows = await findActiveHonorariaByActivity(db, activityCode);
 
-  const firstPayment = honoraria[0];
-  const filename = 'certification-' + firstPayment.activityCode;
+  const honoraria: HonorariumDetail[] = [];
 
-  const patches = await createCertPatches(firstPayment);
-  const firstCert = await patchDoc(certification, patches);
-
-  if (honoraria.length === 1) return { doc: firstCert, filename };
-
-  const patchDocs = honoraria.slice(1).map(async payment => {
-    const patches = await createCertPatches(payment);
-    const patched = await patchDoc(certification, patches);
-
-    return patched;
-  });
-
-  const patchedDocs = await Promise.all(patchDocs);
-
-  const { mergeDocx } = await import('@benedicte/docx-merge');
-  let doc = firstCert;
-  for (const curr of patchedDocs) {
-    const merged = mergeDocx(doc, curr, { insertEnd: true });
-    if (!merged) throw new Error('failed to merge documents');
-    doc = merged;
+  for (const row of honorariumDetailRows) {
+    const accountDetails = deserializeDetails(row.details);
+    honoraria.push({ ...row, ...accountDetails });
   }
 
-  return { doc, filename };
+  return honoraria;
 }
-
-export type CertificationData = {
-  payee: string;
-  role: string;
-  activity: string;
-  venue: string;
-  honorarium: number;
-  taxRate: number;
-  focal: string;
-  position: string;
-  startDate: string;
-  endDate: string;
-  activityCode: string;
-};
 
 type CertificationPatches = {
   payee: string;
@@ -71,7 +44,7 @@ type CertificationPatches = {
   tax: string;
 };
 
-async function createCertPatches(honorarium: HonorariumDetail): Promise<CertificationPatches> {
+async function buildCertPatches(honorarium: HonorariumDetail): Promise<CertificationPatches> {
   return {
     payee: getFullName({
       firstname: honorarium.firstname,
@@ -99,6 +72,51 @@ async function createCertPatches(honorarium: HonorariumDetail): Promise<Certific
   };
 }
 
+export async function genCertDoc(honoraria: HonorariumDetail[]): Promise<Document> {
+  if (honoraria.length === 0) throw new Error('cannot generate certification: no data provided');
+
+  const firstPayment = honoraria[0];
+  const filename = 'certification-' + firstPayment.activityCode;
+
+  const patches = await buildCertPatches(firstPayment);
+  const firstCert = await patchDoc(certification, patches);
+
+  if (honoraria.length === 1) return { doc: firstCert, filename };
+
+  const patchDocs = honoraria.slice(1).map(async payment => {
+    const patches = await buildCertPatches(payment);
+    const patched = await patchDoc(certification, patches);
+
+    return patched;
+  });
+
+  const patchedDocs = await Promise.all(patchDocs);
+
+  const { mergeDocx } = await import('@benedicte/docx-merge');
+  let doc = firstCert;
+  for (const curr of patchedDocs) {
+    const merged = mergeDocx(doc, curr, { insertEnd: true });
+    if (!merged) throw new Error('failed to merge documents');
+    doc = merged;
+  }
+
+  return { doc, filename };
+}
+
+export async function generateCertification(
+  activityCode: string,
+  userId: number
+): Promise<Document> {
+  const db = await getDb();
+  const honoraria = await getHonoraria(db, activityCode);
+
+  const doc = await genCertDoc(honoraria);
+
+  await recordUsage(db, 'Certification', userId);
+
+  return doc;
+}
+
 type ComputationPatches = {
   payee: string;
   role: string;
@@ -118,18 +136,18 @@ type ComputationPatches = {
   hours: string;
 };
 
-export async function genComp(honoraria: HonorariumDetail[]): Promise<Document> {
+export async function genCompDoc(honoraria: HonorariumDetail[]): Promise<Document> {
   const firstPayment = honoraria[0];
   const activityCode = firstPayment.activityCode;
   const filename = 'computation-' + activityCode;
 
-  const patches = createCompPatches(firstPayment);
+  const patches = buildCompPatches(firstPayment);
   const firstComp = await patchDoc(computation, patches);
 
   if (honoraria.length === 1) return { doc: firstComp, filename };
 
   const patchDocs = honoraria.slice(1).map(async honorarium => {
-    const patches = createCompPatches(honorarium);
+    const patches = buildCompPatches(honorarium);
     return await patchDoc(computation, patches);
   });
 
@@ -148,7 +166,7 @@ export async function genComp(honoraria: HonorariumDetail[]): Promise<Document> 
   return { doc, filename };
 }
 
-export function createCompPatches(honorarium: HonorariumDetail): ComputationPatches {
+export function buildCompPatches(honorarium: HonorariumDetail): ComputationPatches {
   const salary = getMaxSalary(honorarium.salary);
 
   const payee = getFullName({
@@ -183,7 +201,18 @@ export function createCompPatches(honorarium: HonorariumDetail): ComputationPatc
   return tags;
 }
 
-export async function createORS(honoraria: HonorariumDetail[]) {
+export async function generateComputation(activityCode: string, userId: number): Promise<Document> {
+  const db = await getDb();
+  const honoraria = await getHonoraria(db, activityCode);
+
+  const doc = await genCompDoc(honoraria);
+
+  await recordUsage(db, 'Computation', userId);
+
+  return doc;
+}
+
+export async function genORSDoc(honoraria: HonorariumDetail[]): Promise<Document> {
   const { default: Excel } = await import('exceljs');
   const workbook = new Excel.Workbook();
   const buf = Buffer.from(ors, 'base64');
@@ -223,10 +252,28 @@ export async function createORS(honoraria: HonorariumDetail[]) {
   orsSheet.getCell('E34').value = activityCode;
   orsSheet.getCell('K16').value = parseActivityCode(activityCode).mfoCode;
 
-  return await workbook.xlsx.writeBuffer();
+  const excelBuffer = await workbook.xlsx.writeBuffer();
+
+  const filename = `ORS-${activityCode}.xlsx`;
+
+  return {
+    doc: new Uint8Array(excelBuffer),
+    filename,
+  };
 }
 
-export async function createPayroll(honoraria: HonorariumDetail[]) {
+export async function generateORS(activityCode: string, userId: number): Promise<Document> {
+  const db = await getDb();
+  const honoraria = await getHonoraria(db, activityCode);
+
+  const doc = await genORSDoc(honoraria);
+
+  await recordUsage(db, 'ORS-DV', userId);
+
+  return doc;
+}
+
+export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Document> {
   const { default: Excel } = await import('exceljs');
   const workbook = new Excel.Workbook();
 
@@ -312,5 +359,22 @@ export async function createPayroll(honoraria: HonorariumDetail[]) {
     currentRow++;
   }
 
-  return await workbook.xlsx.writeBuffer();
+  const excelBuffer = await workbook.xlsx.writeBuffer();
+  const filename = `Payroll-${activityCode}.xlsx`;
+
+  return {
+    doc: new Uint8Array(excelBuffer),
+    filename,
+  };
+}
+
+export async function generatePayroll(activityCode: string, userId: number): Promise<Document> {
+  const db = await getDb();
+  const honoraria = await getHonoraria(db, activityCode);
+
+  const doc = await genPayrollDoc(honoraria);
+
+  await recordUsage(db, 'Payroll', userId);
+
+  return doc;
 }
