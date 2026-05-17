@@ -14,11 +14,11 @@ export function useCreateRole() {
   });
 }
 
-const getActiveRolesOptions = () =>
+export const fetchActiveRolesOptions = () =>
   queryOptions({
     queryKey: roleKeys.all,
     queryFn: fetchActiveRoles,
     staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
-export const useActiveRoles = () => useQuery(getActiveRolesOptions());
+export const useActiveRoles = () => useQuery(fetchActiveRolesOptions());

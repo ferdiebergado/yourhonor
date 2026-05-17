@@ -30,7 +30,7 @@ export function useCreateActivity() {
   });
 }
 
-const fetchActivitiesOptions = () =>
+export const fetchActivitiesOptions = () =>
   queryOptions({
     queryKey: activityKeys.all,
     queryFn: fetchActivities,
@@ -39,14 +39,14 @@ const fetchActivitiesOptions = () =>
 
 export const useActivities = () => useSuspenseQuery(fetchActivitiesOptions());
 
-const fetchActivityOptions = (queryClient: QueryClient, code: string) =>
+export const fetchActivityOptions = (queryClient: QueryClient, code: string) =>
   queryOptions({
     queryKey: activityKeys.byCode(code),
     queryFn: () => fetchActivity(code),
     initialData: () =>
       queryClient.getQueryData<ActivityDetail[]>(activityKeys.all)?.find(a => a.code === code),
     initialDataUpdatedAt: () => queryClient.getQueryState(activityKeys.all)?.dataUpdatedAt,
-    staleTime: 60 * 1000 * 5,
+    staleTime: Infinity,
   });
 
 export function useActivity(code: string) {

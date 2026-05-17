@@ -5,7 +5,7 @@ const focalKeys = {
   all: ['focals'] as const,
 };
 
-const fetchFocalsOptions = () =>
+export const fetchFocalsOptions = () =>
   queryOptions({
     queryKey: focalKeys.all,
     queryFn: fetchFocals,

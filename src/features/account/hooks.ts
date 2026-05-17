@@ -9,14 +9,14 @@ const accountKeys = {
   all: ['accounts'] as const,
 };
 
-const getActiveAccountsOptions = () =>
+export const fetchActiveAccountsOptions = () =>
   queryOptions({
     queryKey: accountKeys.all,
     queryFn: fetchActiveAccounts,
     staleTime: 1000 * 60 * 5,
   });
 
-export const useActiveAccounts = () => useQuery(getActiveAccountsOptions());
+export const useActiveAccounts = () => useQuery(fetchActiveAccountsOptions());
 
 export function useCreateAccount() {
   const queryClient = useQueryClient();

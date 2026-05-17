@@ -16,7 +16,7 @@ import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/i
 import HonorariumTable from '@/features/honorarium/components/honorarium-table';
 import SkeletonHonorariumTable from '@/features/honorarium/components/skeleton-honorarium-table';
 import {
-  useActiveHonoraria,
+  fetchActiveHonorariaOptions,
   useGenCert,
   useGenComp,
   useGenORS,
@@ -24,7 +24,8 @@ import {
 } from '@/features/honorarium/hooks';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import { formatDate, formatDateRange } from '@shared/utils';
-import { useActivity, useActivityCode } from '../hooks';
+import { useQueryClient, useSuspenseQueries } from '@tanstack/react-query';
+import { fetchActivityOptions, useActivityCode } from '../hooks';
 
 type SingleFieldConfig = { key: keyof ActivityDetail; label: string };
 
@@ -54,16 +55,25 @@ function GeneratorButton({ title, isLoading, onClick }: GeneratorButtonProps) {
 }
 
 export default function Activity() {
+  const queryClient = useQueryClient();
   const activityCode = useActivityCode();
-  const { data: activity } = useActivity(activityCode);
-  const { data: honoraria } = useActiveHonoraria(activityCode);
+
+  const [activityQuery, honorariaQuery] = useSuspenseQueries({
+    queries: [
+      fetchActivityOptions(queryClient, activityCode),
+      fetchActiveHonorariaOptions(activityCode),
+    ],
+  });
+
+  const { data: activity } = activityQuery;
+  const { data: honoraria } = honorariaQuery;
   const { isPending: isGeneratingCert, mutate: genCert } = useGenCert();
   const { isPending: isGeneratingComp, mutate: genComp } = useGenComp();
   const { isPending: isGeneratingORS, mutate: genORS } = useGenORS();
   const { isPending: isGeneratingPayroll, mutate: genPayroll } = useGenPayroll();
 
   // eslint-disable-next-line unicorn/no-null
-  if (!activity) return null;
+  if (!activity || !honoraria) return null;
 
   // Define activity fields for dynamic rendering
   const activityFields: ActivityFieldConfig[] = [
@@ -150,7 +160,7 @@ export default function Activity() {
             <HonorariumTable />
           </Suspense>
         </CardContent>
-        {honoraria && honoraria.length > 0 && (
+        {honoraria.length > 0 && (
           <CardFooter className="flex justify-center p-3">
             <ButtonGroup>
               {buttonData.map(({ title, isLoading, onClick }) => (

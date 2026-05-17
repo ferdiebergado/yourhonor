@@ -1,4 +1,4 @@
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createBank, fetchActiveBanks } from './api';
 
 const bankKeys = {
@@ -21,4 +21,4 @@ const getActiveBanksOptions = () =>
     staleTime: 1000 * 60 * 5,
   });
 
-export const useActiveBanks = () => useSuspenseQuery(getActiveBanksOptions());
+export const useActiveBanks = () => useQuery(getActiveBanksOptions());

@@ -27,7 +27,7 @@ export function useCreateHonorarium() {
   });
 }
 
-const fetchActiveHonorariaOptions = (code: string) =>
+export const fetchActiveHonorariaOptions = (code: string) =>
   queryOptions({
     queryKey: honorariumKeys.byCode(code),
     queryFn: () => fetchActiveHonorariaByActivity(code),

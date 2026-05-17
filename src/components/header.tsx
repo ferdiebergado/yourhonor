@@ -2,7 +2,9 @@ import { Link } from 'react-router';
 
 import { paths } from '@/app/routes';
 import config from '@/config';
+import { fetchActivitiesOptions } from '@/features/activity/hooks';
 import { ModeToggle } from '@/features/theme/mode-toggle';
+import { useQueryClient } from '@tanstack/react-query';
 import SignoutButton from './signout-button';
 import {
   NavigationMenu,
@@ -13,6 +15,8 @@ import {
 } from './ui/navigation-menu';
 
 export default function Header() {
+  const queryClient = useQueryClient();
+
   return (
     <header className="bg-background w-full shadow">
       <div className="flex items-center justify-between px-8 py-4 md:mx-auto md:max-w-5xl">
@@ -33,6 +37,7 @@ export default function Header() {
               <NavigationMenuLink
                 className={navigationMenuTriggerStyle()}
                 render={<Link to={paths.activities}>My Activities</Link>}
+                onMouseEnter={() => queryClient.prefetchQuery(fetchActivitiesOptions())}
               />
             </NavigationMenuItem>
             <NavigationMenuItem>

@@ -1,4 +1,5 @@
 import { RiAddLargeLine } from '@remixicon/react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -9,19 +10,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { fetchActiveAccountsOptions } from '@/features/account/hooks';
 import { useActivityCode } from '@/features/activity/hooks';
 import HonorariumForm from '@/features/honorarium/components/honorarium-form';
 import { useHonorariumForm } from '@/features/honorarium/hooks';
+import { fetchActivePayeesOptions } from '@/features/payee/hooks';
+import { fetchActiveRolesOptions } from '@/features/role/hooks';
 
 export default function HonorariumDialog() {
   const activityCode = useActivityCode();
   const form = useHonorariumForm(activityCode);
+  const queryClient = useQueryClient();
+
+  const prefetch = () => {
+    queryClient.prefetchQuery(fetchActivePayeesOptions());
+    queryClient.prefetchQuery(fetchActiveRolesOptions());
+    queryClient.prefetchQuery(fetchActiveAccountsOptions());
+  };
 
   return (
     <Dialog>
       <DialogTrigger
         render={
-          <Button size="lg">
+          <Button size="lg" onMouseEnter={prefetch} onFocus={prefetch}>
             <RiAddLargeLine data-icon="inline-start" /> Add Honorarium
           </Button>
         }

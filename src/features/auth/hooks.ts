@@ -1,3 +1,4 @@
+import { fetchSummaryOptions } from '@/app/hooks';
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { fetchMe, signin, signout } from './api';
 
@@ -10,7 +11,10 @@ export function useSignin() {
 
   return useMutation({
     mutationFn: signin,
-    onSuccess: user => queryClient.setQueryData(authKeys.user, user),
+    onSuccess: user => {
+      queryClient.setQueryData(authKeys.user, user);
+      queryClient.prefetchQuery(fetchSummaryOptions());
+    },
   });
 }
 

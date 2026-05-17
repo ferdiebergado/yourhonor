@@ -5,7 +5,7 @@ const positionKeys = {
   all: ['positions'] as const,
 };
 
-const fetchPositionsOptions = () =>
+export const fetchPositionsOptions = () =>
   queryOptions({
     queryKey: positionKeys.all,
     queryFn: fetchPositions,
