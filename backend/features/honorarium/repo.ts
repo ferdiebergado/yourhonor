@@ -1,4 +1,5 @@
 import type { Client } from '@libsql/client';
+
 import {
   HonorariumDetailRowSchema,
   type HonorariumDetailRow,
@@ -43,7 +44,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   ]);
 }
 
-export async function findActiveHonorariaPerActivity(
+export async function findActiveHonorariaByActivity(
   db: Client,
   activityCode: string
 ): Promise<HonorariumDetailRow[]> {
@@ -68,8 +69,8 @@ JOIN banks b ON b.id = a.bank_id
 JOIN venues v ON v.id = act.venue_id
 JOIN positions pos ON pos.id = f.position_id
 WHERE h.activity_code = ? AND h.deleted_at IS NULL
-ORDER BY firstname
-  `;
+ORDER BY p.firstname, p.mi, p.lastname
+`;
 
   const { rows } = await db.execute(sql, [activityCode]);
 
@@ -86,7 +87,7 @@ export async function recordUsage(db: Client, report: Report, userId: number): P
   const sql = `
 INSERT INTO usage (report_id, created_by)
 VALUES (? , ?)
-  `;
+`;
 
   const reportId = reports.indexOf(report) + 1;
 

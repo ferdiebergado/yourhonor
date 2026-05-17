@@ -1,5 +1,5 @@
 import { getDb } from '@backend/db';
-import { findActiveHonorariaPerActivity } from '@backend/features/honorarium/repo';
+import { findActiveHonorariaByActivity } from '@backend/features/honorarium/repo';
 import { checkMethod, parseSearchParams } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
@@ -13,7 +13,7 @@ export default async (req: Request) => {
 
     const { code } = parseSearchParams(req, ActivityCodeSchema);
     const db = await getDb();
-    const data = await findActiveHonorariaPerActivity(db, code);
+    const data = await findActiveHonorariaByActivity(db, code);
 
     const payload: ApiResponse<typeof data> = {
       success: true,
