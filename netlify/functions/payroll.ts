@@ -21,8 +21,8 @@ export default async (req: Request) => {
     const honoraria: HonorariumDetail[] = [];
 
     for (const row of honorariumDetailRows) {
-      const deserialized = deserializeDetails(row.details);
-      honoraria.push({ ...row, ...deserialized });
+      const accountDetails = deserializeDetails(row.details);
+      honoraria.push({ ...row, ...accountDetails });
     }
 
     if (honoraria.length === 0) return;
