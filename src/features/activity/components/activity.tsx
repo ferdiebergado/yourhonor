@@ -4,7 +4,14 @@ import { toast } from 'sonner';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import HonorariumTable from '@/features/honorarium/components/honorarium-table';
 import SkeletonHonorariumTable from '@/features/honorarium/components/skeleton-honorarium-table';
@@ -16,7 +23,7 @@ import {
   useGenPayroll,
 } from '@/features/honorarium/hooks';
 import type { ActivityDetail } from '@shared/schemas/activity';
-import { formatDateRange } from '@shared/utils';
+import { formatDate, formatDateRange } from '@shared/utils';
 import { useActivity, useActivityCode } from '../hooks';
 
 type SingleFieldConfig = { key: keyof ActivityDetail; label: string };
@@ -111,6 +118,7 @@ export default function Activity() {
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">{activity.title}</CardTitle>
+          <CardDescription>Created on {formatDate(activity.createdAt)}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -133,7 +141,10 @@ export default function Activity() {
         </CardContent>
       </Card>
       <Card>
-        <CardHeader className="text-lg font-semibold">Honoraria</CardHeader>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Honoraria</CardTitle>
+          <CardDescription>List of honoraria</CardDescription>
+        </CardHeader>
         <CardContent>
           <Suspense fallback={<SkeletonHonorariumTable />}>
             <HonorariumTable />

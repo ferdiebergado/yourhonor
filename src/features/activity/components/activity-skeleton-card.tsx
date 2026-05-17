@@ -17,6 +17,7 @@ export default function ActivitySkeletonCard() {
       <Card className="w-full">
         <CardHeader>
           <Skeleton className="h-7 w-2/3" />
+          <Skeleton className="h-5 w-60" />
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -29,6 +30,7 @@ export default function ActivitySkeletonCard() {
       <Card className="w-full">
         <CardHeader>
           <Skeleton className="h-7 w-24" />
+          <Skeleton className="h-5 w-36" />
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2">
