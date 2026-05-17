@@ -39,7 +39,7 @@ export async function patchDoc(template: string, tags: Record<string, string>) {
   }
 }
 
-export function docxResponse(body: Buffer, filename: string) {
+export function docxResponse(body: Uint8Array, filename: string) {
   return new Response(body, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -48,7 +48,7 @@ export function docxResponse(body: Buffer, filename: string) {
   });
 }
 
-export const xlsxResponse = (body: Blob, filename: string) =>
+export const xlsxResponse = (body: Uint8Array, filename: string) =>
   new Response(body, {
     headers: {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
