@@ -77,9 +77,7 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
             control={form.control}
             render={({ field, fieldState }) => (
               <Field>
-                <FieldLabel htmlFor={field.name} className="w-1/2">
-                  First Name
-                </FieldLabel>
+                <FieldLabel htmlFor={field.name}>First Name</FieldLabel>
                 <Input
                   {...field}
                   id={field.name}
@@ -95,10 +93,8 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
             name="mi"
             control={form.control}
             render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel htmlFor={field.name} className="w-1/2">
-                  Middle Initial
-                </FieldLabel>
+              <Field className="w-1/4">
+                <FieldLabel htmlFor={field.name}>Middle Initial</FieldLabel>
                 <Input
                   {...field}
                   id={field.name}
