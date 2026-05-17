@@ -10,7 +10,7 @@ export default function SigninPage() {
       <CardContent className="flex flex-col items-center space-y-6 p-8 sm:p-10">
         {/* Stylized Logo */}
         <div className="font-heading mb-2 flex items-center gap-2 tracking-tight">
-          <div className="bg-destructive text-background h-1/2 rounded-lg px-3 text-center text-2xl font-bold">
+          <div className="bg-destructive text-background rounded-lg px-3 text-center text-2xl font-bold">
             YH
           </div>
           <div className="text-2xl font-bold">{config.appTitle}</div>
