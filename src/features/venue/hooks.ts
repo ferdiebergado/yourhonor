@@ -5,7 +5,7 @@ const venueKeys = {
   all: ['venues'] as const,
 };
 
-const fetchVenuesOptions = () =>
+export const fetchVenuesOptions = () =>
   queryOptions({
     queryKey: venueKeys.all,
     queryFn: fetchVenues,
