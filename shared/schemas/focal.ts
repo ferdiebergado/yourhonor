@@ -13,15 +13,16 @@ export const FocalSchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreateFocalSchema = FocalSchema.omit({
+export type Focal = z.infer<typeof FocalSchema>;
+
+export const NewFocalSchema = FocalSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export type Focal = z.infer<typeof FocalSchema>;
-export type CreateFocal = z.infer<typeof CreateFocalSchema>;
+export type NewFocal = z.infer<typeof NewFocalSchema>;
 
 export const FocalIdSchema = FocalSchema.pick({ id: true });
 

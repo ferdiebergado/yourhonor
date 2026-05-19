@@ -2,7 +2,7 @@ import type { Client } from '@libsql/client';
 
 import { randBase64 } from '@backend/utils';
 import { SESSION } from '@shared/constants';
-import type { CreateSession, Session } from '@shared/schemas/session';
+import type { NewSession, Session } from '@shared/schemas/session';
 import { getDb } from '../db';
 import { UnauthorizedError } from '../http/errors';
 import { createSession, findSession, touchSession } from './repo';
@@ -13,7 +13,7 @@ export async function startSession(db: Client, userId: number): Promise<Session>
   return await createSession(db, session);
 }
 
-export function newSession(userId: number): CreateSession {
+export function newSession(userId: number): NewSession {
   const sessionId = randBase64(SESSION.ID_LENGTH);
   const expiresAt = setExpiryDate();
 

@@ -3,7 +3,7 @@ import { createVenue } from '@backend/features/venue/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { VenueFormSchema, type CreateVenue } from '@shared/schemas/venue';
+import { VenueFormSchema, type NewVenue } from '@shared/schemas/venue';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -14,7 +14,7 @@ export default async (req: Request) => {
 
     const data = await parseJson(req, VenueFormSchema);
 
-    const venue: CreateVenue = {
+    const venue: NewVenue = {
       ...data,
       createdBy: userId,
       updatedBy: userId,

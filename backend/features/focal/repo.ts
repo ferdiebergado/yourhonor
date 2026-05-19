@@ -1,5 +1,5 @@
 import type { Client } from '@libsql/client';
-import { FocalBaseSchema, type CreateFocal, type FocalBase } from '@shared/schemas/focal';
+import { FocalBaseSchema, type FocalBase, type NewFocal } from '@shared/schemas/focal';
 import { snakeToCamel } from '@shared/utils';
 
 export async function findActiveFocals(db: Client): Promise<FocalBase[]> {
@@ -22,7 +22,7 @@ type CreateFocalResultSet = {
   id: number;
 };
 
-export async function createFocal(db: Client, focal: CreateFocal): Promise<number> {
+export async function createFocal(db: Client, focal: NewFocal): Promise<number> {
   const sql = `
 INSERT INTO focals (firstname, mi, lastname,  position_id, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?)

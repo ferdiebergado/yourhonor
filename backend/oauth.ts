@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 
 import { GOOGLE_ACCOUNTS_ORIGIN } from '@shared/constants';
-import type { CreateUser } from '@shared/schemas/user';
+import type { NewUser } from '@shared/schemas/user';
 import config from './config';
 import { getDb } from './db';
 import { BadRequestError, UnauthorizedError } from './http/errors';
@@ -14,7 +14,7 @@ export const oauthClient = new OAuth2Client({
   redirectUri: config.googleRedirectUri,
 });
 
-export async function verifyCode(oauthClient: OAuth2Client, code: string): Promise<CreateUser> {
+export async function verifyCode(oauthClient: OAuth2Client, code: string): Promise<NewUser> {
   const {
     tokens: { id_token },
   } = await oauthClient.getToken(code);
@@ -41,7 +41,7 @@ export async function verifyCode(oauthClient: OAuth2Client, code: string): Promi
 
 export async function signin(
   code: string
-): Promise<{ user: CreateUser; sessionId: string; expiresAt: Date }> {
+): Promise<{ user: NewUser; sessionId: string; expiresAt: Date }> {
   const user = await verifyCode(oauthClient, code);
   const db = await getDb();
   const userId = await upsertUser(db, user);

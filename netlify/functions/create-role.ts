@@ -3,7 +3,7 @@ import { createRole } from '@backend/features/role/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { RoleFormSchema, type CreateRole } from '@shared/schemas/role';
+import { RoleFormSchema, type NewRole } from '@shared/schemas/role';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -14,7 +14,7 @@ export default async (req: Request) => {
 
     const data = await parseJson(req, RoleFormSchema);
 
-    const role: CreateRole = {
+    const role: NewRole = {
       ...data,
       createdBy: userId,
       updatedBy: userId,

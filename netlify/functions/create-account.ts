@@ -4,7 +4,7 @@ import { createAccount } from '@backend/features/account/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { AccountFormSchema, type NewAccountRow } from '@shared/schemas/account';
+import { AccountFormSchema, type NewAccount } from '@shared/schemas/account';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -27,7 +27,7 @@ export default async (req: Request) => {
       serialized.byteOffset + serialized.byteLength
     ) as ArrayBuffer;
 
-    const account: NewAccountRow = {
+    const account: NewAccount = {
       ...data,
       details: detailsBuffer,
       createdBy: userId,

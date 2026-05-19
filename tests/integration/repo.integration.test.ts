@@ -2,11 +2,11 @@ import type { Client } from '@libsql/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { upsertUser } from '@backend/user/repo';
-import type { CreateUser } from '@shared/schemas/user';
+import type { NewUser } from '@shared/schemas/user';
 import { createTestDB } from '../../tests/helpers/db';
 
 describe('UserRepo', () => {
-  const user: CreateUser = {
+  const user: NewUser = {
     googleId: '123',
     name: 'Test User',
     email: 'test@example.com',
@@ -108,7 +108,7 @@ describe('UserRepo', () => {
 
       vi.advanceTimersByTime(60_000);
 
-      const updatedUser: CreateUser = {
+      const updatedUser: NewUser = {
         googleId: user.googleId, // Same googleId to trigger update
         name: 'Updated User Name',
         email: 'updated@example.com',

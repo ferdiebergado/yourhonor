@@ -1,11 +1,11 @@
 import type { Client } from '@libsql/client';
-import { RoleBaseSchema, type CreateRole, type RoleBase } from '@shared/schemas/role';
+import { RoleBaseSchema, type NewRole, type RoleBase } from '@shared/schemas/role';
 
 type CreateRoleResultSet = {
   id: number;
 };
 
-export async function createRole(db: Client, role: CreateRole): Promise<number> {
+export async function createRole(db: Client, role: NewRole): Promise<number> {
   const sql = `
 INSERT INTO roles (name, created_by, updated_by)
 VALUES (?, ?, ?)

@@ -2,7 +2,7 @@ import type { Client } from '@libsql/client';
 import {
   AccountDetailRowSchema,
   type AccountDetailRow,
-  type NewAccountRow,
+  type NewAccount,
 } from '@shared/schemas/account';
 import { snakeToCamel } from '@shared/utils';
 
@@ -26,7 +26,7 @@ type CreateAccountResultSet = {
   id: number;
 };
 
-export async function createAccount(db: Client, account: NewAccountRow): Promise<number> {
+export async function createAccount(db: Client, account: NewAccount): Promise<number> {
   const sql = `
 INSERT INTO accounts (payee_id, bank_id, details, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?)

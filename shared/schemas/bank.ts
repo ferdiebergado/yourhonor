@@ -13,15 +13,16 @@ export const BankSchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreateBankSchema = BankSchema.omit({
+export type Bank = z.infer<typeof BankSchema>;
+
+export const NewBankSchema = BankSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export type Bank = z.infer<typeof BankSchema>;
-export type CreateBank = z.infer<typeof CreateBankSchema>;
+export type NewBank = z.infer<typeof NewBankSchema>;
 
 export const BankIdSchema = BankSchema.pick({ id: true });
 

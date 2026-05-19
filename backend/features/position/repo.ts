@@ -1,9 +1,5 @@
 import type { Client } from '@libsql/client';
-import {
-  PositionBaseSchema,
-  type CreatePosition,
-  type PositionBase,
-} from '@shared/schemas/position';
+import { PositionBaseSchema, type NewPosition, type PositionBase } from '@shared/schemas/position';
 
 export async function findActivePositions(db: Client): Promise<PositionBase[]> {
   const sql = `
@@ -23,7 +19,7 @@ type CreatePositionResultSet = {
   id: number;
 };
 
-export async function createPosition(db: Client, position: CreatePosition): Promise<number> {
+export async function createPosition(db: Client, position: NewPosition): Promise<number> {
   const sql = `
 INSERT INTO positions (name, created_by, updated_by)
 VALUES (?, ?, ?)

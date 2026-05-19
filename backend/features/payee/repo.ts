@@ -1,12 +1,12 @@
 import type { Client } from '@libsql/client';
-import { PayeeBaseSchema, type CreatePayee, type PayeeBase } from '@shared/schemas/payee';
+import { PayeeBaseSchema, type NewPayee, type PayeeBase } from '@shared/schemas/payee';
 import { snakeToCamel } from '@shared/utils';
 
 type CreatePayeeResultSet = {
   id: number;
 };
 
-export async function createPayee(db: Client, focal: CreatePayee): Promise<number> {
+export async function createPayee(db: Client, focal: NewPayee): Promise<number> {
   const sql = `
 INSERT INTO payees (firstname, mi, lastname, tin, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?)

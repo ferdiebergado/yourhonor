@@ -17,15 +17,16 @@ export const VenueSchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreateVenueSchema = VenueSchema.omit({
+export type Venue = z.infer<typeof VenueSchema>;
+
+export const NewVenueSchema = VenueSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export type Venue = z.infer<typeof VenueSchema>;
-export type CreateVenue = z.infer<typeof CreateVenueSchema>;
+export type NewVenue = z.infer<typeof NewVenueSchema>;
 
 export const VenueIdSchema = VenueSchema.pick({ id: true });
 

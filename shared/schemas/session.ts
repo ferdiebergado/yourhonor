@@ -14,7 +14,7 @@ export const SessionSchema = z.object({
 
 export type Session = z.infer<typeof SessionSchema>;
 
-export const CreateSessionSchema = SessionSchema.omit({
+export const NewSessionSchema = SessionSchema.omit({
   id: true,
   lastActiveAt: true,
   createdAt: true,
@@ -22,4 +22,4 @@ export const CreateSessionSchema = SessionSchema.omit({
   deletedAt: true,
 });
 
-export type CreateSession = z.infer<typeof CreateSessionSchema>;
+export type NewSession = z.infer<typeof NewSessionSchema>;

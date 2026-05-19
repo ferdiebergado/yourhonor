@@ -3,7 +3,7 @@ import { createFocal } from '@backend/features/focal/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { FocalFormSchema, type CreateFocal } from '@shared/schemas/focal';
+import { FocalFormSchema, type NewFocal } from '@shared/schemas/focal';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -14,7 +14,7 @@ export default async (req: Request) => {
 
     const data = await parseJson(req, FocalFormSchema);
 
-    const focal: CreateFocal = {
+    const focal: NewFocal = {
       ...data,
       createdBy: userId,
       updatedBy: userId,

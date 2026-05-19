@@ -1,11 +1,11 @@
 /* eslint-disable unicorn/no-null */
 import type { Client, Row } from '@libsql/client';
 
-import { UserIdSchema, UserSchema, type CreateUser, type User } from '@shared/schemas/user';
+import { UserIdSchema, UserSchema, type NewUser, type User } from '@shared/schemas/user';
 import { snakeToCamel } from '@shared/utils';
 import logger from '../logger';
 
-export async function upsertUser(db: Client, user: CreateUser): Promise<User['id']> {
+export async function upsertUser(db: Client, user: NewUser): Promise<User['id']> {
   logger.info('[DB]: Upserting user...');
 
   const sql = `

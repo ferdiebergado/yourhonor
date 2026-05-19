@@ -1,11 +1,11 @@
 import type { Client } from '@libsql/client';
-import { BankBaseSchema, type BankBase, type CreateBank } from '@shared/schemas/bank';
+import { BankBaseSchema, type BankBase, type NewBank } from '@shared/schemas/bank';
 
 type CreateBankResultSet = {
   id: number;
 };
 
-export async function createBank(db: Client, bank: CreateBank): Promise<number> {
+export async function createBank(db: Client, bank: NewBank): Promise<number> {
   const sql = `
 INSERT INTO banks (name, created_by, updated_by)
 VALUES (?, ?, ?)

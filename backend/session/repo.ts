@@ -1,10 +1,10 @@
 import type { Client, Row } from '@libsql/client';
 
-import { SessionSchema, type CreateSession, type Session } from '@shared/schemas/session';
+import { SessionSchema, type NewSession, type Session } from '@shared/schemas/session';
 import { snakeToCamel } from '@shared/utils';
 import logger from '../logger';
 
-export async function createSession(db: Client, session: CreateSession): Promise<Session> {
+export async function createSession(db: Client, session: NewSession): Promise<Session> {
   logger.info('[DB]: Creating session...');
 
   const sql = `

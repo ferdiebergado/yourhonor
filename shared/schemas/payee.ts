@@ -19,15 +19,16 @@ export const PayeeSchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreatePayeeSchema = PayeeSchema.omit({
+export type Payee = z.infer<typeof PayeeSchema>;
+
+export const NewPayeeSchema = PayeeSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export type Payee = z.infer<typeof PayeeSchema>;
-export type CreatePayee = z.infer<typeof CreatePayeeSchema>;
+export type NewPayee = z.infer<typeof NewPayeeSchema>;
 
 export const PayeeFormSchema = PayeeSchema.pick({
   firstname: true,

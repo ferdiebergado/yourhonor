@@ -14,7 +14,7 @@ export const AccountRowSchema = z.object({
 
 export type AccountRow = z.infer<typeof AccountRowSchema>;
 
-export const NewAccountRowSchema = AccountRowSchema.omit({
+export const NewAccountSchema = AccountRowSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -25,9 +25,9 @@ export const NewAccountRowSchema = AccountRowSchema.omit({
   accountNumber: z.string().min(1, 'Account number is required.'),
 });
 
-export type NewAccountRow = z.infer<typeof NewAccountRowSchema>;
+export type NewAccount = z.infer<typeof NewAccountSchema>;
 
-export const AccountSchema = NewAccountRowSchema.pick({
+export const AccountSchema = NewAccountSchema.pick({
   payeeId: true,
   bankId: true,
   branch: true,

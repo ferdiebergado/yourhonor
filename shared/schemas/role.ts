@@ -13,15 +13,16 @@ export const RoleSchema = z.object({
   updatedBy: z.int().positive(),
 });
 
-export const CreateRoleSchema = RoleSchema.omit({
+export type Role = z.infer<typeof RoleSchema>;
+
+export const NewRoleSchema = RoleSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
 });
 
-export type Role = z.infer<typeof RoleSchema>;
-export type CreateRole = z.infer<typeof CreateRoleSchema>;
+export type NewRole = z.infer<typeof NewRoleSchema>;
 
 export const RoleIdSchema = RoleSchema.pick({ id: true });
 

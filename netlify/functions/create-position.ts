@@ -3,7 +3,7 @@ import { createPosition } from '@backend/features/position/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import { PositionFormSchema, type CreatePosition } from '@shared/schemas/position';
+import { PositionFormSchema, type NewPosition } from '@shared/schemas/position';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -14,7 +14,7 @@ export default async (req: Request) => {
 
     const data = await parseJson(req, PositionFormSchema);
 
-    const position: CreatePosition = {
+    const position: NewPosition = {
       ...data,
       createdBy: userId,
       updatedBy: userId,

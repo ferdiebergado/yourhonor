@@ -20,15 +20,16 @@ export const UserSchema = z.object({
   createdAt: z.iso.datetime(),
 });
 
-export const CreateUserSchema = UserSchema.omit({
+export type User = z.infer<typeof UserSchema>;
+
+export const NewUserSchema = UserSchema.omit({
   id: true,
   lastLoginAt: true,
   updatedAt: true,
   createdAt: true,
 });
 
-export type User = z.infer<typeof UserSchema>;
-export type CreateUser = z.infer<typeof CreateUserSchema>;
+export type NewUser = z.infer<typeof NewUserSchema>;
 
 export const ProfileSchema = UserSchema.pick({
   name: true,

@@ -1,5 +1,5 @@
 import type { Client } from '@libsql/client';
-import { BaseVenueSchema, type BaseVenue, type CreateVenue } from '@shared/schemas/venue';
+import { BaseVenueSchema, type BaseVenue, type NewVenue } from '@shared/schemas/venue';
 
 export async function findActiveVenues(db: Client): Promise<BaseVenue[]> {
   const sql = `
@@ -20,7 +20,7 @@ type CreateVenueResultSet = {
   id: number;
 };
 
-export async function createVenue(db: Client, venue: CreateVenue): Promise<number> {
+export async function createVenue(db: Client, venue: NewVenue): Promise<number> {
   const sql = `
 INSERT INTO venues (name, location, created_by, updated_by)
 VALUES (?, ?, ?, ?)
