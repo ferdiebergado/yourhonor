@@ -20,14 +20,14 @@ export default function Dashboard() {
             Welcome honorable {me.name}!
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex justify-center gap-10 p-5">
-          <Card className="w-1/4 border p-5 text-center shadow-none">
+        <CardContent className="flex justify-center gap-2 p-1 text-center md:gap-10 md:p-5">
+          <Card className="w-1/2 border p-2 shadow-none md:w-1/4 md:p-5">
             <CardDescription>Total Activities</CardDescription>
             <CardHeader className="font-heading text-6xl font-semibold">
               {summary.totalActivities}
             </CardHeader>
           </Card>
-          <Card className="w-1/4 border p-5 text-center shadow-none">
+          <Card className="w-1/2 border p-2 shadow-none md:w-1/4 md:p-5">
             <CardDescription>Total Honoraria</CardDescription>
             <CardHeader className="font-heading text-6xl font-semibold">
               {summary.totalHonoraria}
