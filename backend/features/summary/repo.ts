@@ -1,5 +1,9 @@
 import type { Database } from '@backend/db';
-import { type Summary } from '@shared/schemas/summary';
+
+type Summary = {
+  totalActivities: number;
+  totalHonoraria: number;
+};
 
 export async function getSummary(db: Database): Promise<Summary | undefined> {
   const sql = `
