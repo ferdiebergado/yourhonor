@@ -24,8 +24,6 @@ export const NewBankSchema = BankSchema.omit({
 
 export type NewBank = z.infer<typeof NewBankSchema>;
 
-export const BankIdSchema = BankSchema.pick({ id: true });
-
 export const BankBaseSchema = BankSchema.pick({
   id: true,
   name: true,

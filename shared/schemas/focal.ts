@@ -24,8 +24,6 @@ export const NewFocalSchema = FocalSchema.omit({
 
 export type NewFocal = z.infer<typeof NewFocalSchema>;
 
-export const FocalIdSchema = FocalSchema.pick({ id: true });
-
 export const FocalBaseSchema = FocalSchema.omit({
   createdAt: true,
   updatedAt: true,

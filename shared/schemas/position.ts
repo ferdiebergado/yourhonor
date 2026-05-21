@@ -24,8 +24,6 @@ export const NewPositionSchema = PositionSchema.omit({
 
 export type NewPosition = z.infer<typeof NewPositionSchema>;
 
-export const PositionIdSchema = PositionSchema.pick({ id: true });
-
 export const PositionBaseSchema = PositionSchema.pick({
   id: true,
   name: true,

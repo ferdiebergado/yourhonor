@@ -24,8 +24,6 @@ export const NewRoleSchema = RoleSchema.omit({
 
 export type NewRole = z.infer<typeof NewRoleSchema>;
 
-export const RoleIdSchema = RoleSchema.pick({ id: true });
-
 export const RoleBaseSchema = RoleSchema.pick({
   id: true,
   name: true,

@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 export const VenueSchema = z.object({
-  id: z.int().positive(),
+  id: z.int().positive('Venue is required.'),
   name: z
     .string()
     .min(1, 'Venue name is required')
@@ -27,8 +27,6 @@ export const NewVenueSchema = VenueSchema.omit({
 });
 
 export type NewVenue = z.infer<typeof NewVenueSchema>;
-
-export const VenueIdSchema = VenueSchema.pick({ id: true });
 
 export const BaseVenueSchema = VenueSchema.omit({
   createdAt: true,
