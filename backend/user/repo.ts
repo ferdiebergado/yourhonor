@@ -3,11 +3,8 @@
 import type { Database } from '@backend/db';
 import { type NewUser, type User } from '@shared/schemas/user';
 import type { IdRow } from '@shared/types';
-import logger from '../logger';
 
 export async function upsertUser(db: Database, user: NewUser): Promise<User['id']> {
-  logger.info('[DB]: Upserting user...');
-
   const sql = `
 INSERT INTO users (google_id, name, email, picture, role, is_active)
 VALUES (?, ?, ?, ?, ?, ?)
@@ -36,8 +33,6 @@ RETURNING id
 }
 
 export default async function findUser(db: Database, id: number): Promise<User | undefined> {
-  logger.info('[DB]: Finding user...');
-
   const sql = `
 SELECT id, google_id googleId, email, name, picture, role, is_active isActive, last_login_at lastLoginAt, updated_at updatedAt, created_at createAt
 FROM users
@@ -47,10 +42,7 @@ LIMIT 1
 
   const { rows } = await db.execute<User>(sql, [id]);
 
-  if (rows.length === 0) {
-    logger.warn({ userId: id }, 'user not found');
-    return;
-  }
+  if (rows.length === 0) return;
 
   return rows[0];
 }
