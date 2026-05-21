@@ -21,8 +21,8 @@ const BASE_COOKIE: Readonly<Omit<Cookie, 'name' | 'value'>> = {
   sameSite: 'Strict',
 };
 
-export function bakeSessionCookie(sessionId: string, expiresAt: Date): Cookie {
-  const deltaMs = expiresAt.getTime() - Date.now();
+export function bakeSessionCookie(sessionId: string, expiresAt: string): Cookie {
+  const deltaMs = new Date(expiresAt).getTime() - Date.now();
   const maxAge = Math.max(0, Math.floor(deltaMs / 1000));
 
   return {
