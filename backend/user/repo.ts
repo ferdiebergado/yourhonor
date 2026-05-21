@@ -1,11 +1,11 @@
 /* eslint-disable unicorn/no-null */
-import type { Client, Row } from '@libsql/client';
 
-import { UserIdSchema, UserSchema, type NewUser, type User } from '@shared/schemas/user';
-import { snakeToCamel } from '@shared/utils';
+import type { Database } from '@backend/db';
+import { type NewUser, type User } from '@shared/schemas/user';
+import type { IdRow } from '@shared/types';
 import logger from '../logger';
 
-export async function upsertUser(db: Client, user: NewUser): Promise<User['id']> {
+export async function upsertUser(db: Database, user: NewUser): Promise<User['id']> {
   logger.info('[DB]: Upserting user...');
 
   const sql = `
@@ -20,7 +20,7 @@ DO UPDATE SET
 RETURNING id
 `;
 
-  const { rows } = await db.execute(sql, [
+  const { rows } = await db.execute<IdRow>(sql, [
     user.googleId,
     user.name ?? null,
     user.email ?? null,
@@ -30,27 +30,27 @@ RETURNING id
     new Date().toISOString(),
   ]);
 
-  return UserIdSchema.parse(rows[0]).id;
+  const row = rows[0];
+
+  return row.id;
 }
 
-export default async function findUser(db: Client, id: number): Promise<User | undefined> {
+export default async function findUser(db: Database, id: number): Promise<User | undefined> {
   logger.info('[DB]: Finding user...');
 
   const sql = `
-SELECT *
+SELECT id, google_id googleId, email, name, picture, role, is_active isActive, last_login_at lastLoginAt, updated_at updatedAt, created_at createAt
 FROM users
 WHERE id = ? AND is_active = 1
 LIMIT 1
 `;
 
-  const { rows } = await db.execute(sql, [id]);
+  const { rows } = await db.execute<User>(sql, [id]);
 
   if (rows.length === 0) {
     logger.warn({ userId: id }, 'user not found');
     return;
   }
 
-  return mapRowToUser(rows[0]);
+  return rows[0];
 }
-
-const mapRowToUser = (row: Row): User => UserSchema.parse(snakeToCamel(row));

@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { checkMethod } from '@backend/http';
 import { NotFoundError, respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
@@ -13,7 +13,6 @@ export default async (req: Request, ctx: Context) => {
 
     const { sessionId } = await getSession(req);
 
-    const db = await getDb();
     const isDeleted = await softDeleteSession(db, sessionId);
 
     if (!isDeleted) throw new NotFoundError('Session not found or already deleted');

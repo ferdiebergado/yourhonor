@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { findActiveActivityByUser } from '@backend/features/activity/repo';
 import { checkMethod, parseSearchParams } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -14,7 +14,6 @@ export default async (req: Request) => {
 
     const { code } = parseSearchParams(req, ActivityCodeSchema);
 
-    const db = await getDb();
     const data = await findActiveActivityByUser(db, code, userId);
 
     const payload: ApiResponse<typeof data> = {

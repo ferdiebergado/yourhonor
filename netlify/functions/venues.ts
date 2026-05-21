@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { findActiveVenues } from '@backend/features/venue/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -10,7 +10,6 @@ export default async (req: Request) => {
     checkMethod(req, ['GET']);
     await getSession(req);
 
-    const db = await getDb();
     const venues = await findActiveVenues(db);
 
     const payload: ApiResponse<typeof venues> = {

@@ -1,12 +1,8 @@
-import type { Client } from '@libsql/client';
-import { PayeeBaseSchema, type NewPayee, type PayeeBase } from '@shared/schemas/payee';
-import { snakeToCamel } from '@shared/utils';
+import type { Database } from '@backend/db';
+import { type NewPayee, type Payee, type PayeeBase } from '@shared/schemas/payee';
+import type { IdRow } from '@shared/types';
 
-type CreatePayeeResultSet = {
-  id: number;
-};
-
-export async function createPayee(db: Client, focal: NewPayee): Promise<number> {
+export async function createPayee(db: Database, focal: NewPayee): Promise<Payee['id']> {
   const sql = `
 INSERT INTO payees (firstname, mi, lastname, tin, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?)
@@ -15,7 +11,7 @@ RETURNING id
 
   const { firstname, mi, lastname, tin, createdBy, updatedBy } = focal;
 
-  const { rows } = await db.execute(sql, [
+  const { rows } = await db.execute<IdRow>(sql, [
     firstname,
     // eslint-disable-next-line unicorn/no-null
     mi ?? null,
@@ -26,12 +22,10 @@ RETURNING id
     updatedBy,
   ]);
 
-  const { id } = rows[0] as unknown as CreatePayeeResultSet;
-
-  return id;
+  return rows[0].id;
 }
 
-export async function findActivePayees(db: Client): Promise<PayeeBase[]> {
+export async function findActivePayees(db: Database): Promise<PayeeBase[]> {
   const sql = `
 SELECT id, firstname, mi, lastname
 FROM payees
@@ -39,9 +33,7 @@ WHERE deleted_at IS NULL
 ORDER BY firstname ASC
   `;
 
-  const { rows } = await db.execute(sql);
+  const { rows } = await db.execute<PayeeBase>(sql);
 
-  if (rows.length === 0) return [];
-
-  return rows.map(row => PayeeBaseSchema.parse(snakeToCamel(row)));
+  return rows;
 }

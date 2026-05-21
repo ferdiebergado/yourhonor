@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { serializeDetails } from '@backend/features/account';
 import { createAccount } from '@backend/features/account/repo';
 import { checkMethod, parseJson } from '@backend/http';
@@ -34,7 +34,6 @@ export default async (req: Request) => {
       updatedBy: userId,
     };
 
-    const db = await getDb();
     const id = await createAccount(db, account);
 
     const payload: ApiResponse<number> = {

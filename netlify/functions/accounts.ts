@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { deserializeDetails, maskAccountNo } from '@backend/features/account';
 import { findActiveAccounts } from '@backend/features/account/repo';
 import { checkMethod } from '@backend/http';
@@ -12,7 +12,6 @@ export default async (req: Request) => {
     checkMethod(req, ['GET']);
     await getSession(req);
 
-    const db = await getDb();
     const accountDetailRows = await findActiveAccounts(db);
 
     const data: AccountDetail[] = [];

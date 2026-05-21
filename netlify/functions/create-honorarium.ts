@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { createHonorarium } from '@backend/features/honorarium/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -23,7 +23,6 @@ export default async (req: Request) => {
       updatedBy: userId,
     };
 
-    const db = await getDb();
     await createHonorarium(db, honorarium);
 
     const payload: ApiResponse = {

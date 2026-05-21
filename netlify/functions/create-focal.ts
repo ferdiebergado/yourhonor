@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { createFocal } from '@backend/features/focal/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -20,7 +20,6 @@ export default async (req: Request) => {
       updatedBy: userId,
     };
 
-    const db = await getDb();
     const id = await createFocal(db, focal);
 
     const payload: ApiResponse<number> = {

@@ -1,11 +1,8 @@
-import type { Client } from '@libsql/client';
-import { BankBaseSchema, type BankBase, type NewBank } from '@shared/schemas/bank';
+import type { Database } from '@backend/db';
+import { type Bank, type BankBase, type NewBank } from '@shared/schemas/bank';
+import type { IdRow } from '@shared/types';
 
-type CreateBankResultSet = {
-  id: number;
-};
-
-export async function createBank(db: Client, bank: NewBank): Promise<number> {
+export async function createBank(db: Database, bank: NewBank): Promise<Bank['id']> {
   const sql = `
 INSERT INTO banks (name, created_by, updated_by)
 VALUES (?, ?, ?)
@@ -14,13 +11,12 @@ RETURNING id
 
   const { name, createdBy, updatedBy } = bank;
 
-  const { rows } = await db.execute(sql, [name, createdBy, updatedBy]);
-  const { id } = rows[0] as unknown as CreateBankResultSet;
+  const { rows } = await db.execute<IdRow>(sql, [name, createdBy, updatedBy]);
 
-  return id;
+  return rows[0].id;
 }
 
-export async function findActiveBanks(db: Client): Promise<BankBase[]> {
+export async function findActiveBanks(db: Database): Promise<BankBase[]> {
   const sql = `
 SELECT id, name
 FROM banks
@@ -28,9 +24,7 @@ WHERE deleted_at IS NULL
 ORDER BY name ASC
 `;
 
-  const { rows } = await db.execute(sql);
+  const { rows } = await db.execute<BankBase>(sql);
 
-  if (rows.length === 0) return [];
-
-  return rows.map(row => BankBaseSchema.parse(row));
+  return rows;
 }

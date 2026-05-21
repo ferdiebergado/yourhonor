@@ -1,11 +1,8 @@
-import type { Client } from '@libsql/client';
-import { RoleBaseSchema, type NewRole, type RoleBase } from '@shared/schemas/role';
+import type { Database } from '@backend/db';
+import { type NewRole, type Role, type RoleBase } from '@shared/schemas/role';
+import type { IdRow } from '@shared/types';
 
-type CreateRoleResultSet = {
-  id: number;
-};
-
-export async function createRole(db: Client, role: NewRole): Promise<number> {
+export async function createRole(db: Database, role: NewRole): Promise<Role['id']> {
   const sql = `
 INSERT INTO roles (name, created_by, updated_by)
 VALUES (?, ?, ?)
@@ -14,14 +11,12 @@ RETURNING id
 
   const { name, createdBy, updatedBy } = role;
 
-  const { rows } = await db.execute(sql, [name, createdBy, updatedBy]);
+  const { rows } = await db.execute<IdRow>(sql, [name, createdBy, updatedBy]);
 
-  const { id } = rows[0] as unknown as CreateRoleResultSet;
-
-  return id;
+  return rows[0].id;
 }
 
-export async function findActiveRoles(db: Client): Promise<RoleBase[]> {
+export async function findActiveRoles(db: Database): Promise<RoleBase[]> {
   const sql = `
 SELECT id, name
 FROM roles
@@ -29,9 +24,7 @@ WHERE deleted_at IS NULL
 ORDER BY name ASC
 `;
 
-  const { rows } = await db.execute(sql);
+  const { rows } = await db.execute<RoleBase>(sql);
 
-  if (rows.length === 0) return [];
-
-  return rows.map(row => RoleBaseSchema.parse(row));
+  return rows;
 }

@@ -1,7 +1,8 @@
-import type { Client } from '@libsql/client';
-import { BaseVenueSchema, type BaseVenue, type NewVenue } from '@shared/schemas/venue';
+import type { Database } from '@backend/db';
+import { type BaseVenue, type NewVenue, type Venue } from '@shared/schemas/venue';
+import type { IdRow } from '@shared/types';
 
-export async function findActiveVenues(db: Client): Promise<BaseVenue[]> {
+export async function findActiveVenues(db: Database): Promise<BaseVenue[]> {
   const sql = `
 SELECT id, name, location
 FROM venues
@@ -9,18 +10,12 @@ WHERE deleted_at IS NULL
 ORDER BY name ASC
 ;`;
 
-  const { rows } = await db.execute(sql);
+  const { rows } = await db.execute<BaseVenue>(sql);
 
-  if (rows.length === 0) return [];
-
-  return rows.map(row => BaseVenueSchema.parse(row));
+  return rows;
 }
 
-type CreateVenueResultSet = {
-  id: number;
-};
-
-export async function createVenue(db: Client, venue: NewVenue): Promise<number> {
+export async function createVenue(db: Database, venue: NewVenue): Promise<Venue['id']> {
   const sql = `
 INSERT INTO venues (name, location, created_by, updated_by)
 VALUES (?, ?, ?, ?)
@@ -28,9 +23,7 @@ RETURNING id
   `;
 
   const { name, location, createdBy, updatedBy } = venue;
-  const { rows } = await db.execute(sql, [name, location, createdBy, updatedBy]);
+  const { rows } = await db.execute<IdRow>(sql, [name, location, createdBy, updatedBy]);
 
-  const { id } = rows[0] as unknown as CreateVenueResultSet;
-
-  return id;
+  return rows[0].id;
 }

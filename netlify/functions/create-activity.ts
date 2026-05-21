@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { createActivity, findActiveActivityByUser } from '@backend/features/activity/repo';
 import { getFundCluster } from '@backend/features/honorarium/utils';
 import { checkMethod, parseJson } from '@backend/http';
@@ -25,7 +25,6 @@ export default async (req: Request) => {
       createdBy: userId,
     };
 
-    const db = await getDb();
     await createActivity(db, newActivity);
 
     const activity = await findActiveActivityByUser(db, data.code, userId);

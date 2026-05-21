@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { createPosition } from '@backend/features/position/repo';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -20,7 +20,6 @@ export default async (req: Request) => {
       updatedBy: userId,
     };
 
-    const db = await getDb();
     const id = await createPosition(db, position);
 
     const payload: ApiResponse<number> = {

@@ -3,7 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { GOOGLE_ACCOUNTS_ORIGIN } from '@shared/constants';
 import type { NewUser } from '@shared/schemas/user';
 import config from './config';
-import { getDb } from './db';
+import { db } from './db';
 import { BadRequestError, UnauthorizedError } from './http/errors';
 import { startSession } from './session';
 import { upsertUser } from './user/repo';
@@ -41,9 +41,8 @@ export async function verifyCode(oauthClient: OAuth2Client, code: string): Promi
 
 export async function signin(
   code: string
-): Promise<{ user: NewUser; sessionId: string; expiresAt: Date }> {
+): Promise<{ user: NewUser; sessionId: string; expiresAt: string }> {
   const user = await verifyCode(oauthClient, code);
-  const db = await getDb();
   const userId = await upsertUser(db, user);
   const { sessionId, expiresAt } = await startSession(db, userId);
 

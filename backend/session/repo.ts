@@ -1,50 +1,51 @@
-import type { Client, Row } from '@libsql/client';
-
-import { SessionSchema, type NewSession, type Session } from '@shared/schemas/session';
-import { snakeToCamel } from '@shared/utils';
+import type { Database } from '@backend/db';
+import { type NewSession, type Session } from '@shared/schemas/session';
 import logger from '../logger';
 
-export async function createSession(db: Client, session: NewSession): Promise<Session> {
+const sessionColumns =
+  'id, session_id sessionId, user_id userId, expires_at expiresAt, last_active_at lastActiveAt, updated_at updatedAt, created_at createdAt, deleted_at deletedAt';
+
+export async function createSession(db: Database, session: NewSession): Promise<Session> {
   logger.info('[DB]: Creating session...');
 
   const sql = `
 INSERT INTO sessions (session_id, user_id, expires_at)
 VALUES (?, ?, ?)
-RETURNING *
+RETURNING ${sessionColumns}
 `;
 
-  const { rows } = await db.execute(sql, [
+  const { rows } = await db.execute<Session>(sql, [
     session.sessionId,
     session.userId,
-    session.expiresAt.toISOString(),
+    session.expiresAt,
   ]);
 
-  return mapRowToSession(rows[0]);
+  return rows[0];
 }
 
-export async function findSession(db: Client, id: string): Promise<Session | undefined> {
+export async function findSession(db: Database, id: string): Promise<Session | undefined> {
   logger.info('[DB]: Retrieving session...');
 
   const now = new Date().toISOString();
 
   const sql = `
-SELECT *
+SELECT ${sessionColumns}
 FROM sessions
 WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 AND deleted_at IS NULL
 LIMIT 1
 `;
 
-  const { rows } = await db.execute(sql, [id, now]);
+  const { rows } = await db.execute<Session>(sql, [id, now]);
 
   if (rows.length === 0) {
     reportMissingSession(id);
     return;
   }
 
-  return mapRowToSession(rows[0]);
+  return rows[0];
 }
 
-export async function touchSession(db: Client, id: string): Promise<boolean> {
+export async function touchSession(db: Database, id: string): Promise<boolean> {
   logger.info('[DB]: Updating session...');
 
   const sql = `
@@ -60,7 +61,7 @@ WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 A
   return rowsAffected === 1;
 }
 
-export async function softDeleteSession(db: Client, id: string): Promise<boolean> {
+export async function softDeleteSession(db: Database, id: string): Promise<boolean> {
   const now = new Date().toISOString();
 
   const sql = `
@@ -75,7 +76,7 @@ WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 A
 }
 
 export async function revokeSession(
-  db: Client,
+  db: Database,
   sessionId: string,
   userId: number
 ): Promise<boolean> {
@@ -93,8 +94,6 @@ WHERE session_id = ? AND user_id = ? AND datetime(expires_at) > datetime(?) AND 
 
   return rowsAffected === 1;
 }
-
-const mapRowToSession = (row: Row): Session => SessionSchema.parse(snakeToCamel(row));
 
 const reportMissingSession = (sessionId: string) => {
   logger.warn({ sessionId }, 'Session not found');

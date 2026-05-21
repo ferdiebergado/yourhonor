@@ -1,32 +1,22 @@
-import type { Client } from '@libsql/client';
-import {
-  AccountDetailRowSchema,
-  type AccountDetailRow,
-  type NewAccount,
-} from '@shared/schemas/account';
-import { snakeToCamel } from '@shared/utils';
+import type { Database } from '@backend/db';
+import { type Account, type AccountDetailRow, type NewAccount } from '@shared/schemas/account';
+import type { IdRow } from '@shared/types';
 
-export async function findActiveAccounts(db: Client): Promise<AccountDetailRow[]> {
+export async function findActiveAccounts(db: Database): Promise<AccountDetailRow[]> {
   const sql = `
-SELECT a.id id, a.details details, a.payee_id payee_id, a.bank_id bank_id, p.firstname firstname, p.mi mi, p.lastname lastname, b.name bank
+SELECT a.id id, a.details details, a.payee_id payeeId, a.bank_id bankId, p.firstname firstname, p.mi mi, p.lastname lastname, b.name bank
 FROM accounts a
 LEFT JOIN payees p ON p.id = a.payee_id
 LEFT JOIN banks b ON b.id = a.bank_id
 WHERE a.deleted_at IS NULL
 `;
 
-  const { rows } = await db.execute(sql);
+  const { rows } = await db.execute<AccountDetailRow>(sql);
 
-  if (rows.length === 0) return [];
-
-  return rows.map(row => AccountDetailRowSchema.parse(snakeToCamel(row)));
+  return rows;
 }
 
-type CreateAccountResultSet = {
-  id: number;
-};
-
-export async function createAccount(db: Client, account: NewAccount): Promise<number> {
+export async function createAccount(db: Database, account: NewAccount): Promise<Account['id']> {
   const sql = `
 INSERT INTO accounts (payee_id, bank_id, details, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?)
@@ -34,9 +24,7 @@ RETURNING id
 `;
 
   const { payeeId, bankId, details, createdBy, updatedBy } = account;
+  const { rows } = await db.execute<IdRow>(sql, [payeeId, bankId, details, createdBy, updatedBy]);
 
-  const { rows } = await db.execute(sql, [payeeId, bankId, details, createdBy, updatedBy]);
-  const { id } = rows[0] as unknown as CreateAccountResultSet;
-
-  return id;
+  return rows[0].id;
 }

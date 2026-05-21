@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { checkMethod } from '@backend/http';
 import { respondWithError, UnauthorizedError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
@@ -12,7 +12,6 @@ export default async (req: Request) => {
 
     const { userId } = await getSession(req);
 
-    const db = await getDb();
     const user = await findUser(db, userId);
 
     if (!user) throw new UnauthorizedError('user not found');

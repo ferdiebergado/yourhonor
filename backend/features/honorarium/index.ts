@@ -1,7 +1,6 @@
 import type { CellValue } from 'exceljs';
 
-import { getDb } from '@backend/db';
-import type { Client } from '@libsql/client';
+import { db, type Database } from '@backend/db';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import {
   formatAmount,
@@ -23,7 +22,10 @@ type Document = {
   doc: Uint8Array;
 };
 
-export async function getHonoraria(db: Client, activityCode: string): Promise<HonorariumDetail[]> {
+export async function getHonoraria(
+  db: Database,
+  activityCode: string
+): Promise<HonorariumDetail[]> {
   const honorariumDetailRows = await findActiveHonorariaByActivity(db, activityCode);
 
   const honoraria: HonorariumDetail[] = [];
@@ -109,7 +111,6 @@ export async function generateCertification(
   activityCode: string,
   userId: number
 ): Promise<Document> {
-  const db = await getDb();
   const honoraria = await getHonoraria(db, activityCode);
 
   const doc = await genCertDoc(honoraria);
@@ -204,7 +205,6 @@ export async function genCompDoc(honoraria: HonorariumDetail[]): Promise<Documen
 }
 
 export async function generateComputation(activityCode: string, userId: number): Promise<Document> {
-  const db = await getDb();
   const honoraria = await getHonoraria(db, activityCode);
 
   const doc = await genCompDoc(honoraria);
@@ -265,7 +265,6 @@ export async function genORSDoc(honoraria: HonorariumDetail[]): Promise<Document
 }
 
 export async function generateORS(activityCode: string, userId: number): Promise<Document> {
-  const db = await getDb();
   const honoraria = await getHonoraria(db, activityCode);
 
   const doc = await genORSDoc(honoraria);
@@ -371,7 +370,6 @@ export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Docu
 }
 
 export async function generatePayroll(activityCode: string, userId: number): Promise<Document> {
-  const db = await getDb();
   const honoraria = await getHonoraria(db, activityCode);
 
   const doc = await genPayrollDoc(honoraria);

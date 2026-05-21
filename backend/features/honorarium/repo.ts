@@ -1,13 +1,12 @@
-import type { Client } from '@libsql/client';
+import type { Database } from '@backend/db';
 
 import {
   HonorariumDetailRowSchema,
   type HonorariumDetailRow,
   type NewHonorarium,
 } from '@shared/schemas/honorarium';
-import { snakeToCamel } from '@shared/utils';
 
-export async function createHonorarium(db: Client, honorarium: NewHonorarium): Promise<void> {
+export async function createHonorarium(db: Database, honorarium: NewHonorarium): Promise<void> {
   const sql = `
 INSERT INTO honoraria (activity_code, payee_id, role_id, amount, hours_rendered, actual, net, account_id, tax_rate, salary, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -45,19 +44,19 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 }
 
 export async function findActiveHonorariaByActivity(
-  db: Client,
+  db: Database,
   activityCode: string
 ): Promise<HonorariumDetailRow[]> {
   const sql = `
 SELECT
-  h.id id, h.activity_code activity_code, h.salary salary, h.amount amount, h.tax_rate tax_rate, h.hours_rendered hours_rendered, h.actual actual, h.net net,
+  h.id id, h.activity_code activityCode, h.salary salary, h.amount amount, h.tax_rate taxRate, h.hours_rendered hoursRendered, h.actual actual, h.net net,
   p.firstname firstname, p.mi mi, p.lastname lastname, p.tin tin,
   r.name role,
   b.name bank,
   a.details details,
-  act.title activityTitle, act.start_date start_date, act.end_date end_date,
+  act.title activityTitle, act.start_date startDate, act.end_date endDate,
   v.name venue,
-  f.firstname focal_firstname, f.mi focal_mi, f.lastname focal_lastname,
+  f.firstname focalFirstname, f.mi focalMi, f.lastname focalLastname,
   pos.name position
 FROM honoraria h
 LEFT JOIN payees p ON p.id = h.payee_id
@@ -72,18 +71,18 @@ WHERE h.activity_code = ? AND h.deleted_at IS NULL
 ORDER BY p.firstname, p.mi, p.lastname
 `;
 
-  const { rows } = await db.execute(sql, [activityCode]);
+  const { rows } = await db.execute<HonorariumDetailRow>(sql, [activityCode]);
 
   if (rows.length === 0) return [];
 
-  return rows.map(row => HonorariumDetailRowSchema.parse(snakeToCamel(row)));
+  return HonorariumDetailRowSchema.array().parse(rows);
 }
 
 const reports = ['Certification', 'Computation', 'ORS-DV', 'Payroll'] as const;
 
 type Report = (typeof reports)[number];
 
-export async function recordUsage(db: Client, report: Report, userId: number): Promise<void> {
+export async function recordUsage(db: Database, report: Report, userId: number): Promise<void> {
   const sql = `
 INSERT INTO usage (report_id, created_by)
 VALUES (? , ?)

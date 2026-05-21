@@ -1,23 +1,15 @@
-import type { Client } from '@libsql/client';
-import { snakeToCamel } from '@shared/utils';
-import type { CamelCasedProperties } from 'type-fest';
+import type { Database } from '@backend/db';
+import { type Summary } from '@shared/schemas/summary';
 
-type SummaryRow = {
-  total_activities: number;
-  total_honoraria: number;
-};
-
-export async function getSummary(
-  db: Client
-): Promise<CamelCasedProperties<SummaryRow> | undefined> {
+export async function getSummary(db: Database): Promise<Summary | undefined> {
   const sql = `
 SELECT
-  COUNT(DISTINCT activity_code) AS total_activities,
-  COUNT(id) AS total_honoraria
+  COUNT(DISTINCT activity_code) totalActivities,
+  COUNT(id) totalHonoraria
 FROM honoraria;
   `;
 
-  const { rows } = await db.execute(sql);
+  const { rows } = await db.execute<Summary>(sql);
 
-  return snakeToCamel(rows[0] as unknown as SummaryRow);
+  return rows[0];
 }

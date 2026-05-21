@@ -1,4 +1,4 @@
-import { getDb } from '@backend/db';
+import { db } from '@backend/db';
 import { findActiveFocals } from '@backend/features/focal/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
@@ -11,7 +11,6 @@ export default async (req: Request) => {
 
     await getSession(req);
 
-    const db = await getDb();
     const data = await findActiveFocals(db);
 
     const payload: ApiResponse<typeof data> = {

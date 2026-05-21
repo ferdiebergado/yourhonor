@@ -1,66 +1,107 @@
-import { createClient, type Client, type Transaction } from '@libsql/client';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
+import { createClient, type Client, type InArgs } from '@libsql/client';
 
 import config from './config';
-import { MIGRATION_FILE } from './constants';
-import { ServiceUnavailableError } from './http/errors';
-import logger from './logger';
 
-let db: Client | undefined;
+export type SqlValue = string | number | bigint | boolean | Uint8Array | ArrayBuffer | null;
 
-export async function getDb(): Promise<Client> {
-  if (!db) {
-    db = createClient({
-      url: config.databaseUrl,
-      authToken: config.tursoAuthToken,
+export type QueryRow = Record<string, unknown>;
+
+export type QueryResult<T extends QueryRow = QueryRow> = {
+  rows: T[];
+  rowsAffected: number;
+};
+
+export interface Database {
+  execute<T extends QueryRow>(sql: string, args?: readonly SqlValue[]): Promise<QueryResult<T>>;
+
+  transaction<T>(fn: (tx: Database) => Promise<T>): Promise<T>;
+
+  close(): void;
+}
+
+class SqliteDatabase implements Database {
+  readonly #client: Client;
+
+  private constructor(client: Client) {
+    this.#client = client;
+  }
+
+  static async create(url: string, authToken?: string): Promise<SqliteDatabase> {
+    const client = createClient({
+      url,
+      authToken,
     });
+
+    const db = new SqliteDatabase(client);
+
+    await db.execute('SELECT 1');
+
+    return db;
   }
 
-  try {
-    const sql = `SELECT name FROM sqlite_master WHERE type='table' AND name='users'`;
-    const { rows } = await db.execute(sql);
+  async execute<T extends QueryRow>(
+    sql: string,
+    args?: readonly SqlValue[]
+  ): Promise<QueryResult<T>> {
+    const result = args
+      ? await this.#client.execute({
+          sql,
+          args: args as InArgs,
+        })
+      : await this.#client.execute(sql);
 
-    if (rows.length === 0) {
-      logger.info('Initializing database schema...');
-      const schemaPath = path.resolve(MIGRATION_FILE);
-      const schema = readFileSync(schemaPath, { encoding: 'utf8' });
+    return {
+      rows: result.rows as unknown as T[],
+      rowsAffected: result.rowsAffected,
+    };
+  }
 
-      await db.executeMultiple(schema);
-      logger.info('Database schema initialized successfully');
-    } else {
-      logger.info('Database schema already initialized');
+  async transaction<T>(fn: (tx: Database) => Promise<T>): Promise<T> {
+    const tx = await this.#client.transaction();
+
+    const database: Database = {
+      execute: async <T extends QueryRow>(
+        sql: string,
+        args?: readonly SqlValue[]
+      ): Promise<QueryResult<T>> => {
+        const result = args
+          ? await tx.execute({
+              sql,
+              args: args as InArgs,
+            })
+          : await tx.execute(sql);
+
+        return {
+          rows: result.rows as unknown as T[],
+          rowsAffected: result.rowsAffected,
+        };
+      },
+
+      transaction: () => {
+        throw new Error('Nested transactions are not supported');
+      },
+
+      close: () => {
+        throw new Error('Cannot close transaction connection');
+      },
+    };
+
+    try {
+      const result = await fn(database);
+
+      await tx.commit();
+
+      return result;
+    } catch (error) {
+      await tx.rollback();
+
+      throw error;
     }
-  } catch (error) {
-    const msg = 'Failed to check or initialize the database';
-    logger.error(error, msg);
-    throw new ServiceUnavailableError(msg);
   }
 
-  return db;
-}
-
-export async function runInTransaction<TArgs extends unknown[], TReturn>(
-  db: Client,
-  fn: (tx: Transaction, ...args: TArgs) => Promise<TReturn>,
-  args: TArgs
-): Promise<TReturn> {
-  logger.info('Beginning transaction...');
-
-  const tx = await db.transaction();
-
-  try {
-    const res = await fn(tx, ...args);
-    logger.info('Committing transaction...');
-    await tx.commit();
-    return res;
-  } catch (error) {
-    logger.error(error, 'Transaction failed:');
-    logger.info('Rolling back transaction...');
-    await tx.rollback();
-    throw error;
-  } finally {
-    logger.info('Closing transaction...');
-    tx.close();
+  close() {
+    this.#client.close();
   }
 }
+
+export const db = await SqliteDatabase.create(config.databaseUrl, config.tursoAuthToken);
