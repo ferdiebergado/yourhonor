@@ -22,7 +22,7 @@ type SqliteDatabaseConfig = {
   authToken?: string;
 };
 
-class SqliteDatabase implements Database {
+class LibSqlDatabase implements Database {
   readonly #client: Client;
 
   private constructor(client: Client) {
@@ -31,10 +31,10 @@ class SqliteDatabase implements Database {
     this.#client = client;
   }
 
-  static async create(config: SqliteDatabaseConfig): Promise<SqliteDatabase> {
+  static async create(config: SqliteDatabaseConfig): Promise<LibSqlDatabase> {
     try {
       const client = createClient(config);
-      const db = new SqliteDatabase(client);
+      const db = new LibSqlDatabase(client);
 
       await db.execute('SELECT 1');
 
@@ -111,7 +111,7 @@ class SqliteDatabase implements Database {
   }
 }
 
-export const db = await SqliteDatabase.create({
+export const db = await LibSqlDatabase.create({
   url: config.databaseUrl,
   authToken: config.tursoAuthToken,
 });
