@@ -4,6 +4,7 @@ import { paths } from '@/app/routes';
 import config from '@/config';
 import { fetchActivitiesOptions } from '@/features/activity/hooks';
 import { ModeToggle } from '@/features/theme/mode-toggle';
+import { RiScales3Line } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import SignoutButton from './signout-button';
 import {
@@ -20,8 +21,10 @@ export default function Header() {
   return (
     <header className="bg-background w-full shadow">
       <div className="flex items-center justify-between px-8 py-4 md:mx-auto md:max-w-5xl">
-        <h1 className="font-heading text-2xl font-bold tracking-tight">
-          <span className="bg-destructive text-background rounded-lg px-3 py-1">YH</span>{' '}
+        <h1 className="font-heading flex gap-1 text-2xl font-bold tracking-tight">
+          <div className="bg-destructive text-background rounded-lg px-3 py-1">
+            <RiScales3Line />
+          </div>
           {config.appTitle}
         </h1>
 
