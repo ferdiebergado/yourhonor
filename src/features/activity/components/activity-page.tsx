@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
 import PageHeader from '@/components/page-header';
-import HonorariumDialog from '../../honorarium/components/honorarium-dialog';
+import HonorariumDialog from '@/features/honorarium/components/honorarium-dialog';
 import Activity from './activity';
 import ActivityCodeProvider from './activity-provider';
 import ActivitySkeletonCard from './activity-skeleton-card';
