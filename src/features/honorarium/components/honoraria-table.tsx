@@ -19,7 +19,7 @@ const headers: RowHeader[] = [
   { label: 'Role', style: 'font-semibold' },
   { label: 'Gross Honorarium', style: 'text-right font-semibold' },
   { label: 'Hours Rendered', style: 'text-right font-semibold' },
-  { label: 'Computed Honorarium', style: 'text-right font-semibold' },
+  { label: 'Actual Honorarium', style: 'text-right font-semibold' },
   { label: 'Tax Rate', style: 'text-right font-semibold' },
   { label: 'Net Honorarium', style: 'text-right font-semibold' },
 ];
@@ -31,6 +31,7 @@ type Cell = {
 
 const formatCells = (honorarium: HonorariumDetail): Cell[] => [
   {
+    style: 'text-pretty',
     value: getFullName({
       firstname: honorarium.firstname,
       mi: honorarium.mi,
