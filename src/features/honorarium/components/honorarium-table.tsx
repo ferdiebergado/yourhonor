@@ -6,19 +6,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useActivityCode } from '@/features/activity/hooks';
+import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, getFullName } from '@shared/utils';
-import { useActiveHonoraria } from '../hooks';
 
 // TODO: Extract table header and row data
+type HonorariumTableProps = {
+  honoraria: HonorariumDetail[];
+};
 
-export default function HonorariumTable() {
-  const code = useActivityCode();
-  const { data: honoraria } = useActiveHonoraria(code);
-
-  // eslint-disable-next-line unicorn/no-null
-  if (!honoraria) return null;
-
+export default function HonorariumTable({ honoraria }: HonorariumTableProps) {
   return (
     <Table>
       <TableHeader>
