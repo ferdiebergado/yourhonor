@@ -49,8 +49,6 @@ export const ActivityFormSchema = ActivityRowSchema.pick({
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
 
 export const ActivityDetailSchema = ActivityRowSchema.omit({
-  venueId: true,
-  focalId: true,
   updatedAt: true,
   createdBy: true,
   updatedBy: true,

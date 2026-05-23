@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import GenericCombobox from '@/components/generic-combobox';
 import SubmitButton from '@/components/submit-button';
@@ -15,36 +14,24 @@ import VenueForm from '@/features/venue/components/venue-form';
 import { useVenues } from '@/features/venue/hooks';
 import { type ActivityFormValues } from '@shared/schemas/activity';
 import { getFullName } from '@shared/utils';
-import { useCreateActivity } from '../hooks';
 
 type ActivityFormProps = {
   form: UseFormReturn<ActivityFormValues>;
+  onSubmit(data: ActivityFormValues): void;
+  isPending: boolean;
 };
 
-export default function ActivityForm({ form }: ActivityFormProps) {
+export default function ActivityForm({ form, onSubmit, isPending }: ActivityFormProps) {
   const [isVenueFormOpen, setIsVenueFormOpen] = useState(false);
   const [isFocalFormOpen, setIsFocalFormOpen] = useState(false);
 
-  const { isPending, mutate: createActivity } = useCreateActivity();
   const { isLoading: isFetchingVenues, data: venues } = useVenues();
   const { isLoading: isFetchingFocals, data: focals } = useFocals();
-
-  const handleSubmit = (values: ActivityFormValues) => {
-    createActivity(values, {
-      onSuccess: () => {
-        toast.success('Activity created successfully.');
-        form.reset();
-      },
-      onError: () => {
-        toast.error('Unable to create activity. Please try again.');
-      },
-    });
-  };
 
   return (
     <Card className="w-full max-w-2xl md:mx-auto">
       <CardContent>
-        <form id="activity-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <form className="space-y-6">
           <FieldGroup>
             <Controller
               name="title"
@@ -211,7 +198,7 @@ export default function ActivityForm({ form }: ActivityFormProps) {
         </form>
       </CardContent>
       <CardFooter>
-        <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
+        <SubmitButton form={form} onSubmit={onSubmit} isPending={isPending} />
       </CardFooter>
     </Card>
   );

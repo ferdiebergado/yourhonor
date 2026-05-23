@@ -1,7 +1,6 @@
-import { RiAddLargeLine } from '@remixicon/react';
-import { useQueryClient } from '@tanstack/react-query';
+import type { ReactElement } from 'react';
+import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,40 +9,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { fetchFocalsOptions } from '@/features/focal/hooks';
-import { fetchPositionsOptions } from '@/features/position/hooks';
-import { fetchVenuesOptions } from '@/features/venue/hooks';
-import { useActivityForm } from '../hooks';
+import type { ActivityFormValues } from '@shared/schemas/activity';
 import ActivityForm from './activity-form';
 
-export default function ActivityDialog() {
-  const form = useActivityForm();
-  const queryClient = useQueryClient();
+type ActivityDialogProps<T extends FieldValues = ActivityFormValues> = {
+  title: string;
+  description: string;
+  form: UseFormReturn<T>;
+  onSubmit: (data: T) => void;
+  trigger: ReactElement;
+  isPending: boolean;
+};
 
-  const prefetch = () => {
-    queryClient.prefetchQuery(fetchVenuesOptions());
-    queryClient.prefetchQuery(fetchFocalsOptions());
-    queryClient.prefetchQuery(fetchPositionsOptions());
-  };
-
+export default function ActivityDialog({
+  title,
+  description,
+  form,
+  trigger,
+  isPending,
+  onSubmit,
+}: ActivityDialogProps) {
   return (
     <Dialog>
-      <DialogTrigger
-        render={
-          <Button size="lg" onMouseEnter={prefetch} onFocus={prefetch}>
-            <RiAddLargeLine data-icon="inline-start" />
-            New Activity
-          </Button>
-        }
-      />
+      <DialogTrigger render={trigger} />
       <DialogContent className="bg-secondary">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">New Activity</DialogTitle>
-          <DialogDescription>
-            Create a new activity by filling out the form below.
-          </DialogDescription>
+          <DialogTitle className="text-2xl font-semibold">{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <ActivityForm form={form} />
+        <ActivityForm form={form} onSubmit={onSubmit} isPending={isPending} />
       </DialogContent>
     </Dialog>
   );

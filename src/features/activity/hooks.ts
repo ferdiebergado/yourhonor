@@ -14,7 +14,7 @@ import {
   type ActivityDetail,
   type ActivityFormValues,
 } from '@shared/schemas/activity';
-import { createActivity, fetchActivities, fetchActivity } from './api';
+import { createActivity, fetchActivities, fetchActivity, updateActivity } from './api';
 
 const activityKeys = {
   all: ['activities'] as const,
@@ -55,6 +55,15 @@ export function useActivity(code: string) {
   return useSuspenseQuery(fetchActivityOptions(queryClient, code));
 }
 
+export function useUpdateActivity(code: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ActivityFormValues) => updateActivity(code, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: activityKeys.all }),
+  });
+}
+
 export const ActivityCodeContext = createContext<string | undefined>(undefined);
 
 export function useActivityCode() {
@@ -66,17 +75,10 @@ export function useActivityCode() {
   return activityCodeContext;
 }
 
-export function useActivityForm() {
+export function useActivityForm(defaultValues: ActivityFormValues) {
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(ActivityFormSchema),
-    defaultValues: {
-      title: '',
-      code: '',
-      venueId: 0,
-      focalId: 0,
-      startDate: '',
-      endDate: '',
-    },
+    defaultValues,
   });
 
   const startDate = useWatch({ control: form.control, name: 'startDate' });

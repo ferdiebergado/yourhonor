@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -22,10 +23,17 @@ import {
   useGenORS,
   useGenPayroll,
 } from '@/features/honorarium/hooks';
-import type { ActivityDetail } from '@shared/schemas/activity';
+import { RiEdit2Line } from '@remixicon/react';
+import type { ActivityDetail, ActivityFormValues } from '@shared/schemas/activity';
 import { formatDate, formatDateRange } from '@shared/utils';
 import { useQueryClient, useSuspenseQueries } from '@tanstack/react-query';
-import { fetchActivityOptions, useActivityCode } from '../hooks';
+import {
+  fetchActivityOptions,
+  useActivityCode,
+  useActivityForm,
+  useUpdateActivity,
+} from '../hooks';
+import ActivityDialog from './activity-dialog';
 
 type SingleFieldConfig = { key: keyof ActivityDetail; label: string };
 
@@ -55,6 +63,23 @@ function GeneratorButton({ title, isLoading, onClick }: GeneratorButtonProps) {
 }
 
 export default function Activity() {
+  const activityFields: ActivityFieldConfig[] = [
+    {
+      keys: ['startDate', 'endDate'],
+      label: 'Date of Conduct',
+      format: (startDate: string, endDate: string) => formatDateRange(startDate, endDate),
+    },
+    {
+      keys: ['venue', 'location'],
+      label: 'Venue',
+      format: (venue: string, location: string) => `${venue}, ${location}`,
+    },
+    { key: 'focal', label: 'Focal Person' },
+    { key: 'focalPosition', label: 'Position' },
+    { key: 'code', label: 'Activity Code' },
+    { key: 'fundSource', label: 'Fund Source' },
+  ];
+
   const queryClient = useQueryClient();
   const activityCode = useActivityCode();
 
@@ -72,26 +97,19 @@ export default function Activity() {
   const { isPending: isGeneratingORS, mutate: genORS } = useGenORS();
   const { isPending: isGeneratingPayroll, mutate: genPayroll } = useGenPayroll();
 
+  const form = useActivityForm({
+    title: activity?.title ?? '',
+    code: activity?.code ?? '',
+    venueId: activity?.venueId ?? 0,
+    focalId: activity?.focalId ?? 0,
+    startDate: activity?.startDate ?? '',
+    endDate: activity?.endDate ?? '',
+  });
+
+  const { isPending, mutate: updateActivity } = useUpdateActivity(activityCode);
+
   // eslint-disable-next-line unicorn/no-null
   if (!activity || !honoraria) return null;
-
-  // Define activity fields for dynamic rendering
-  const activityFields: ActivityFieldConfig[] = [
-    {
-      keys: ['startDate', 'endDate'],
-      label: 'Date of Conduct',
-      format: (startDate: string, endDate: string) => formatDateRange(startDate, endDate),
-    },
-    {
-      keys: ['venue', 'location'],
-      label: 'Venue',
-      format: (venue: string, location: string) => `${venue}, ${location}`,
-    },
-    { key: 'focal', label: 'Focal Person' },
-    { key: 'focalPosition', label: 'Position' },
-    { key: 'code', label: 'Activity Code' },
-    { key: 'fundSource', label: 'Fund Source' },
-  ];
 
   const buttonData: GeneratorButtonProps[] = [
     {
@@ -123,12 +141,33 @@ export default function Activity() {
     },
   ];
 
+  const onSubmit = (values: ActivityFormValues) => {
+    updateActivity(values, {
+      onSuccess: () => toast.success('Activity updated successfully.'),
+      onError: () => toast.error('Unable to update activity. Please try again.'),
+    });
+  };
+
   return (
     <div className="space-y-7">
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">{activity.title}</CardTitle>
           <CardDescription>Created on {formatDate(activity.createdAt)}</CardDescription>
+          <CardAction>
+            <ActivityDialog
+              title="Update Activity"
+              description="Update the activity by editing the form below."
+              form={form}
+              trigger={
+                <Button variant="ghost" size="icon-lg">
+                  <RiEdit2Line />
+                </Button>
+              }
+              onSubmit={onSubmit}
+              isPending={isPending}
+            />
+          </CardAction>
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

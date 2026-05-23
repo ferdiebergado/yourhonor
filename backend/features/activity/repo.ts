@@ -3,12 +3,13 @@ import type { Database } from '@backend/db';
 import {
   ActivityDetailSchema,
   type ActivityDetail,
+  type ActivityUpdate,
   type NewActivity,
 } from '@shared/schemas/activity';
 
 const activityDetailSql = `
 SELECT
-  a.id id, a.title title, a.start_date startDate, a.end_date endDate, a.code code, a.fund_source fundSource, a.created_at createdAt,
+  a.id id, a.title title, a.start_date startDate, a.end_date endDate, a.code code, a.fund_source fundSource, a.created_at createdAt, a.venue_id venueId, a.focal_id focalId,
   v.name venue, v.location location,
   CONCAT(f.firstname, ' ', f.lastname) focal, p.name focalPosition
 FROM activities a
@@ -67,4 +68,32 @@ LIMIT 1
   const { rows } = await db.execute<ActivityDetail>(sql, [code, userId]);
 
   return ActivityDetailSchema.parse(rows[0]);
+}
+
+export async function updateActivity(
+  db: Database,
+  activityCode: string,
+  data: ActivityUpdate
+): Promise<boolean> {
+  const sql = `
+UPDATE activities
+SET title=?, venue_id=?, code=?, fund_source=?, focal_id=?, start_date=?, end_date=?, updated_by=?
+WHERE code=? AND created_by=? AND deleted_at IS NULL
+  `;
+
+  const { title, venueId, code, fundSource, focalId, startDate, endDate, updatedBy } = data;
+  const { rowsAffected } = await db.execute(sql, [
+    title,
+    venueId,
+    code,
+    fundSource,
+    focalId,
+    startDate,
+    endDate,
+    updatedBy,
+    activityCode,
+    updatedBy,
+  ]);
+
+  return rowsAffected === 1;
 }
