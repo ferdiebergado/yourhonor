@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { useGenCert, useGenComp, useGenORS, useGenPayroll } from '@/features/honorarium/hooks';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
-import HonorariumTable from './honorarium-table';
+import HonorariaTable from './honoraria-table';
 
 type GeneratorButtonProps = {
   title: string;
@@ -78,7 +78,7 @@ export default function HonorariaCard({ activityCode, honoraria }: HonorariaCard
         <CardDescription>Click on a button below to generate a document.</CardDescription>
       </CardHeader>
       <CardContent>
-        <HonorariumTable honoraria={honoraria} />
+        <HonorariaTable honoraria={honoraria} />
       </CardContent>
       <CardFooter className="flex justify-center p-3">
         <ButtonGroup>
