@@ -1,4 +1,4 @@
-import { RiInformationLine } from '@remixicon/react';
+import { RiSettings2Line } from '@remixicon/react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Link, useNavigate } from 'react-router';
 
@@ -34,7 +34,7 @@ const columns: ColumnDef<ActivityDetail>[] = [
         <TooltipTrigger
           render={
             <Link to={`/activity/${encodeURIComponent(row.original.code)}`}>
-              <RiInformationLine className="size-5" data-icon="inline-start" />
+              <RiSettings2Line className="size-5" data-icon="inline-start" />
             </Link>
           }
         />

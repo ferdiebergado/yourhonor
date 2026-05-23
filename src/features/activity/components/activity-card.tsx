@@ -1,4 +1,4 @@
-import { RiEdit2Line } from '@remixicon/react';
+import { RiBallPenFill } from '@remixicon/react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -62,15 +62,15 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
 
   const { isPending, mutate: updateActivity } = useUpdateActivity(activity.code);
 
-  // eslint-disable-next-line unicorn/no-null
-  if (!activity) return null;
-
   const onSubmit = (values: ActivityFormValues) => {
     updateActivity(values, {
       onSuccess: () => toast.success('Activity updated successfully.'),
       onError: () => toast.error('Unable to update activity. Please try again.'),
     });
   };
+
+  // eslint-disable-next-line unicorn/no-null
+  if (!activity) return null;
 
   return (
     <Card className="w-full">
@@ -84,7 +84,7 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
             form={form}
             trigger={
               <Button variant="ghost" size="icon-lg">
-                <RiEdit2Line />
+                <RiBallPenFill className="size-5" />
               </Button>
             }
             onSubmit={onSubmit}
