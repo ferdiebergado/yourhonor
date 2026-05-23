@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { ActivityFormValues } from '@shared/schemas/activity';
 import ActivityForm from './activity-form';
 
@@ -19,6 +20,7 @@ type ActivityDialogProps<T extends FieldValues = ActivityFormValues> = {
   onSubmit: (data: T) => void;
   trigger: ReactElement;
   isPending: boolean;
+  tooltip?: string;
 };
 
 export default function ActivityDialog({
@@ -28,10 +30,19 @@ export default function ActivityDialog({
   trigger,
   isPending,
   onSubmit,
+  tooltip,
 }: ActivityDialogProps) {
+  const renderTrigger = () => <DialogTrigger render={trigger} />;
   return (
     <Dialog>
-      <DialogTrigger render={trigger} />
+      {tooltip ? (
+        <Tooltip>
+          <TooltipTrigger render={renderTrigger()} />
+          <TooltipContent>{title}</TooltipContent>
+        </Tooltip>
+      ) : (
+        renderTrigger()
+      )}
       <DialogContent className="bg-secondary">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">{title}</DialogTitle>
