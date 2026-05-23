@@ -1,6 +1,6 @@
 import { RiInformationLine } from '@remixicon/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 import { DataTable } from '@/components/data-table';
 import SortButton from '@/components/sort-button';
@@ -46,12 +46,14 @@ const columns: ColumnDef<ActivityDetail>[] = [
 
 export default function ActivityTable() {
   const { data } = useActivities();
-
-  const visibility: Partial<Record<keyof ActivityDetail, boolean>> = {
-    endDate: false,
-  };
+  const navigate = useNavigate();
 
   return (
-    <DataTable columns={columns} data={data ?? []} filteredColumn="title" visibility={visibility} />
+    <DataTable
+      columns={columns}
+      data={data ?? []}
+      filteredColumn="title"
+      onRowClick={row => navigate('/activity/' + encodeURIComponent(row.original.code))}
+    />
   );
 }
