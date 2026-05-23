@@ -16,9 +16,9 @@ export default function Fallback({ resetErrorBoundary }: FallbackProps) {
     <Empty className="flex h-dvh items-center justify-center border">
       <EmptyHeader>
         <EmptyMedia variant="icon" className="text-destructive">
-          <RiAlertFill />
+          <RiAlertFill className="size-10" />
         </EmptyMedia>
-        <EmptyTitle className="text-destructive text-xl font-semibold">
+        <EmptyTitle className="text-destructive text-2xl font-semibold">
           An unexpected error has occurred.
         </EmptyTitle>
         <EmptyDescription className="max-w-xs text-balance">

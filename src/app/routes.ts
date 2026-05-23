@@ -7,8 +7,8 @@ import OauthCallback from '@/features/auth/components/oauth-callback';
 import RequireGuest from '@/features/auth/components/require-guest';
 import RequireUser from '@/features/auth/components/require-user';
 import SigninPage from '@/features/auth/components/signin-page';
-import Dashboard from './dashboard';
-import PageNotFound from './not-found';
+import Dashboard from './pages/dashboard';
+import PageNotFound from './pages/not-found';
 
 const Activities = lazy(() => import('@/features/activity/components/activities'));
 const ActivityPage = lazy(() => import('@/features/activity/components/activity-page'));

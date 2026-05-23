@@ -1,4 +1,4 @@
-import { RiCloseLargeLine } from '@remixicon/react';
+import { RiFileDamageLine } from '@remixicon/react';
 import { useNavigate } from 'react-router';
 
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { paths } from './routes';
+import { paths } from '../routes';
 
 export default function PageNotFound() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function PageNotFound() {
     <Empty className="flex h-dvh items-center justify-center">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <RiCloseLargeLine />
+          <RiFileDamageLine className="size-10" />
         </EmptyMedia>
         <EmptyTitle className="text-4xl font-semibold">Page not found</EmptyTitle>
         <EmptyDescription>The page you're looking for doesn't exist.</EmptyDescription>

@@ -1,7 +1,7 @@
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMe } from '@/features/auth/hooks';
-import { useSummary } from './hooks';
+import { useSummary } from '../hooks';
 
 export default function Dashboard() {
   const { data: me } = useMe();
