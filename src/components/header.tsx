@@ -1,12 +1,12 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
 
 import { paths } from '@/app/routes';
 import config from '@/config';
 import { fetchActivitiesOptions } from '@/features/activity/hooks';
+import UserMenu from '@/features/auth/components/user-menu';
 import { ModeToggle } from '@/features/theme/mode-toggle';
-import { RiScales3Line } from '@remixicon/react';
-import { useQueryClient } from '@tanstack/react-query';
-import SignoutButton from './signout-button';
+import Logo from './logo';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -22,9 +22,7 @@ export default function Header() {
     <header className="bg-background w-full shadow">
       <div className="flex items-center justify-between px-8 py-4 md:mx-auto md:max-w-5xl">
         <h1 className="font-heading flex gap-1 text-2xl font-bold tracking-tight">
-          <div className="bg-destructive text-background rounded-lg px-3 py-1">
-            <RiScales3Line />
-          </div>
+          <Logo />
           {config.appTitle}
         </h1>
 
@@ -46,8 +44,8 @@ export default function Header() {
             <NavigationMenuItem>
               <ModeToggle />
             </NavigationMenuItem>
-            <NavigationMenuItem>
-              <SignoutButton />
+            <NavigationMenuItem className={navigationMenuTriggerStyle()}>
+              <UserMenu />
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
