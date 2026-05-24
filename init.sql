@@ -239,3 +239,13 @@ CREATE INDEX IF NOT EXISTS idx_activities_code ON activities (code);
 CREATE INDEX IF NOT EXISTS idx_activity_created_by ON activities (created_by);
 
 CREATE INDEX IF NOT EXISTS idx_honoraria_activity_code ON honoraria (activity_code);
+
+CREATE TRIGGER touch_activity AFTER
+UPDATE ON activities BEGIN
+UPDATE activities
+SET
+  updated_at = STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')
+WHERE
+  id = NEW.id;
+
+END;
