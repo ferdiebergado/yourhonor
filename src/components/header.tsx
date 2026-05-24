@@ -44,7 +44,7 @@ export default function Header() {
             <NavigationMenuItem>
               <ThemeMenu />
             </NavigationMenuItem>
-            <NavigationMenuItem className={navigationMenuTriggerStyle()}>
+            <NavigationMenuItem className="ml-3 flex items-center">
               <UserMenu />
             </NavigationMenuItem>
           </NavigationMenuList>
