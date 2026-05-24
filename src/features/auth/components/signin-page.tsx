@@ -7,7 +7,7 @@ import SigninButton from './signin-button';
 
 export default function SigninPage() {
   return (
-    <Card className="border-border/40 m-3 w-full max-w-md overflow-hidden shadow-2xl md:m-0">
+    <Card className="border-border/40 m-3 w-full max-w-md overflow-hidden md:m-0">
       <CardContent className="flex flex-col items-center space-y-6 p-8 sm:p-10">
         {/* Stylized Logo */}
         <div className="font-heading mb-2 flex items-center gap-2 tracking-tight">
