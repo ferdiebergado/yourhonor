@@ -5,7 +5,7 @@ import { paths } from '@/app/routes';
 import config from '@/config';
 import { fetchActivitiesOptions } from '@/features/activity/hooks';
 import UserMenu from '@/features/auth/components/user-menu';
-import { ModeToggle } from '@/features/theme/mode-toggle';
+import { ThemeMenu } from '@/features/theme/theme-menu';
 import Logo from './logo';
 import {
   NavigationMenu,
@@ -42,7 +42,7 @@ export default function Header() {
               />
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <ModeToggle />
+              <ThemeMenu />
             </NavigationMenuItem>
             <NavigationMenuItem className={navigationMenuTriggerStyle()}>
               <UserMenu />
