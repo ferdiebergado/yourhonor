@@ -1,4 +1,4 @@
-import { RiLoader2Line } from '@remixicon/react';
+import { RiLoader2Line, RiLogoutCircleLine } from '@remixicon/react';
 import { toast } from 'sonner';
 
 import { useSignout } from '@/features/auth/hooks';
@@ -18,7 +18,9 @@ export default function SignoutButton() {
           Signing out...
         </>
       ) : (
-        <>Sign Out</>
+        <>
+          <RiLogoutCircleLine data-icon="inline-start" /> Sign Out
+        </>
       )}
     </Button>
   );
