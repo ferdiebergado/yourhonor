@@ -7,6 +7,7 @@ import RHFSelect from '@/components/rhf-select';
 import SubmitButton from '@/components/submit-button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Item, ItemContent, ItemHeader, ItemTitle } from '@/components/ui/item';
 import {
   Popover,
   PopoverContent,
@@ -24,6 +25,7 @@ import { useAccountForm, useCreateAccount } from '../hooks';
 
 type AccountFormProps = {
   payeeId: number;
+  payee?: string;
   isOpen: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
   honorariumForm: UseFormReturn<HonorariumFormValues>;
@@ -31,6 +33,7 @@ type AccountFormProps = {
 
 export default function AccountForm({
   payeeId,
+  payee,
   isOpen,
   onOpenChange,
   honorariumForm,
@@ -68,8 +71,18 @@ export default function AccountForm({
           <PopoverTitle className="font-heading text-xl font-semibold">
             Add payee bank account
           </PopoverTitle>
-          <PopoverDescription>Add a new payee bank account.</PopoverDescription>
+          <PopoverDescription>
+            Add a new payee bank account by filling up the form below.
+          </PopoverDescription>
         </PopoverHeader>
+        {payee && (
+          <Item className="p-0">
+            <ItemHeader>Payee</ItemHeader>
+            <ItemContent>
+              <ItemTitle>{payee}</ItemTitle>
+            </ItemContent>
+          </Item>
+        )}
         <form>
           <FieldGroup className="gap-4">
             <Input type="hidden" {...form.register('payeeId')} />

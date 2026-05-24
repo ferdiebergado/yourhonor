@@ -143,6 +143,7 @@ export default function HonorariumForm({ form }: HonorariumFormProps) {
                     />
                     <AccountForm
                       payeeId={payeeId}
+                      payee={payeeItems.find(payee => payee.value === payeeId.toString())?.label}
                       isOpen={isAccountFormOpen}
                       onOpenChange={setIsAccountFormOpen}
                       honorariumForm={honorariumForm}
