@@ -59,29 +59,31 @@ export default function BankForm({ isOpen, onOpenChange, accountForm }: BankForm
           <PopoverTitle className="font-heading text-xl font-semibold">Add Bank</PopoverTitle>
           <PopoverDescription>Add a new Bank.</PopoverDescription>
         </PopoverHeader>
-        <FieldGroup className="gap-4">
-          <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel htmlFor={field.name} className="w-1/2">
-                  Bank
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Banco Domingo"
-                  autoComplete="off"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-        </FieldGroup>
 
-        <SubmitButton form={form} isPending={isPending} onSubmit={handleSubmit} />
+        <form>
+          <FieldGroup className="gap-4">
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name} className="w-1/2">
+                    Bank
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Banco Domingo"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <SubmitButton form={form} isPending={isPending} onSubmit={handleSubmit} />
+          </FieldGroup>
+        </form>
       </PopoverContent>
     </Popover>
   );

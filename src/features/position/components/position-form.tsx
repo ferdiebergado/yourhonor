@@ -59,29 +59,31 @@ export default function PositionForm({ isOpen, onOpenChange, focalForm }: Positi
           <PopoverTitle className="font-heading text-xl font-semibold">Add position</PopoverTitle>
           <PopoverDescription>Add a new position.</PopoverDescription>
         </PopoverHeader>
-        <FieldGroup className="gap-4">
-          <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel htmlFor={field.name} className="w-1/2">
-                  Position
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Education Program Specialist"
-                  autoComplete="off"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-        </FieldGroup>
 
-        <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
+        <form>
+          <FieldGroup className="gap-4">
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name} className="w-1/2">
+                    Position
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Education Program Specialist"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
+          </FieldGroup>
+        </form>
       </PopoverContent>
     </Popover>
   );

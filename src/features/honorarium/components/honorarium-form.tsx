@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import GenericCombobox from '@/components/generic-combobox';
 import RHFSelect from '@/components/rhf-select';
 import SubmitButton from '@/components/submit-button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
@@ -53,112 +53,154 @@ export default function HonorariumForm({ form }: HonorariumFormProps) {
   return (
     <Card className="w-full">
       <CardContent className="space-y-6">
-        <FieldGroup>
-          <Input type="hidden" {...honorariumForm.register('activityCode')} />
+        <form>
+          <FieldGroup>
+            <Input type="hidden" {...honorariumForm.register('activityCode')} />
 
-          <Controller
-            name="payeeId"
-            control={honorariumForm.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Payee</FieldLabel>
-                <div className="flex gap-2">
-                  <RHFSelect
-                    id={field.name}
-                    field={field}
-                    fieldState={fieldState}
-                    items={payeeItems}
-                    isLoading={isFetchingPayees}
-                    placeholder="Select a payee..."
-                  />
-                  <PayeeForm
-                    isOpen={isPayeeFormOpen}
-                    onOpenChange={setIsPayeeFormOpen}
-                    honorariumForm={honorariumForm}
-                  />
-                </div>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="roleId"
-            control={honorariumForm.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Role</FieldLabel>
-                <div className="flex gap-2">
-                  <RHFSelect
-                    id={field.name}
-                    field={field}
-                    fieldState={fieldState}
-                    items={roleItems}
-                    isLoading={isFetchingRoles}
-                    placeholder="Select a role..."
-                  />
-                  <RoleForm
-                    isOpen={isRoleFormOpen}
-                    onOpenChange={setIsRoleFormOpen}
-                    honorariumForm={honorariumForm}
-                  />
-                </div>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="accountId"
-            control={honorariumForm.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Bank Account</FieldLabel>
-                <div className="flex gap-2">
-                  <GenericCombobox
-                    id={field.name}
-                    className="flex-1"
-                    itemToStringLabel={item => item.accountNumber}
-                    itemToStringValue={item => item.id.toString()}
-                    // eslint-disable-next-line unicorn/no-null
-                    value={accounts?.find(account => account.id === field.value) ?? null}
-                    onValueChange={item => field.onChange(item?.id ?? 0)}
-                    aria-invalid={fieldState.invalid}
-                    placeholder={
-                      isFetchingAccounts ? 'Loading bank accounts...' : 'Select a bank account'
-                    }
-                    items={filteredAccounts}
-                    disabled={isFetchingAccounts}
-                    renderItem={item => (
-                      <Item size="xs" className="p-0" key={item.id}>
-                        <ItemContent>
-                          <ItemTitle>{item.accountNumber}</ItemTitle>
-                          <ItemDescription className="text-balance">
-                            {item.bank} <br /> {item.branch}
-                          </ItemDescription>
-                        </ItemContent>
-                      </Item>
-                    )}
-                  />
-                  <AccountForm
-                    payeeId={payeeId}
-                    isOpen={isAccountFormOpen}
-                    onOpenChange={setIsAccountFormOpen}
-                    honorariumForm={honorariumForm}
-                  />
-                </div>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <div className="flex gap-2">
             <Controller
-              name="salary"
+              name="payeeId"
+              control={honorariumForm.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Payee</FieldLabel>
+                  <div className="flex gap-2">
+                    <RHFSelect
+                      id={field.name}
+                      field={field}
+                      fieldState={fieldState}
+                      items={payeeItems}
+                      isLoading={isFetchingPayees}
+                      placeholder="Select a payee..."
+                    />
+                    <PayeeForm
+                      isOpen={isPayeeFormOpen}
+                      onOpenChange={setIsPayeeFormOpen}
+                      honorariumForm={honorariumForm}
+                    />
+                  </div>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="roleId"
+              control={honorariumForm.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Role</FieldLabel>
+                  <div className="flex gap-2">
+                    <RHFSelect
+                      id={field.name}
+                      field={field}
+                      fieldState={fieldState}
+                      items={roleItems}
+                      isLoading={isFetchingRoles}
+                      placeholder="Select a role..."
+                    />
+                    <RoleForm
+                      isOpen={isRoleFormOpen}
+                      onOpenChange={setIsRoleFormOpen}
+                      honorariumForm={honorariumForm}
+                    />
+                  </div>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="accountId"
+              control={honorariumForm.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Bank Account</FieldLabel>
+                  <div className="flex gap-2">
+                    <GenericCombobox
+                      id={field.name}
+                      className="flex-1"
+                      itemToStringLabel={item => item.accountNumber}
+                      itemToStringValue={item => item.id.toString()}
+                      // eslint-disable-next-line unicorn/no-null
+                      value={accounts?.find(account => account.id === field.value) ?? null}
+                      onValueChange={item => field.onChange(item?.id ?? 0)}
+                      aria-invalid={fieldState.invalid}
+                      placeholder={
+                        isFetchingAccounts ? 'Loading bank accounts...' : 'Select a bank account'
+                      }
+                      items={filteredAccounts}
+                      disabled={isFetchingAccounts}
+                      renderItem={item => (
+                        <Item size="xs" className="p-0" key={item.id}>
+                          <ItemContent>
+                            <ItemTitle>{item.accountNumber}</ItemTitle>
+                            <ItemDescription className="text-balance">
+                              {item.bank} <br /> {item.branch}
+                            </ItemDescription>
+                          </ItemContent>
+                        </Item>
+                      )}
+                    />
+                    <AccountForm
+                      payeeId={payeeId}
+                      isOpen={isAccountFormOpen}
+                      onOpenChange={setIsAccountFormOpen}
+                      honorariumForm={honorariumForm}
+                    />
+                  </div>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <div className="flex gap-2">
+              <Controller
+                name="salary"
+                control={honorariumForm.control}
+                render={({ field, fieldState }) => (
+                  <Field className="w-1/2" data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Basic Monthly Salary</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type="number"
+                      step="any"
+                      inputMode="decimal"
+                      aria-invalid={fieldState.invalid}
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="amount"
+                control={honorariumForm.control}
+                render={({ field, fieldState }) => (
+                  <Field className="w-1/2" data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Gross Honorarium</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type="number"
+                      step="any"
+                      inputMode="decimal"
+                      aria-invalid={fieldState.invalid}
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </div>
+
+            <Controller
+              name="taxRate"
               control={honorariumForm.control}
               render={({ field, fieldState }) => (
                 <Field className="w-1/2" data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Basic Monthly Salary</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Tax Rate (%)</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
@@ -173,72 +215,30 @@ export default function HonorariumForm({ form }: HonorariumFormProps) {
               )}
             />
 
-            <Controller
-              name="amount"
-              control={honorariumForm.control}
-              render={({ field, fieldState }) => (
-                <Field className="w-1/2" data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Gross Honorarium</FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    type="number"
-                    step="any"
-                    inputMode="decimal"
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-          </div>
-
-          <Controller
-            name="taxRate"
-            control={honorariumForm.control}
-            render={({ field, fieldState }) => (
-              <Field className="w-1/2" data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Tax Rate (%)</FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  type="number"
-                  step="any"
-                  inputMode="decimal"
-                  aria-invalid={fieldState.invalid}
-                  autoComplete="off"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <div className="flex w-full items-end justify-between gap-2 rounded-md border p-3">
-            <Item className="p-0">
-              <ItemContent>
-                <ItemTitle className="text-balance">Hours Rendered</ItemTitle>
-                <ItemDescription>{hoursRendered}</ItemDescription>
-              </ItemContent>
-            </Item>
-            <Item className="p-0">
-              <ItemContent>
-                <ItemTitle className="text-balance">Actual Honorarium</ItemTitle>
-                <ItemDescription>{formatAmount(actual)}</ItemDescription>
-              </ItemContent>
-            </Item>
-            <Item className="p-0">
-              <ItemContent>
-                <ItemTitle className="text-balance">Net Honorarium</ItemTitle>
-                <ItemDescription>{formatAmount(net)}</ItemDescription>
-              </ItemContent>
-            </Item>
-          </div>
-        </FieldGroup>
+            <div className="flex w-full items-end justify-between gap-2 rounded-md border p-3">
+              <Item className="p-0">
+                <ItemContent>
+                  <ItemTitle className="text-balance">Hours Rendered</ItemTitle>
+                  <ItemDescription>{hoursRendered}</ItemDescription>
+                </ItemContent>
+              </Item>
+              <Item className="p-0">
+                <ItemContent>
+                  <ItemTitle className="text-balance">Actual Honorarium</ItemTitle>
+                  <ItemDescription>{formatAmount(actual)}</ItemDescription>
+                </ItemContent>
+              </Item>
+              <Item className="p-0">
+                <ItemContent>
+                  <ItemTitle className="text-balance">Net Honorarium</ItemTitle>
+                  <ItemDescription>{formatAmount(net)}</ItemDescription>
+                </ItemContent>
+              </Item>
+            </div>
+            <SubmitButton form={honorariumForm} isPending={isPending} onSubmit={handleSubmit} />
+          </FieldGroup>
+        </form>
       </CardContent>
-      <CardFooter className="justify-end gap-2">
-        <SubmitButton form={honorariumForm} isPending={isPending} onSubmit={handleSubmit} />
-      </CardFooter>
     </Card>
   );
 }

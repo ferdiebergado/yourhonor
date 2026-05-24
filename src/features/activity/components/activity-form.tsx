@@ -3,7 +3,7 @@ import { Controller, type UseFormReturn } from 'react-hook-form';
 
 import GenericCombobox from '@/components/generic-combobox';
 import SubmitButton from '@/components/submit-button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
@@ -194,12 +194,10 @@ export default function ActivityForm({ form, onSubmit, isPending }: ActivityForm
                 );
               }}
             />
+            <SubmitButton form={form} onSubmit={onSubmit} isPending={isPending} />
           </FieldGroup>
         </form>
       </CardContent>
-      <CardFooter>
-        <SubmitButton form={form} onSubmit={onSubmit} isPending={isPending} />
-      </CardFooter>
     </Card>
   );
 }

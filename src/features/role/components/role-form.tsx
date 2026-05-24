@@ -59,29 +59,32 @@ export default function RoleForm({ isOpen, onOpenChange, honorariumForm }: RoleF
           <PopoverTitle className="font-heading text-xl font-semibold">Add role</PopoverTitle>
           <PopoverDescription>Add a new role.</PopoverDescription>
         </PopoverHeader>
-        <FieldGroup className="gap-4">
-          <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel htmlFor={field.name} className="w-1/2">
-                  Role
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Resource Person"
-                  autoComplete="off"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-        </FieldGroup>
 
-        <SubmitButton form={form} isPending={isPending} onSubmit={handleSubmit} />
+        <form>
+          <FieldGroup className="gap-4">
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name} className="w-1/2">
+                    Role
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Resource Person"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+
+          <SubmitButton form={form} isPending={isPending} onSubmit={handleSubmit} />
+        </form>
       </PopoverContent>
     </Popover>
   );

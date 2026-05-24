@@ -71,89 +71,91 @@ export default function FocalForm({ isOpen, onOpenChange, activityForm }: FocalF
           </PopoverTitle>
           <PopoverDescription>Add a new focal person.</PopoverDescription>
         </PopoverHeader>
-        <FieldGroup className="gap-4">
-          <Controller
-            name="firstname"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel htmlFor={field.name}>First Name</FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Bryan"
-                  autoComplete="off"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-          <Controller
-            name="mi"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field className="md:w/14 w-1/3">
-                <FieldLabel htmlFor={field.name}>Middle Initial</FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="R"
-                  autoComplete="off"
-                  value={field.value ?? ''}
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
 
-          <Controller
-            name="lastname"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel htmlFor={field.name} className="w-1/2">
-                  Last Name
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Ureta"
-                  autoComplete="off"
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="positionId"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field orientation="responsive" data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Position</FieldLabel>
-                <div className="flex gap-2">
-                  <PositionInput
-                    field={field}
-                    fieldState={fieldState}
-                    isLoading={isLoadingPositions}
-                    positions={positions ?? []}
+        <form>
+          <FieldGroup className="gap-4">
+            <Controller
+              name="firstname"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name}>First Name</FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Bryan"
+                    autoComplete="off"
                   />
-                  <PositionForm
-                    isOpen={isPositionFormOpen}
-                    onOpenChange={setIsPositionFormOpen}
-                    focalForm={form}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="mi"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field className="md:w/14 w-1/3">
+                  <FieldLabel htmlFor={field.name}>Middle Initial</FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="R"
+                    autoComplete="off"
+                    value={field.value ?? ''}
                   />
-                </div>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-        </FieldGroup>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
 
-        <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
+            <Controller
+              name="lastname"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name} className="w-1/2">
+                    Last Name
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Ureta"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="positionId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field orientation="responsive" data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Position</FieldLabel>
+                  <div className="flex gap-2">
+                    <PositionInput
+                      field={field}
+                      fieldState={fieldState}
+                      isLoading={isLoadingPositions}
+                      positions={positions ?? []}
+                    />
+                    <PositionForm
+                      isOpen={isPositionFormOpen}
+                      onOpenChange={setIsPositionFormOpen}
+                      focalForm={form}
+                    />
+                  </div>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
+          </FieldGroup>
+        </form>
       </PopoverContent>
     </Popover>
   );
