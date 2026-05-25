@@ -15,8 +15,7 @@ export default function UserMenu() {
   const { data: user } = useMe();
   const { isPending, mutate: signout } = useSignout();
 
-  const handleSignout = () =>
-    signout(undefined, { onSuccess: () => toast.success('Successfully signed out!') });
+  const handleSignout = () => signout(undefined, { onSuccess: () => toast.info('Signed out.') });
 
   // eslint-disable-next-line unicorn/no-null
   if (!user) return null;
@@ -25,20 +24,14 @@ export default function UserMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            render={
-              <Avatar>
-                <AvatarImage src={user.picture} alt="user-avatar" />
-                <AvatarFallback>
-                  <RiUserLine className="size-8" />
-                </AvatarFallback>
-              </Avatar>
-            }
-          >
+          <Button variant="ghost" size="icon" className="rounded-full">
             <span className="sr-only">Toggle user menu</span>
+            <Avatar>
+              <AvatarImage src={user.picture} alt="user-avatar" />
+              <AvatarFallback>
+                <RiUserLine className="size-6" />
+              </AvatarFallback>
+            </Avatar>
           </Button>
         }
       />
