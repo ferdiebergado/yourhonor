@@ -5,7 +5,7 @@ type Summary = {
   totalHonoraria: number;
 };
 
-export async function getSummary(db: Database): Promise<Summary | undefined> {
+export async function getSummary(db: Database): Promise<Summary> {
   const sql = `
 SELECT
   COUNT(DISTINCT activity_code) totalActivities,
