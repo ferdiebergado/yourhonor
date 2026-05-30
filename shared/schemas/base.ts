@@ -9,7 +9,7 @@ export type EntityID = z.infer<typeof EntityIDSchema>;
 const AuditFieldsSchema = z.strictObject({
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-  deletedAt: z.iso.datetime().optional().nullable(),
+  deletedAt: z.iso.datetime().nullish(),
   createdBy: z.int().positive(),
   updatedBy: z.int().positive(),
 });

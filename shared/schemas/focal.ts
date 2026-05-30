@@ -4,7 +4,7 @@ import { BaseSchema, type NewEntity } from './base';
 export const FocalSchema = z.strictObject({
   ...BaseSchema.shape,
   firstname: z.string().min(1, 'Firstname is required').max(50),
-  mi: z.string().max(3, 'Middle initial should not exceed 3 characters').optional().nullable(),
+  mi: z.string().max(3, 'Middle initial should not exceed 3 characters').nullish(),
   lastname: z.string().min(1, 'Lastname is required'),
   positionId: z.coerce.number<number>().positive('Position is required'),
 });

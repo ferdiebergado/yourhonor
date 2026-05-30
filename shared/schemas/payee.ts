@@ -7,12 +7,12 @@ export const PayeeSchema = z.strictObject({
     .string()
     .min(1, 'Firstname is required')
     .max(100, 'Firstname should not exceed 100 characters'),
-  mi: z.string().max(3, 'Middle initial should not exceed 3 characters').optional().nullable(),
+  mi: z.string().max(3, 'Middle initial should not exceed 3 characters').nullish(),
   lastname: z
     .string()
     .min(1, 'Lastname is required')
     .max(100, 'Lastname should not exceed 100 characters'),
-  tin: z.string().max(15, 'TIN should not exceed 30 characters').optional().nullable(),
+  tin: z.string().max(15, 'TIN should not exceed 30 characters').nullish(),
 });
 
 export type Payee = z.infer<typeof PayeeSchema>;
