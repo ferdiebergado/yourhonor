@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   FOREIGN KEY (bank_id) REFERENCES banks (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id),
-  UNIQUE (payee_id, bank_id, bank_branch, account_no)
+  UNIQUE (payee_id, bank_id, bank_branch, account_no_masked)
 );
 
 -- Roles
