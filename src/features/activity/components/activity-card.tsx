@@ -58,7 +58,7 @@ const activityFields: ActivityFieldConfig[] = [
     format: (firstname: string, lastname: string) => getFullName({ firstname, lastname }),
     icon: <RiUser3Line />,
   },
-  { key: 'position', label: 'Position', icon: <RiPencilRulerLine /> },
+  { key: 'position', label: 'Focal Position', icon: <RiPencilRulerLine /> },
   { key: 'code', label: 'Activity Code', icon: <RiBarcodeLine /> },
   { key: 'fundSource', label: 'Fund Source', icon: <RiBankLine /> },
 ];
@@ -115,14 +115,13 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
           {activityFields.map((field, index) => (
             <Item className="p-0" key={index}>
               {field.icon && <ItemMedia variant="icon">{field.icon}</ItemMedia>}
-
               <ItemContent>
-                <ItemTitle>{field.label}</ItemTitle>
-                <ItemDescription>
+                <ItemTitle>
                   {isMultiFieldConfig(field)
                     ? field.format(String(activity[field.keys[0]]), String(activity[field.keys[1]]))
                     : String(activity[field.key])}
-                </ItemDescription>
+                </ItemTitle>
+                <ItemDescription>{field.label}</ItemDescription>
               </ItemContent>
             </Item>
           ))}
