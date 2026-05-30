@@ -1,7 +1,10 @@
 import type { CellValue } from 'exceljs';
 
-import { db, type Database } from '@backend/db';
-import type { HonorariumDetail } from '@shared/schemas/honorarium';
+import { db } from '@backend/db';
+import { findActiveActivityDetailByUser } from '@backend/features/activity/repo';
+import { decrypt } from '@backend/security';
+import type { ActivityDetail } from '@shared/schemas/activity';
+import type { HonorariumDetail, HonorariumDetailSafe } from '@shared/schemas/honorarium';
 import {
   formatAmount,
   formatDate,
@@ -9,34 +12,17 @@ import {
   getFullName,
   getMaxSalary,
 } from '@shared/utils';
-import { deserializeDetails } from '../account';
 import { certification } from './certification';
 import { computation } from './computation';
 import { ors } from './ors';
 import { payroll } from './payroll';
-import { findActiveHonorariaByActivity, recordUsage } from './repo';
+import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
 import { amountToWords, getFundCluster, parseActivityCode, patchDoc } from './utils';
 
 type Document = {
   filename: string;
   doc: Uint8Array;
 };
-
-export async function getHonoraria(
-  db: Database,
-  activityCode: string
-): Promise<HonorariumDetail[]> {
-  const honorariumDetailRows = await findActiveHonorariaByActivity(db, activityCode);
-
-  const honoraria: HonorariumDetail[] = [];
-
-  for (const row of honorariumDetailRows) {
-    const accountDetails = deserializeDetails(row.details);
-    honoraria.push({ ...row, ...accountDetails });
-  }
-
-  return honoraria;
-}
 
 type CertificationPatches = {
   payee: string;
@@ -52,43 +38,70 @@ type CertificationPatches = {
   tax: string;
 };
 
-async function buildCertPatches(honorarium: HonorariumDetail): Promise<CertificationPatches> {
-  return {
-    payee: getFullName({
-      firstname: honorarium.firstname,
-      mi: honorarium.mi,
-      lastname: honorarium.lastname,
-    }).toLocaleUpperCase(),
-    role: honorarium.role,
-    activity: honorarium.activityTitle,
-    venue: honorarium.venue,
-    end_date: formatDate(new Date()),
-    amount: formatAmount(honorarium.amount),
-    tax: honorarium.taxRate.toString(),
-    focal: getFullName({
-      firstname: honorarium.focalFirstname,
-      mi: honorarium.focalMi,
-      lastname: honorarium.focalLastname,
-    }).toLocaleUpperCase(),
-    position: honorarium.position,
-    date: formatDateRange(honorarium.startDate, honorarium.endDate),
-    amount_words: await amountToWords(honorarium.amount),
+const buildCertPatches = async (
+  activity: Pick<
+    ActivityDetail,
+    | 'title'
+    | 'venue'
+    | 'location'
+    | 'firstname'
+    | 'mi'
+    | 'lastname'
+    | 'startDate'
+    | 'endDate'
+    | 'position'
+  >,
+  honorarium: HonorariumDetail
+): Promise<CertificationPatches> => ({
+  payee: formatName({
+    firstname: honorarium.firstname,
+    mi: honorarium.mi,
+    lastname: honorarium.lastname,
+  }),
+  role: honorarium.role,
+  activity: activity.title,
+  venue: `${activity.venue}, ${activity.location}`,
+  end_date: formatDate(new Date()),
+  amount: formatAmount(honorarium.amount),
+  tax: honorarium.taxRate.toString(),
+  focal: formatName({
+    firstname: activity.firstname,
+    mi: activity.mi,
+    lastname: activity.lastname,
+  }),
+  position: activity.position,
+  date: formatDateRange(activity.startDate, activity.endDate),
+  amount_words: await amountToWords(honorarium.amount),
+});
+
+export async function genCertDoc(
+  activity: ActivityDetail,
+  honoraria: HonorariumDetail[]
+): Promise<Document> {
+  const { title, venue, firstname, mi, lastname, position, startDate, endDate, code, location } =
+    activity;
+
+  const honorarium = honoraria[0];
+  const filename = 'certification-' + code;
+
+  const activityDetails = {
+    title,
+    venue,
+    firstname,
+    mi,
+    lastname,
+    position,
+    startDate,
+    endDate,
+    location,
   };
-}
-
-export async function genCertDoc(honoraria: HonorariumDetail[]): Promise<Document> {
-  if (honoraria.length === 0) throw new Error('cannot generate certification: no data provided');
-
-  const firstPayment = honoraria[0];
-  const filename = 'certification-' + firstPayment.activityCode;
-
-  const patches = await buildCertPatches(firstPayment);
+  const patches = await buildCertPatches(activityDetails, honorarium);
   const firstCert = await patchDoc(certification, patches);
 
   if (honoraria.length === 1) return { doc: firstCert, filename };
 
   const patchDocs = honoraria.slice(1).map(async payment => {
-    const patches = await buildCertPatches(payment);
+    const patches = await buildCertPatches(activityDetails, payment);
     const patched = await patchDoc(certification, patches);
 
     return patched;
@@ -98,8 +111,8 @@ export async function genCertDoc(honoraria: HonorariumDetail[]): Promise<Documen
 
   const { mergeDocx } = await import('@benedicte/docx-merge');
   let doc = firstCert;
-  for (const curr of patchedDocs) {
-    const merged = mergeDocx(doc, curr, { insertEnd: true });
+  for (const currentDoc of patchedDocs) {
+    const merged = mergeDocx(doc, currentDoc, { insertEnd: true });
     if (!merged) throw new Error('failed to merge documents');
     doc = merged;
   }
@@ -110,11 +123,14 @@ export async function genCertDoc(honoraria: HonorariumDetail[]): Promise<Documen
 export async function generateCertification(
   activityCode: string,
   userId: number
-): Promise<Document> {
-  const honoraria = await getHonoraria(db, activityCode);
+): Promise<Document | undefined> {
+  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  if (!activity) return;
 
-  const doc = await genCertDoc(honoraria);
+  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
+  if (honoraria.length === 0) return;
 
+  const doc = await genCertDoc(activity, honoraria);
   await recordUsage(db, 'Certification', userId);
 
   return doc;
@@ -139,53 +155,67 @@ type ComputationPatches = {
   hours: string;
 };
 
-export function buildCompPatches(honorarium: HonorariumDetail): ComputationPatches {
+export function buildCompPatches(
+  activity: Pick<
+    ActivityDetail,
+    'title' | 'venue' | 'firstname' | 'mi' | 'lastname' | 'startDate' | 'endDate' | 'position'
+  >,
+  honorarium: HonorariumDetail
+): ComputationPatches {
   const salary = getMaxSalary(honorarium.salary);
 
-  const payee = getFullName({
+  const payee = formatName({
     firstname: honorarium.firstname,
     mi: honorarium.mi,
     lastname: honorarium.lastname,
-  }).toLocaleUpperCase();
+  });
+
+  const focal = formatName({
+    firstname: activity.firstname,
+    mi: activity.mi,
+    lastname: activity.lastname,
+  });
 
   const tags: ComputationPatches = {
     payee,
+    focal,
     honorarium: formatAmount(honorarium.amount),
-    focal: getFullName({
-      firstname: honorarium.focalFirstname,
-      mi: honorarium.focalMi,
-      lastname: honorarium.focalLastname,
-    }).toLocaleUpperCase(),
-    date: formatDateRange(honorarium.startDate, honorarium.endDate),
-    bank_branch: honorarium.branch,
+    date: formatDateRange(activity.startDate, activity.endDate),
+    bank_branch: honorarium.bankBranch,
     account_name: honorarium.accountName,
-    account_no: honorarium.accountNumber,
+    account_no: decrypt(Buffer.from(honorarium.accountNo)),
     actual_honorarium: formatAmount(honorarium.actual),
     net_honorarium: formatAmount(honorarium.net),
     salary: formatAmount(salary),
     hours: honorarium.hoursRendered.toString(),
     role: honorarium.role,
-    activity: honorarium.activityTitle,
+    activity: activity.title,
     bank: honorarium.bank,
     tin: honorarium.tin ?? '',
-    position: honorarium.position,
+    position: activity.position,
   };
 
   return tags;
 }
 
-export async function genCompDoc(honoraria: HonorariumDetail[]): Promise<Document> {
-  const firstPayment = honoraria[0];
-  const activityCode = firstPayment.activityCode;
-  const filename = 'computation-' + activityCode;
+export async function genCompDoc(
+  activity: ActivityDetail,
+  honoraria: HonorariumDetail[]
+): Promise<Document> {
+  const { title, venue, firstname, mi, lastname, position, startDate, endDate, code } = activity;
 
-  const patches = buildCompPatches(firstPayment);
+  const honorarium = honoraria[0];
+  const filename = 'computation-' + code;
+
+  const activityDetails = { title, venue, firstname, mi, lastname, position, startDate, endDate };
+
+  const patches = buildCompPatches(activityDetails, honorarium);
   const firstComp = await patchDoc(computation, patches);
 
   if (honoraria.length === 1) return { doc: firstComp, filename };
 
   const patchDocs = honoraria.slice(1).map(async honorarium => {
-    const patches = buildCompPatches(honorarium);
+    const patches = buildCompPatches(activityDetails, honorarium);
     return await patchDoc(computation, patches);
   });
 
@@ -195,8 +225,8 @@ export async function genCompDoc(honoraria: HonorariumDetail[]): Promise<Documen
 
   let doc = firstComp;
 
-  for (const curr of patchedDocs) {
-    const merged = mergeDocx(doc, curr, { insertEnd: true });
+  for (const currentDoc of patchedDocs) {
+    const merged = mergeDocx(doc, currentDoc, { insertEnd: true });
     if (!merged) throw new Error('failed to merge documents');
     doc = merged;
   }
@@ -204,17 +234,29 @@ export async function genCompDoc(honoraria: HonorariumDetail[]): Promise<Documen
   return { doc, filename };
 }
 
-export async function generateComputation(activityCode: string, userId: number): Promise<Document> {
-  const honoraria = await getHonoraria(db, activityCode);
+export async function generateComputation(
+  activityCode: string,
+  userId: number
+): Promise<Document | undefined> {
+  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  if (!activity) return;
 
-  const doc = await genCompDoc(honoraria);
+  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
+  if (honoraria.length === 0) return;
+
+  const doc = await genCompDoc(activity, honoraria);
 
   await recordUsage(db, 'Computation', userId);
 
   return doc;
 }
 
-export async function genORSDoc(honoraria: HonorariumDetail[]): Promise<Document> {
+export async function genORSDoc(
+  activity: ActivityDetail,
+  honoraria: HonorariumDetail[]
+): Promise<Document> {
+  const { title, venue, firstname, mi, lastname, startDate, endDate, code } = activity;
+
   const { default: Excel } = await import('exceljs');
   const workbook = new Excel.Workbook();
   const buf = Buffer.from(ors, 'base64');
@@ -228,10 +270,7 @@ export async function genORSDoc(honoraria: HonorariumDetail[]): Promise<Document
   const dvSheet = workbook.getWorksheet('DV');
   if (!dvSheet) throw new Error('Workbook does not have a sheet named DV.');
 
-  const { firstname, mi, lastname, activityTitle, activityCode, venue, startDate, endDate } =
-    honoraria[0];
-
-  let payee = getFullName({ firstname: firstname, mi: mi, lastname: lastname }).toLocaleUpperCase();
+  let payee = formatName({ firstname: firstname, mi: mi, lastname: lastname });
 
   const numPayees = honoraria.length;
   let other = 'OTHER';
@@ -243,7 +282,7 @@ export async function genORSDoc(honoraria: HonorariumDetail[]): Promise<Document
 
   const dateRange = formatDateRange(startDate, endDate);
 
-  const particulars = `To payment of honorarium as Resource Person during the ${activityTitle} held at ${venue} on ${dateRange}`;
+  const particulars = `To payment of honorarium as Resource Person during the ${title} held at ${venue} on ${dateRange}`;
   orsSheet.getCell('E16').value = particulars;
   dvSheet.getCell('B16').value = particulars;
 
@@ -251,12 +290,12 @@ export async function genORSDoc(honoraria: HonorariumDetail[]): Promise<Document
   orsSheet.getCell('N16').value = amount;
   dvSheet.getCell('AC17').value = amount;
 
-  orsSheet.getCell('E34').value = activityCode;
-  orsSheet.getCell('K16').value = parseActivityCode(activityCode).mfoCode;
+  orsSheet.getCell('E34').value = code;
+  orsSheet.getCell('K16').value = parseActivityCode(code).mfoCode;
 
   const excelBuffer = await workbook.xlsx.writeBuffer();
 
-  const filename = `ORS-${activityCode}.xlsx`;
+  const filename = `ORS-${code}.xlsx`;
 
   return {
     doc: new Uint8Array(excelBuffer),
@@ -264,17 +303,27 @@ export async function genORSDoc(honoraria: HonorariumDetail[]): Promise<Document
   };
 }
 
-export async function generateORS(activityCode: string, userId: number): Promise<Document> {
-  const honoraria = await getHonoraria(db, activityCode);
+export async function generateORS(
+  activityCode: string,
+  userId: number
+): Promise<Document | undefined> {
+  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  if (!activity) return;
 
-  const doc = await genORSDoc(honoraria);
+  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
+  if (honoraria.length === 0) return;
+
+  const doc = await genORSDoc(activity, honoraria);
 
   await recordUsage(db, 'ORS-DV', userId);
 
   return doc;
 }
 
-export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Document> {
+export async function genPayrollDoc(
+  activity: ActivityDetail,
+  honoraria: HonorariumDetail[]
+): Promise<Document> {
   const { default: Excel } = await import('exceljs');
   const workbook = new Excel.Workbook();
 
@@ -287,15 +336,15 @@ export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Docu
   const sheet = workbook.getWorksheet(sheetName);
   if (!sheet) throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
 
-  const { activityCode, activityTitle, venue, startDate, endDate } = honoraria[0];
+  const { title, venue, startDate, endDate, code, position } = activity;
 
-  const fundCluster = getFundCluster(activityCode);
+  const fundCluster = getFundCluster(code);
   const fundClusterCell = sheet.getCell('A7');
   const fundClusterText = `${fundClusterCell.text} ${fundCluster}`;
   sheet.getCell('A7').value = fundClusterText;
 
   const particularsCell = sheet.getCell('A9');
-  const particulars = `${particularsCell.text} ${activityTitle} held at ${venue} on ${formatDateRange(startDate, endDate)}`;
+  const particulars = `${particularsCell.text} ${title} held at ${venue} on ${formatDateRange(startDate, endDate)}`;
   particularsCell.value = particulars;
 
   let currentRow = 13;
@@ -304,9 +353,8 @@ export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Docu
     if (index > 1) sheet.insertRow(currentRow, [], 'i');
 
     const num = index + 1;
-    const { firstname, mi, lastname, position, branch, accountNumber, bank, tin, amount } =
-      honorarium;
-    const payee = getFullName({ firstname, mi, lastname });
+    const { firstname, mi, lastname, bankBranch, accountNo, bank, tin, amount } = honorarium;
+    const payee = formatName({ firstname, mi, lastname });
 
     const cells: { cell: string; value: CellValue }[] = [
       {
@@ -323,7 +371,7 @@ export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Docu
       },
       {
         cell: 'D',
-        value: accountNumber,
+        value: decrypt(Buffer.from(accountNo)),
       },
       {
         cell: 'E',
@@ -331,7 +379,7 @@ export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Docu
       },
       {
         cell: 'F',
-        value: branch,
+        value: bankBranch,
       },
       {
         cell: 'I',
@@ -361,7 +409,7 @@ export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Docu
   }
 
   const excelBuffer = await workbook.xlsx.writeBuffer();
-  const filename = `Payroll-${activityCode}.xlsx`;
+  const filename = `Payroll-${code}.xlsx`;
 
   return {
     doc: new Uint8Array(excelBuffer),
@@ -369,12 +417,38 @@ export async function genPayrollDoc(honoraria: HonorariumDetail[]): Promise<Docu
   };
 }
 
-export async function generatePayroll(activityCode: string, userId: number): Promise<Document> {
-  const honoraria = await getHonoraria(db, activityCode);
+export async function generatePayroll(
+  activityCode: string,
+  userId: number
+): Promise<Document | undefined> {
+  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  if (!activity) return;
 
-  const doc = await genPayrollDoc(honoraria);
+  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
+  if (honoraria.length === 0) return;
+
+  const doc = await genPayrollDoc(activity, honoraria);
 
   await recordUsage(db, 'Payroll', userId);
 
   return doc;
 }
+
+export const stripAccountNo = (honoraria: HonorariumDetail[]): HonorariumDetailSafe[] =>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  honoraria.map(({ accountNo, ...honorarium }) => honorarium);
+
+const formatName = ({
+  firstname,
+  mi,
+  lastname,
+}: {
+  firstname: string;
+  mi?: string | null;
+  lastname: string;
+}) =>
+  getFullName({
+    firstname,
+    mi,
+    lastname,
+  }).toLocaleUpperCase();
