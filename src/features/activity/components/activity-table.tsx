@@ -1,10 +1,8 @@
-import { RiSettings2Line } from '@remixicon/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { DataTable } from '@/components/data-table';
 import SortButton from '@/components/sort-button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { ActivityInfo } from '@shared/schemas/activity';
 import { useActivities } from '../hooks';
 
@@ -26,21 +24,6 @@ const columns: ColumnDef<ActivityInfo>[] = [
   {
     accessorKey: 'endDate',
     header: ({ column }) => <SortButton column={column}>End Date</SortButton>,
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Link to={`/activity/${encodeURIComponent(row.original.code)}`}>
-              <RiSettings2Line className="size-5" data-icon="inline-start" />
-            </Link>
-          }
-        />
-        <TooltipContent>View activity details</TooltipContent>
-      </Tooltip>
-    ),
   },
 ];
 
