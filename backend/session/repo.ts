@@ -1,5 +1,5 @@
 import type { Database } from '@backend/db';
-import { type NewSession, type Session } from '@shared/schemas/session';
+import type { NewSession, Session } from '.';
 
 const sessionColumns =
   'id, session_id sessionId, user_id userId, expires_at expiresAt, last_active_at lastActiveAt, updated_at updatedAt, created_at createdAt, deleted_at deletedAt';

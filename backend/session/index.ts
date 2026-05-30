@@ -1,9 +1,18 @@
+import { db, type Database } from '@backend/db';
+import { UnauthorizedError } from '@backend/http/errors';
 import { randBase64 } from '@backend/utils';
 import { SESSION } from '@shared/constants';
-import type { NewSession, Session } from '@shared/schemas/session';
-import { db, type Database } from '../db';
-import { UnauthorizedError } from '../http/errors';
 import { createSession, findSession, touchSession } from './repo';
+
+export type Session = {
+  sessionId: string;
+  userId: number;
+  expiresAt: string;
+  isActive?: boolean;
+  lastActiveAt: string;
+};
+
+export type NewSession = Omit<Session, 'id' | 'lastActiveAt'>;
 
 export async function startSession(db: Database, userId: number): Promise<Session> {
   const session = newSession(userId);
