@@ -1,10 +1,8 @@
 import { db } from '@backend/db';
-import { deserializeDetails, maskAccountNo } from '@backend/features/account';
 import { findActiveAccounts } from '@backend/features/account/repo';
 import { checkMethod } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
-import type { AccountDetail } from '@shared/schemas/account';
 import type { ApiResponse } from '@shared/types';
 
 export default async (req: Request) => {
@@ -12,15 +10,7 @@ export default async (req: Request) => {
     checkMethod(req, ['GET']);
     await getSession(req);
 
-    const accountDetailRows = await findActiveAccounts(db);
-
-    const data: AccountDetail[] = [];
-
-    for (const row of accountDetailRows) {
-      const accountDetails = deserializeDetails(row.details);
-      accountDetails.accountNumber = maskAccountNo(accountDetails.accountNumber);
-      data.push({ ...row, ...accountDetails });
-    }
+    const data = await findActiveAccounts(db);
 
     const payload: ApiResponse<typeof data> = {
       success: true,

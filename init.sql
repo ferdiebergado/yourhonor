@@ -166,10 +166,14 @@ CREATE TABLE IF NOT EXISTS banks (
 
 -- Payee bank accounts
 CREATE TABLE IF NOT EXISTS accounts (
-  account id INTEGER PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
   payee_id INTEGER NOT NULL,
   bank_id INTEGER NOT NULL,
-  details BLOB NOT NULL,
+  bank_branch TEXT NOT NULL,
+  account_name TEXT NOT NULL,
+  account_no BLOB NOT NULL,
+  account_no_last4 TEXT NOT NULL,
+  account_no_masked TEXT NOT NULL,
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
@@ -179,7 +183,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   FOREIGN KEY (bank_id) REFERENCES banks (id),
   FOREIGN KEY (created_by) REFERENCES users (id),
   FOREIGN KEY (updated_by) REFERENCES users (id),
-  UNIQUE (payee_id, bank_id, details)
+  UNIQUE (payee_id, bank_id, bank_branch, account_no)
 );
 
 -- Roles
@@ -239,6 +243,8 @@ CREATE INDEX IF NOT EXISTS idx_activities_code ON activities (code);
 CREATE INDEX IF NOT EXISTS idx_activity_created_by ON activities (created_by);
 
 CREATE INDEX IF NOT EXISTS idx_honoraria_activity_code ON honoraria (activity_code);
+
+CREATE INDEX IF NOT EXISTS idx_honoraria_created_by ON honoraria (created_by);
 
 CREATE TRIGGER touch_activity AFTER
 UPDATE ON activities BEGIN

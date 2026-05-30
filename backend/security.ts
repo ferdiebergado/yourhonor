@@ -22,7 +22,7 @@ function loadKey(): Buffer {
   }
 }
 
-export function encrypt(plain: Buffer): Buffer {
+export function encrypt(plain: string): Buffer {
   const iv = randomBytes(IV_LENGTH);
 
   const cipher = createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
@@ -34,7 +34,7 @@ export function encrypt(plain: Buffer): Buffer {
   return Buffer.concat([iv, authTag, ciphertext]);
 }
 
-export function decrypt(payload: Buffer): Buffer {
+export function decrypt(payload: Buffer): string {
   if (payload.length < IV_LENGTH + AUTH_TAG_LENGTH) throw new Error('Invalid encrypted payload');
 
   const iv = payload.subarray(0, IV_LENGTH);
@@ -44,5 +44,6 @@ export function decrypt(payload: Buffer): Buffer {
   const decipher = createDecipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
   decipher.setAuthTag(authTag);
 
-  return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return decrypted.toString();
 }

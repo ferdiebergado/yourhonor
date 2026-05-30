@@ -1,8 +1,9 @@
 import { db } from '@backend/db';
-import { serializeDetails } from '@backend/features/account';
 import { createAccount } from '@backend/features/account/repo';
+import { maskAccountNo } from '@backend/features/account/utils';
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
+import { encrypt } from '@backend/security';
 import { getSession } from '@backend/session';
 import { AccountFormSchema, type NewAccount } from '@shared/schemas/account';
 import type { ApiResponse } from '@shared/types';
@@ -14,24 +15,17 @@ export default async (req: Request) => {
 
     const data = await parseJson(req, AccountFormSchema);
 
-    const details = {
-      branch: data.branch,
-      accountName: data.accountName,
-      accountNumber: data.accountNumber,
-    };
-
-    const serialized = serializeDetails(details);
-
-    const detailsBuffer = serialized.buffer.slice(
-      serialized.byteOffset,
-      serialized.byteOffset + serialized.byteLength
-    ) as ArrayBuffer;
+    const accountNoLast4 = data.accountNo.slice(-4);
+    const accountNoMasked = maskAccountNo(data.accountNo);
+    const accountNoBuffer = encrypt(data.accountNo);
+    const accountNo = new Uint8Array(accountNoBuffer).buffer;
 
     const account: NewAccount = {
       ...data,
-      details: detailsBuffer,
+      accountNo,
+      accountNoLast4,
+      accountNoMasked,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     const id = await createAccount(db, account);
