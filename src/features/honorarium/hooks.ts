@@ -1,10 +1,10 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { createContext, useContext, type Dispatch, type SetStateAction } from 'react';
+import { type UseFormReturn } from 'react-hook-form';
 
 import { activityKeys } from '@/features/activity/hooks';
-import { type HonorariumFormValues, HonorariumFormSchema } from '@shared/schemas/honorarium';
+import { type Honorarium, type HonorariumFormValues } from '@shared/schemas/honorarium';
+import type { Payee } from '@shared/schemas/payee';
 import { createHonorarium, genCert, genComp, genORS, genPayroll } from './api';
 
 export function useCreateHonorarium() {
@@ -25,33 +25,27 @@ export const useGenORS = () => useMutation({ mutationFn: genORS });
 
 export const useGenPayroll = () => useMutation({ mutationFn: genPayroll });
 
-export function useHonorariumForm(activityCode: string) {
-  const form = useForm<HonorariumFormValues>({
-    resolver: zodResolver(HonorariumFormSchema),
-    defaultValues: {
-      activityCode,
-      payeeId: 0,
-      roleId: 0,
-      amount: 0,
-      accountId: 0,
-      taxRate: 10,
-      salary: 0,
-    },
-  });
+type HonorariumFormState = {
+  form: UseFormReturn<HonorariumFormValues>;
+  payeeId: Payee['id'];
+  honorarium: Honorarium['amount'];
+  taxRate: Honorarium['taxRate'];
+  salary: Honorarium['salary'];
+  isAccountFormOpen: boolean;
+  setIsAccountFormOpen: Dispatch<SetStateAction<boolean>>;
+  isPayeeFormOpen: boolean;
+  setIsPayeeFormOpen: Dispatch<SetStateAction<boolean>>;
+  isRoleFormOpen: boolean;
+  setIsRoleFormOpen: Dispatch<SetStateAction<boolean>>;
+};
 
-  const payeeId = useWatch({ control: form.control, name: 'payeeId' });
-  const honorarium = useWatch({ control: form.control, name: 'amount' });
-  const taxRate = useWatch({ control: form.control, name: 'taxRate' });
-  const salary = useWatch({ control: form.control, name: 'salary' });
+export const HonorariumFormContext = createContext<HonorariumFormState | undefined>(undefined);
 
-  useEffect(() => form.setValue('activityCode', activityCode), [activityCode, form]);
-  useEffect(() => form.setValue('accountId', 0), [payeeId, form]);
+export function useHonorariumFormContext() {
+  const context = useContext(HonorariumFormContext);
 
-  return {
-    form,
-    honorarium,
-    taxRate,
-    salary,
-    payeeId,
-  };
+  if (!context)
+    throw new Error('useHonorariumFormContext must be used inside a HonorariumFormProvider');
+
+  return context;
 }
