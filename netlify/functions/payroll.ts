@@ -1,7 +1,7 @@
 import { generatePayroll } from '@backend/features/honorarium';
 import { xlsxResponse } from '@backend/features/honorarium/utils';
 import { checkMethod, parseJson } from '@backend/http';
-import { respondWithError } from '@backend/http/errors';
+import { NotFoundError, respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
@@ -12,9 +12,11 @@ export default async (req: Request) => {
 
     const { code } = await parseJson(req, ActivityCodeSchema);
 
-    const { doc, filename } = await generatePayroll(code, userId);
+    const payroll = await generatePayroll(code, userId);
 
-    return xlsxResponse(doc, filename);
+    if (!payroll) throw new NotFoundError('Activity not found.');
+
+    return xlsxResponse(payroll.doc, payroll.filename);
   } catch (error) {
     return respondWithError(error);
   }
