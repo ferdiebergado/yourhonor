@@ -9,7 +9,6 @@ import type { ApiResponse } from '@shared/types';
 export default async (req: Request) => {
   try {
     checkMethod(req, ['POST']);
-
     const { userId } = await getSession(req);
 
     const data = await parseJson(req, VenueFormSchema);
@@ -17,7 +16,6 @@ export default async (req: Request) => {
     const venue: NewVenue = {
       ...data,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     const id = await createVenue(db, venue);

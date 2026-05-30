@@ -17,7 +17,6 @@ export default async (req: Request) => {
     const payee: NewPayee = {
       ...data,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     const id = await createPayee(db, payee);

@@ -20,7 +20,6 @@ export default async (req: Request) => {
       ...data,
       ...computed,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     await createHonorarium(db, honorarium);

@@ -17,7 +17,6 @@ export default async (req: Request) => {
     const bank: NewBank = {
       ...data,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     const id = await createBank(db, bank);

@@ -17,7 +17,6 @@ export default async (req: Request) => {
     const role: NewRole = {
       ...data,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     const id = await createRole(db, role);

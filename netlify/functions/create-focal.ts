@@ -17,7 +17,6 @@ export default async (req: Request) => {
     const focal: NewFocal = {
       ...data,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     const id = await createFocal(db, focal);

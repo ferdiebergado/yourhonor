@@ -17,7 +17,6 @@ export default async (req: Request) => {
     const position: NewPosition = {
       ...data,
       createdBy: userId,
-      updatedBy: userId,
     };
 
     const id = await createPosition(db, position);
