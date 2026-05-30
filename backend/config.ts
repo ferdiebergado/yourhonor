@@ -1,20 +1,17 @@
+import type { CamelCasedProperties } from 'type-fest';
 import * as z from 'zod';
 import logger from './logger';
 
-const libsqlUrlSchema = z
+const LibsqlUrlSchema = z
   .string()
   .trim()
   .refine(
     value => {
       // 1. SQLite in-memory
-      if (value === ':memory:') {
-        return true;
-      }
+      if (value === ':memory:') return true;
 
       // 2. File-based SQLite
-      if (value.startsWith('file:')) {
-        return true;
-      }
+      if (value.startsWith('file:')) return true;
 
       // 3. Remote libSQL-compatible services
       try {
@@ -34,9 +31,9 @@ const libsqlUrlSchema = z
     }
   );
 
-const envSchema = z.object({
+const ConfigSchema = z.object({
   HOST: z.url({ error: 'HOST must be a valid URL' }),
-  DATABASE_URL: libsqlUrlSchema,
+  DATABASE_URL: LibsqlUrlSchema,
   TURSO_AUTH_TOKEN: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string({ error: 'GOOGLE_CLIENT_ID is not set.' }),
   GOOGLE_CLIENT_SECRET: z.string({ error: 'GOOGLE_CLIENT_SECRET is not set.' }),
@@ -46,23 +43,33 @@ const envSchema = z.object({
   APP_KEY: z.string().min(1, 'APP_KEY is not set'),
 });
 
-const { success, error, data } = envSchema.safeParse(process.env);
-if (!success) {
-  const msg = 'Invalid environment variable/s';
-  logger.error({ error, errors: z.flattenError(error).fieldErrors }, msg);
-  throw new Error(msg);
+type Config = z.infer<typeof ConfigSchema>;
+
+function parseEnv(): Config {
+  const { success, error, data } = ConfigSchema.safeParse(process.env);
+
+  if (!success) {
+    const errors = z.flattenError(error).fieldErrors;
+    const message = 'Invalid environment configuration';
+    logger.error({ errors }, error.message);
+    throw new Error(message);
+  }
+
+  return data;
 }
 
-const config = Object.freeze({
-  host: data.HOST,
-  databaseUrl: data.DATABASE_URL,
-  tursoAuthToken: data.TURSO_AUTH_TOKEN,
-  googleClientId: data.GOOGLE_CLIENT_ID,
-  googleClientSecret: data.GOOGLE_CLIENT_SECRET,
-  googleRedirectUri: data.GOOGLE_REDIRECT_URI,
-  logLevel: data.LOG_LEVEL,
-  env: data.ENV,
-  appKey: data.APP_KEY,
-});
+const env = parseEnv();
+
+const config: CamelCasedProperties<Config> = Object.freeze({
+  host: env.HOST,
+  databaseUrl: env.DATABASE_URL,
+  tursoAuthToken: env.TURSO_AUTH_TOKEN,
+  googleClientId: env.GOOGLE_CLIENT_ID,
+  googleClientSecret: env.GOOGLE_CLIENT_SECRET,
+  googleRedirectUri: env.GOOGLE_REDIRECT_URI,
+  logLevel: env.LOG_LEVEL,
+  env: env.ENV,
+  appKey: env.APP_KEY,
+} as const);
 
 export default config;
