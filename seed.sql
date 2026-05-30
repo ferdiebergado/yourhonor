@@ -62,3 +62,8 @@ VALUES
   ('Computation'),
   ('ORS-DV'),
   ('Payroll');
+
+INSERT INTO
+  roles (name, created_by, updated_by)
+VALUES
+  ('Resource Person', 1, 1);
