@@ -1,26 +1,23 @@
 import { api } from '@/lib/http-client';
 import { startDownload } from '@/lib/utils';
 import { API_BASE_URL } from '@shared/constants';
-import type { HonorariumDetail, HonorariumFormValues } from '@shared/schemas/honorarium';
+import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import type { ApiResponse } from '@shared/types';
 
-export const createHonorarium = async (data: HonorariumFormValues) =>
-  await api.post('/create-honorarium', data);
+const getfetchOptions = (code: string) => ({
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ code }),
+});
 
-export const fetchActiveHonorariaByActivity = async (
-  code: string
-): Promise<HonorariumDetail[] | null> =>
-  await api.get('/honoraria?code=' + encodeURIComponent(code));
+export const createHonorarium = async (data: HonorariumFormValues): Promise<void | null> =>
+  await api.post('/create-honorarium', data);
 
 export async function genCert(code: string): Promise<void | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/certification`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code }),
-    });
+    const res = await fetch(`${API_BASE_URL}/certification`, getfetchOptions(code));
 
     if (!res.ok) {
       // eslint-disable-next-line unicorn/no-null
@@ -42,13 +39,7 @@ export async function genCert(code: string): Promise<void | null> {
 
 export async function genComp(code: string): Promise<void | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/computation`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code }),
-    });
+    const res = await fetch(`${API_BASE_URL}/computation`, getfetchOptions(code));
 
     if (!res.ok) {
       // eslint-disable-next-line unicorn/no-null
@@ -70,13 +61,7 @@ export async function genComp(code: string): Promise<void | null> {
 
 export async function genORS(code: string): Promise<void | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/ors`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code }),
-    });
+    const res = await fetch(`${API_BASE_URL}/ors`, getfetchOptions(code));
 
     if (!res.ok) {
       // eslint-disable-next-line unicorn/no-null
@@ -98,13 +83,7 @@ export async function genORS(code: string): Promise<void | null> {
 
 export async function genPayroll(code: string): Promise<void | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/payroll`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code }),
-    });
+    const res = await fetch(`${API_BASE_URL}/payroll`, getfetchOptions(code));
 
     if (!res.ok) {
       // eslint-disable-next-line unicorn/no-null

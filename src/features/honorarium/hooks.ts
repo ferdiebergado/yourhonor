@@ -1,61 +1,29 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
+import { activityKeys } from '@/features/activity/hooks';
 import { type HonorariumFormValues, HonorariumFormSchema } from '@shared/schemas/honorarium';
-import {
-  createHonorarium,
-  fetchActiveHonorariaByActivity,
-  genCert,
-  genComp,
-  genORS,
-  genPayroll,
-} from './api';
-
-const honorariumKeys = {
-  all: ['honoraria'] as const,
-  byCode: (code: string) => [...honorariumKeys.all, { code }],
-};
+import { createHonorarium, genCert, genComp, genORS, genPayroll } from './api';
 
 export function useCreateHonorarium() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createHonorarium,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: honorariumKeys.all }),
+    onSuccess: (_, variables) =>
+      queryClient.invalidateQueries({ queryKey: activityKeys.byCode(variables.activityCode) }),
   });
 }
 
-export const fetchActiveHonorariaOptions = (code: string) =>
-  queryOptions({
-    queryKey: honorariumKeys.byCode(code),
-    queryFn: () => fetchActiveHonorariaByActivity(code),
-    staleTime: Infinity,
-  });
+export const useGenCert = () => useMutation({ mutationFn: genCert });
 
-export const useActiveHonoraria = (code: string) =>
-  useSuspenseQuery(fetchActiveHonorariaOptions(code));
+export const useGenComp = () => useMutation({ mutationFn: genComp });
 
-export const useGenCert = () =>
-  useMutation({
-    mutationFn: genCert,
-  });
+export const useGenORS = () => useMutation({ mutationFn: genORS });
 
-export const useGenComp = () =>
-  useMutation({
-    mutationFn: genComp,
-  });
-
-export const useGenORS = () =>
-  useMutation({
-    mutationFn: genORS,
-  });
-
-export const useGenPayroll = () =>
-  useMutation({
-    mutationFn: genPayroll,
-  });
+export const useGenPayroll = () => useMutation({ mutationFn: genPayroll });
 
 export function useHonorariumForm(activityCode: string) {
   const form = useForm<HonorariumFormValues>({
