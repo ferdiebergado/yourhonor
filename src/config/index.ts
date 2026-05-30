@@ -19,11 +19,11 @@ if (!success) {
   throw new Error('Invalid environment variables');
 }
 
-const config = {
+const config = Object.freeze({
   appTitle: data.VITE_APP_TITLE,
   googleClientId: data.VITE_GOOGLE_CLIENT_ID,
   googleRedirectUri: data.VITE_GOOGLE_REDIRECT_URI,
   appHost: data.VITE_APP_HOST,
-};
+});
 
 export default config;

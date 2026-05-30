@@ -53,7 +53,7 @@ if (!success) {
   throw new Error(msg);
 }
 
-const config = {
+const config = Object.freeze({
   host: data.HOST,
   databaseUrl: data.DATABASE_URL,
   tursoAuthToken: data.TURSO_AUTH_TOKEN,
@@ -63,6 +63,6 @@ const config = {
   logLevel: data.LOG_LEVEL,
   env: data.ENV,
   appKey: data.APP_KEY,
-};
+});
 
 export default config;
