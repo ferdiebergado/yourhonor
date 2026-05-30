@@ -1,22 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  QueryClient,
-  queryOptions,
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createContext, useContext, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
-import {
-  ActivityFormSchema,
-  type ActivityDetail,
-  type ActivityFormValues,
-} from '@shared/schemas/activity';
+import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
 import { createActivity, fetchActivities, fetchActivity, updateActivity } from './api';
 
-const activityKeys = {
+export const activityKeys = {
   all: ['activities'] as const,
   byCode: (code: string) => [...activityKeys.all, { code }] as const,
 };
@@ -39,21 +29,14 @@ export const fetchActivitiesOptions = () =>
 
 export const useActivities = () => useSuspenseQuery(fetchActivitiesOptions());
 
-export const fetchActivityOptions = (queryClient: QueryClient, code: string) =>
+const fetchActivityOptions = (code: string) =>
   queryOptions({
     queryKey: activityKeys.byCode(code),
     queryFn: () => fetchActivity(code),
-    initialData: () =>
-      queryClient.getQueryData<ActivityDetail[]>(activityKeys.all)?.find(a => a.code === code),
-    initialDataUpdatedAt: () => queryClient.getQueryState(activityKeys.all)?.dataUpdatedAt,
-    staleTime: Infinity,
+    staleTime: 60 * 10 * 1000,
   });
 
-export function useActivity(code: string) {
-  const queryClient = useQueryClient();
-
-  return useSuspenseQuery(fetchActivityOptions(queryClient, code));
-}
+export const useActivity = (code: string) => useSuspenseQuery(fetchActivityOptions(code));
 
 export function useUpdateActivity(code: string) {
   const queryClient = useQueryClient();
