@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-export const UserSchema = z.object({
+export const UserSchema = z.strictObject({
   id: z.int().positive(),
 
   // Basic Profile
@@ -22,19 +22,6 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
-export const NewUserSchema = UserSchema.omit({
-  id: true,
-  lastLoginAt: true,
-  updatedAt: true,
-  createdAt: true,
-});
+export type NewUser = Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'lastLoginAt'>;
 
-export type NewUser = z.infer<typeof NewUserSchema>;
-
-export const ProfileSchema = UserSchema.pick({
-  name: true,
-  email: true,
-  picture: true,
-});
-
-export type Profile = z.infer<typeof ProfileSchema>;
+export type Profile = Pick<User, 'name' | 'email' | 'picture'>;

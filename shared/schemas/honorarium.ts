@@ -1,7 +1,9 @@
 import * as z from 'zod';
+import { BaseSchema, type EntityUpdate, type NewEntity } from './base';
 
-export const HonorariumRowSchema = z.object({
-  id: z.int().positive(),
+export const HonorariumSchema = z.strictObject({
+  ...BaseSchema.shape,
+
   activityCode: z.string().min(1, 'Activity code is required.'),
   payeeId: z.coerce.number<number>().positive('Payee is required.'),
   roleId: z.coerce.number<number>().positive('Role is required.'),
@@ -12,25 +14,13 @@ export const HonorariumRowSchema = z.object({
   actual: z.number(),
   net: z.number(),
   accountId: z.coerce.number<number>().positive('Bank account is required.'),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.int().positive(),
-  updatedBy: z.int().positive(),
 });
 
-export type HonorariumRow = z.infer<typeof HonorariumRowSchema>;
+export type Honorarium = z.infer<typeof HonorariumSchema>;
 
-export const NewHonorariumSchema = HonorariumRowSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-});
+export type NewHonorarium = NewEntity<Honorarium>;
 
-export type NewHonorarium = z.infer<typeof NewHonorariumSchema>;
-
-export const HonorariumFormSchema = HonorariumRowSchema.pick({
+export const HonorariumFormSchema = HonorariumSchema.pick({
   activityCode: true,
   payeeId: true,
   roleId: true,
@@ -42,41 +32,55 @@ export const HonorariumFormSchema = HonorariumRowSchema.pick({
 
 export type HonorariumFormValues = z.infer<typeof HonorariumFormSchema>;
 
-export const HonorariumDetailRowSchema = HonorariumRowSchema.pick({
-  id: true,
-  activityCode: true,
-  salary: true,
-  hoursRendered: true,
-  net: true,
-  amount: true,
-  actual: true,
-  taxRate: true,
-}).extend({
-  bank: z.string(),
-  role: z.string(),
+const PayeeSchema = z.strictObject({
   firstname: z.string(),
-  mi: z.string(),
+  mi: z.string().nullish(),
   lastname: z.string(),
-  details: z.instanceof(ArrayBuffer),
-  activityTitle: z.string(),
-  startDate: z.iso.date(),
-  endDate: z.iso.date(),
-  venue: z.string(),
-  focalFirstname: z.string(),
-  focalMi: z.string().optional().nullable(),
-  focalLastname: z.string(),
-  position: z.string(),
-  tin: z.string().optional().nullable(),
 });
 
-export type HonorariumDetailRow = z.infer<typeof HonorariumDetailRowSchema>;
+const AccountSchema = z.strictObject({
+  bank: z.string(),
+  bankBranch: z.string(),
+  accountName: z.string(),
+  accountNoMasked: z.string(),
+  accountNo: z.instanceof(ArrayBuffer),
+});
 
-export const HonorariumDetailSchema = HonorariumDetailRowSchema.omit({
-  details: true,
-}).extend({
-  branch: z.string().min(1, 'Branch is required.'),
-  accountName: z.string().min(1, 'Account name is required.'),
-  accountNumber: z.string().min(1, 'Account number is required.'),
+export const HonorariumDetailSchema = z.strictObject({
+  ...HonorariumSchema.pick({
+    id: true,
+    salary: true,
+    hoursRendered: true,
+    net: true,
+    amount: true,
+    actual: true,
+    taxRate: true,
+  }).shape,
+
+  ...PayeeSchema.shape,
+  ...AccountSchema.shape,
+
+  role: z.string(),
+  tin: z.string().nullish(),
 });
 
 export type HonorariumDetail = z.infer<typeof HonorariumDetailSchema>;
+
+export type HonorariumDetailSafe = Omit<HonorariumDetail, 'accountNo'>;
+
+export type HonorariumUpdate = EntityUpdate<Honorarium>;
+
+export const HonorariumIdSchema = z.object({
+  id: z.coerce.number<number>().positive(),
+});
+
+export const HonorariumInfoSchema = HonorariumDetailSchema.omit({
+  bank: true,
+  bankBranch: true,
+  accountName: true,
+  accountNo: true,
+  accountNoMasked: true,
+  tin: true,
+});
+
+export type HonorariumInfo = z.infer<typeof HonorariumInfoSchema>;

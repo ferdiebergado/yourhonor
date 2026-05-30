@@ -1,11 +1,17 @@
 import * as z from 'zod';
 
-export const ActivityRowSchema = z.object({
-  id: z.int().positive(),
+import { BaseSchema, type EntityUpdate, type NewEntity } from './base';
+import type { HonorariumInfo } from './honorarium';
+
+export const ActivitySchema = z.strictObject({
+  ...BaseSchema.shape,
+
   title: z
     .string()
     .min(1, 'Activity title is required')
     .max(250, 'Activity title should not exceed 250 characters'),
+  startDate: z.iso.date('Start date must be a valid date'),
+  endDate: z.iso.date('End date must be a valid date'),
   venueId: z.coerce.number<number>().positive('Venue is required'),
   code: z.stringFormat(
     'activity code',
@@ -13,28 +19,32 @@ export const ActivityRowSchema = z.object({
   ),
   fundSource: z.string(),
   focalId: z.coerce.number<number>().positive('Focal person is required'),
-  startDate: z.iso.date('Start date must be a valid date'),
-  endDate: z.iso.date('End date must be a valid date'),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.int().positive(),
-  updatedBy: z.int().positive(),
 });
 
-export type ActivityRow = z.infer<typeof ActivityRowSchema>;
+export type Activity = z.infer<typeof ActivitySchema>;
 
-export const NewActivitySchema = ActivityRowSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-  updatedBy: true,
+const VenueSchema = z.strictObject({
+  venue: z.string(),
+  location: z.string(),
 });
 
-export type NewActivity = z.infer<typeof NewActivitySchema>;
+export const ActivityInfoSchema = z.strictObject({
+  ...ActivitySchema.pick({
+    id: true,
+    title: true,
+    startDate: true,
+    endDate: true,
+    code: true,
+  }).shape,
 
-export const ActivityFormSchema = ActivityRowSchema.pick({
+  ...VenueSchema.shape,
+});
+
+export type ActivityInfo = z.infer<typeof ActivityInfoSchema>;
+
+export type NewActivity = NewEntity<Activity>;
+
+export const ActivityFormSchema = ActivitySchema.pick({
   title: true,
   code: true,
   venueId: true,
@@ -48,26 +58,31 @@ export const ActivityFormSchema = ActivityRowSchema.pick({
 
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
 
-export const ActivityDetailSchema = ActivityRowSchema.omit({
-  updatedAt: true,
-  createdBy: true,
-  updatedBy: true,
-  deletedAt: true,
-}).extend({
-  venue: z.string(),
-  location: z.string(),
-  focal: z.string(),
-  focalPosition: z.string(),
+const FocalSchema = z.strictObject({
+  firstname: z.string(),
+  mi: z.string().nullish(),
+  lastname: z.string(),
+  position: z.string(),
+});
+
+export const ActivityDetailSchema = z.strictObject({
+  ...ActivitySchema.omit({
+    updatedAt: true,
+    createdBy: true,
+    updatedBy: true,
+    deletedAt: true,
+  }).shape,
+
+  ...VenueSchema.shape,
+  ...FocalSchema.shape,
 });
 
 export type ActivityDetail = z.infer<typeof ActivityDetailSchema>;
 
-export const ActivityCodeSchema = ActivityRowSchema.pick({ code: true });
+export const ActivityCodeSchema = ActivitySchema.pick({ code: true });
 
 export type ActivityCode = z.infer<typeof ActivityCodeSchema>;
 
-export const ActivityUpdateSchema = NewActivitySchema.omit({
-  createdBy: true,
-}).and(ActivityRowSchema.pick({ updatedBy: true }));
+export type ActivityUpdate = EntityUpdate<Activity>;
 
-export type ActivityUpdate = z.infer<typeof ActivityUpdateSchema>;
+export type ActivityWithHonoraria = ActivityDetail & { honoraria: HonorariumInfo[] };

@@ -1,50 +1,37 @@
 import * as z from 'zod';
+import { BaseSchema, type NewEntity } from './base';
 
-export const FocalSchema = z.object({
-  id: z.int().positive(),
+export const FocalSchema = z.strictObject({
+  ...BaseSchema.shape,
   firstname: z.string().min(1, 'Firstname is required').max(50),
   mi: z.string().max(3, 'Middle initial should not exceed 3 characters').optional().nullable(),
   lastname: z.string().min(1, 'Lastname is required'),
   positionId: z.coerce.number<number>().positive('Position is required'),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.int().positive(),
-  updatedBy: z.int().positive(),
 });
 
 export type Focal = z.infer<typeof FocalSchema>;
 
-export const NewFocalSchema = FocalSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-});
+export type NewFocal = NewEntity<Focal>;
 
-export type NewFocal = z.infer<typeof NewFocalSchema>;
-
-export const FocalBaseSchema = FocalSchema.omit({
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-  createdBy: true,
-  updatedBy: true,
-}).and(
-  z.object({
-    position: z.string().min(1, 'Position is required'),
-  })
-);
-
-export type FocalBase = z.infer<typeof FocalBaseSchema>;
-
-export const FocalFormSchema = FocalSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-  createdBy: true,
-  updatedBy: true,
+export const FocalFormSchema = FocalSchema.pick({
+  firstname: true,
+  mi: true,
+  lastname: true,
+  positionId: true,
 });
 
 export type FocalFormValues = z.infer<typeof FocalFormSchema>;
+
+export const FocalDetailSchema = z.strictObject({
+  ...FocalSchema.pick({
+    id: true,
+    firstname: true,
+    mi: true,
+    lastname: true,
+    positionId: true,
+  }).shape,
+
+  position: z.string(),
+});
+
+export type FocalDetail = z.infer<typeof FocalDetailSchema>;

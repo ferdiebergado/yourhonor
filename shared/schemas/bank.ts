@@ -1,36 +1,20 @@
 import * as z from 'zod';
+import { BaseSchema, type NewEntity } from './base';
 
-export const BankSchema = z.object({
-  id: z.int().positive(),
+export const BankSchema = z.strictObject({
+  ...BaseSchema.shape,
   name: z
     .string()
     .min(1, 'Bank name is required')
     .max(150, 'Bank name should not exceed 150 characters'),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  deletedAt: z.iso.datetime().optional().nullable(),
-  createdBy: z.int().positive(),
-  updatedBy: z.int().positive(),
 });
 
 export type Bank = z.infer<typeof BankSchema>;
 
-export const NewBankSchema = BankSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-});
-
-export type NewBank = z.infer<typeof NewBankSchema>;
-
-export const BankBaseSchema = BankSchema.pick({
-  id: true,
-  name: true,
-});
-
-export type BankBase = z.infer<typeof BankBaseSchema>;
+export type NewBank = NewEntity<Bank>;
 
 export const BankFormSchema = BankSchema.pick({ name: true });
 
 export type BankFormValues = z.infer<typeof BankFormSchema>;
+
+export type BankItem = Pick<Bank, 'id' | 'name'>;
