@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type AccountFormValues, AccountFormSchema } from '@shared/schemas/account';
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+
+import { type AccountFormValues, AccountFormSchema } from '@shared/schemas/account';
 import { createAccount, fetchActiveAccounts } from './api';
 
 const accountKeys = {
@@ -33,9 +34,9 @@ export function useAccountForm(payeeId: number) {
     defaultValues: {
       payeeId,
       bankId: 0,
-      branch: '',
+      bankBranch: '',
       accountName: '',
-      accountNumber: '',
+      accountNo: '',
     },
   });
 
