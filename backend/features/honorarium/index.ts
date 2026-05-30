@@ -24,6 +24,42 @@ type Document = {
   doc: Uint8Array;
 };
 
+// Shared types for activity details required by document builders
+type ActivityDocDetails = Pick<
+  ActivityDetail,
+  | 'title'
+  | 'venue'
+  | 'location'
+  | 'firstname'
+  | 'mi'
+  | 'lastname'
+  | 'startDate'
+  | 'endDate'
+  | 'position'
+>;
+
+type ComputationActivityDetails = Pick<
+  ActivityDetail,
+  'title' | 'venue' | 'firstname' | 'mi' | 'lastname' | 'startDate' | 'endDate' | 'position'
+>;
+
+// Helper function to merge multiple DOCX documents
+async function mergeDocuments(docs: Buffer[]): Promise<Uint8Array> {
+  if (docs.length === 0) throw new Error('No documents provided for merging.');
+
+  if (docs.length === 1) return docs[0];
+
+  const { mergeDocx } = await import('@benedicte/docx-merge');
+  let mergedDoc = docs[0];
+  for (let i = 1; i < docs.length; i++) {
+    const result = mergeDocx(Buffer.from(mergedDoc), docs[i], { insertEnd: true });
+    if (!result) throw new Error(`Failed to merge document at index ${i.toString()}.`);
+
+    mergedDoc = result;
+  }
+  return mergedDoc;
+}
+
 type CertificationPatches = {
   payee: string;
   role: string;
@@ -39,18 +75,7 @@ type CertificationPatches = {
 };
 
 const buildCertPatches = async (
-  activity: Pick<
-    ActivityDetail,
-    | 'title'
-    | 'venue'
-    | 'location'
-    | 'firstname'
-    | 'mi'
-    | 'lastname'
-    | 'startDate'
-    | 'endDate'
-    | 'position'
-  >,
+  activity: ActivityDocDetails,
   honorarium: HonorariumDetail
 ): Promise<CertificationPatches> => ({
   payee: formatName({
@@ -78,44 +103,34 @@ export async function genCertDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[]
 ): Promise<Document> {
-  const { title, venue, firstname, mi, lastname, position, startDate, endDate, code, location } =
-    activity;
+  if (honoraria.length === 0)
+    throw new Error('No honoraria provided for certification document generation.');
 
-  const honorarium = honoraria[0];
+  const { code } = activity;
   const filename = 'certification-' + code;
 
-  const activityDetails = {
-    title,
-    venue,
-    firstname,
-    mi,
-    lastname,
-    position,
-    startDate,
-    endDate,
-    location,
+  // Extract activity details using the shared type
+  const activityDetails: ActivityDocDetails = {
+    title: activity.title,
+    venue: activity.venue,
+    location: activity.location,
+    firstname: activity.firstname,
+    mi: activity.mi,
+    lastname: activity.lastname,
+    position: activity.position,
+    startDate: activity.startDate,
+    endDate: activity.endDate,
   };
-  const patches = await buildCertPatches(activityDetails, honorarium);
-  const firstCert = await patchDoc(certification, patches);
 
-  if (honoraria.length === 1) return { doc: firstCert, filename };
+  // Generate all patched documents in parallel
+  const patchedDocPromises = honoraria.map(honorarium =>
+    buildCertPatches(activityDetails, honorarium).then(patches => patchDoc(certification, patches))
+  );
 
-  const patchDocs = honoraria.slice(1).map(async payment => {
-    const patches = await buildCertPatches(activityDetails, payment);
-    const patched = await patchDoc(certification, patches);
+  const patchedDocs = await Promise.all(patchedDocPromises);
 
-    return patched;
-  });
-
-  const patchedDocs = await Promise.all(patchDocs);
-
-  const { mergeDocx } = await import('@benedicte/docx-merge');
-  let doc = firstCert;
-  for (const currentDoc of patchedDocs) {
-    const merged = mergeDocx(doc, currentDoc, { insertEnd: true });
-    if (!merged) throw new Error('failed to merge documents');
-    doc = merged;
-  }
+  // Merge all documents using the helper
+  const doc = await mergeDocuments(patchedDocs);
 
   return { doc, filename };
 }
@@ -156,10 +171,7 @@ type ComputationPatches = {
 };
 
 export function buildCompPatches(
-  activity: Pick<
-    ActivityDetail,
-    'title' | 'venue' | 'firstname' | 'mi' | 'lastname' | 'startDate' | 'endDate' | 'position'
-  >,
+  activity: ComputationActivityDetails,
   honorarium: HonorariumDetail
 ): ComputationPatches {
   const salary = getMaxSalary(honorarium.salary);
@@ -202,34 +214,34 @@ export async function genCompDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[]
 ): Promise<Document> {
-  const { title, venue, firstname, mi, lastname, position, startDate, endDate, code } = activity;
+  if (honoraria.length === 0)
+    throw new Error('No honoraria provided for computation document generation.');
 
-  const honorarium = honoraria[0];
+  const { code } = activity;
   const filename = 'computation-' + code;
 
-  const activityDetails = { title, venue, firstname, mi, lastname, position, startDate, endDate };
+  // Extract activity details using the shared type
+  const activityDetails: ComputationActivityDetails = {
+    title: activity.title,
+    venue: activity.venue,
+    firstname: activity.firstname,
+    mi: activity.mi,
+    lastname: activity.lastname,
+    position: activity.position,
+    startDate: activity.startDate,
+    endDate: activity.endDate,
+  };
 
-  const patches = buildCompPatches(activityDetails, honorarium);
-  const firstComp = await patchDoc(computation, patches);
-
-  if (honoraria.length === 1) return { doc: firstComp, filename };
-
-  const patchDocs = honoraria.slice(1).map(async honorarium => {
+  // Generate all patched documents in parallel
+  const patchedDocPromises = honoraria.map(async honorarium => {
     const patches = buildCompPatches(activityDetails, honorarium);
     return await patchDoc(computation, patches);
   });
 
-  const patchedDocs = await Promise.all(patchDocs);
+  const patchedDocs = await Promise.all(patchedDocPromises);
 
-  const { mergeDocx } = await import('@benedicte/docx-merge');
-
-  let doc = firstComp;
-
-  for (const currentDoc of patchedDocs) {
-    const merged = mergeDocx(doc, currentDoc, { insertEnd: true });
-    if (!merged) throw new Error('failed to merge documents');
-    doc = merged;
-  }
+  // Merge all documents using the helper
+  const doc = await mergeDocuments(patchedDocs);
 
   return { doc, filename };
 }
@@ -255,7 +267,7 @@ export async function genORSDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[]
 ): Promise<Document> {
-  const { title, venue, firstname, mi, lastname, startDate, endDate, code } = activity;
+  const { title, venue, firstname, mi, lastname, startDate, endDate, code, location } = activity;
 
   const { default: Excel } = await import('exceljs');
   const workbook = new Excel.Workbook();
@@ -282,7 +294,7 @@ export async function genORSDoc(
 
   const dateRange = formatDateRange(startDate, endDate);
 
-  const particulars = `To payment of honorarium as Resource Person during the ${title} held at ${venue} on ${dateRange}`;
+  const particulars = `To payment of honorarium as Resource Person during the ${title} held at ${venue}, ${location} on ${dateRange}`;
   orsSheet.getCell('E16').value = particulars;
   dvSheet.getCell('B16').value = particulars;
 
@@ -336,7 +348,7 @@ export async function genPayrollDoc(
   const sheet = workbook.getWorksheet(sheetName);
   if (!sheet) throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
 
-  const { title, venue, startDate, endDate, code, position } = activity;
+  const { title, venue, startDate, endDate, code, position, location } = activity;
 
   const fundCluster = getFundCluster(code);
   const fundClusterCell = sheet.getCell('A7');
@@ -344,7 +356,7 @@ export async function genPayrollDoc(
   sheet.getCell('A7').value = fundClusterText;
 
   const particularsCell = sheet.getCell('A9');
-  const particulars = `${particularsCell.text} ${title} held at ${venue} on ${formatDateRange(startDate, endDate)}`;
+  const particulars = `${particularsCell.text} ${title} held at ${venue}, ${location} on ${formatDateRange(startDate, endDate)}`;
   particularsCell.value = particulars;
 
   let currentRow = 13;
