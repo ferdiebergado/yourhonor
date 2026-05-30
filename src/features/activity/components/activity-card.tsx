@@ -7,6 +7,7 @@ import {
   RiPencilRulerLine,
   RiUser3Line,
 } from '@remixicon/react';
+import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -20,8 +21,7 @@ import {
 } from '@/components/ui/card';
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
 import type { ActivityDetail, ActivityFormValues } from '@shared/schemas/activity';
-import { formatDate, formatDateRange } from '@shared/utils';
-import type { ReactNode } from 'react';
+import { formatDate, formatDateRange, getFullName } from '@shared/utils';
 import { useActivityForm, useUpdateActivity } from '../hooks';
 import ActivityDialog from './activity-dialog';
 
@@ -52,8 +52,13 @@ const activityFields: ActivityFieldConfig[] = [
     format: (venue: string, location: string) => `${venue}, ${location}`,
     icon: <RiMapPin2Line />,
   },
-  { key: 'focal', label: 'Focal Person', icon: <RiUser3Line /> },
-  { key: 'focalPosition', label: 'Position', icon: <RiPencilRulerLine /> },
+  {
+    keys: ['firstname', 'lastname'],
+    label: 'Focal Person',
+    format: (firstname: string, lastname: string) => getFullName({ firstname, lastname }),
+    icon: <RiUser3Line />,
+  },
+  { key: 'position', label: 'Position', icon: <RiPencilRulerLine /> },
   { key: 'code', label: 'Activity Code', icon: <RiBarcodeLine /> },
   { key: 'fundSource', label: 'Fund Source', icon: <RiBankLine /> },
 ];
