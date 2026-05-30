@@ -114,7 +114,7 @@ export default function AccountForm({
             />
 
             <Controller
-              name="branch"
+              name="bankBranch"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
@@ -154,7 +154,7 @@ export default function AccountForm({
             />
 
             <Controller
-              name="accountNumber"
+              name="accountNo"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>

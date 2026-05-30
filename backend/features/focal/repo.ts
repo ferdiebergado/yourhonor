@@ -1,38 +1,38 @@
 import type { Database } from '@backend/db';
-import { type Focal, type FocalBase, type NewFocal } from '@shared/schemas/focal';
-import type { IdRow } from '@shared/types';
+import type { Entity, EntityID } from '@shared/schemas/base';
+import { FocalDetailSchema, type FocalDetail, type NewFocal } from '@shared/schemas/focal';
 
-export async function findActiveFocals(db: Database): Promise<FocalBase[]> {
+export async function findActiveFocals(db: Database): Promise<FocalDetail[]> {
   const sql = `
-SELECT f.id, f.firstname, f.mi, f.lastname, f.position_id positionId, p.name AS position
+SELECT f.id id, f.firstname firstname, f.mi mi, f.lastname lastname, f.position_id positionId, p.name position
 FROM focals f
 LEFT JOIN positions p ON f.position_id = p.id
 WHERE f.deleted_at IS NULL
-ORDER BY f.firstname ASC
+ORDER BY firstname, mi, lastname
 `;
 
-  const { rows } = await db.execute<FocalBase>(sql);
+  const { rows } = await db.execute<FocalDetail>(sql);
 
-  return rows;
+  return FocalDetailSchema.array().parse(rows);
 }
 
-export async function createFocal(db: Database, focal: NewFocal): Promise<Focal['id']> {
+export async function createFocal(db: Database, focal: NewFocal): Promise<Entity['id']> {
   const sql = `
 INSERT INTO focals (firstname, mi, lastname,  position_id, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?)
 RETURNING id
 `;
 
-  const { firstname, mi, lastname, positionId, createdBy, updatedBy } = focal;
+  const { firstname, mi, lastname, positionId, createdBy } = focal;
 
-  const { rows } = await db.execute<IdRow>(sql, [
+  const { rows } = await db.execute<EntityID>(sql, [
     firstname,
     // eslint-disable-next-line unicorn/no-null
     mi ?? null,
     lastname,
     positionId,
     createdBy,
-    updatedBy,
+    createdBy,
   ]);
 
   return rows[0].id;

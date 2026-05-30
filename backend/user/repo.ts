@@ -1,8 +1,8 @@
 /* eslint-disable unicorn/no-null */
 
 import type { Database } from '@backend/db';
+import type { EntityID } from '@shared/schemas/base';
 import { type NewUser, type User } from '@shared/schemas/user';
-import type { IdRow } from '@shared/types';
 
 export async function upsertUser(db: Database, user: NewUser): Promise<User['id']> {
   const sql = `
@@ -17,7 +17,7 @@ DO UPDATE SET
 RETURNING id
 `;
 
-  const { rows } = await db.execute<IdRow>(sql, [
+  const { rows } = await db.execute<EntityID>(sql, [
     user.googleId,
     user.name ?? null,
     user.email ?? null,

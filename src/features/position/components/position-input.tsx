@@ -8,13 +8,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { FocalFormValues } from '@shared/schemas/focal';
-import type { PositionBase } from '@shared/schemas/position';
+import type { PositionItem } from '@shared/schemas/position';
 
 type PositionInputProps = {
   field: ControllerRenderProps<FocalFormValues>;
   fieldState: ControllerFieldState;
   isLoading: boolean;
-  positions: PositionBase[];
+  positions: PositionItem[];
 };
 
 export default function PositionInput({

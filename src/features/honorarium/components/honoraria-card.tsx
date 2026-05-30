@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import { toast } from 'sonner';
 
 import Spinner from '@/components/spinner';
@@ -12,13 +13,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useGenCert, useGenComp, useGenORS, useGenPayroll } from '@/features/honorarium/hooks';
-import type { HonorariumDetail } from '@shared/schemas/honorarium';
+import type { HonorariumInfo } from '@shared/schemas/honorarium';
 import HonorariaTable from './honoraria-table';
 
 type GeneratorButtonProps = {
   title: string;
   isLoading: boolean;
-  onClick: () => void;
+  onClick: ComponentProps<'button'>['onClick'];
   disabled?: boolean;
 };
 
@@ -32,7 +33,7 @@ function GeneratorButton({ title, isLoading, onClick, disabled = false }: Genera
 
 type HonorariaCardProps = {
   activityCode: string;
-  honoraria: HonorariumDetail[];
+  honoraria: HonorariumInfo[];
 };
 
 export default function HonorariaCard({ activityCode, honoraria }: HonorariaCardProps) {

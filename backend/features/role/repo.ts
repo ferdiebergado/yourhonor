@@ -1,30 +1,30 @@
 import type { Database } from '@backend/db';
-import { type NewRole, type Role, type RoleBase } from '@shared/schemas/role';
-import type { IdRow } from '@shared/types';
+import type { Entity, EntityID } from '@shared/schemas/base';
+import { type NewRole, type RoleItem } from '@shared/schemas/role';
 
-export async function createRole(db: Database, role: NewRole): Promise<Role['id']> {
+export async function createRole(db: Database, role: NewRole): Promise<Entity['id']> {
   const sql = `
 INSERT INTO roles (name, created_by, updated_by)
 VALUES (?, ?, ?)
 RETURNING id
   `;
 
-  const { name, createdBy, updatedBy } = role;
+  const { name, createdBy } = role;
 
-  const { rows } = await db.execute<IdRow>(sql, [name, createdBy, updatedBy]);
+  const { rows } = await db.execute<EntityID>(sql, [name, createdBy, createdBy]);
 
   return rows[0].id;
 }
 
-export async function findActiveRoles(db: Database): Promise<RoleBase[]> {
+export async function findActiveRoles(db: Database): Promise<RoleItem[]> {
   const sql = `
 SELECT id, name
 FROM roles
 WHERE deleted_at IS NULL
-ORDER BY name ASC
+ORDER BY name
 `;
 
-  const { rows } = await db.execute<RoleBase>(sql);
+  const { rows } = await db.execute<RoleItem>(sql);
 
   return rows;
 }

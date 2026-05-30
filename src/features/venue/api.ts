@@ -1,7 +1,7 @@
 import { api } from '@/lib/http-client';
-import type { BaseVenue, VenueFormValues } from '@shared/schemas/venue';
+import type { VenueFormValues, VenueItem } from '@shared/schemas/venue';
 
-export const fetchVenues = async () => await api.get<BaseVenue[]>('/venues');
+export const fetchVenues = async (): Promise<VenueItem[] | null> => await api.get('/venues');
 
 export const createVenue = async (data: VenueFormValues): Promise<number | null> =>
   await api.post('/create-venue', data);

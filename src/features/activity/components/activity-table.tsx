@@ -5,10 +5,10 @@ import { Link, useNavigate } from 'react-router';
 import { DataTable } from '@/components/data-table';
 import SortButton from '@/components/sort-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { ActivityDetail } from '@shared/schemas/activity';
+import type { ActivityInfo } from '@shared/schemas/activity';
 import { useActivities } from '../hooks';
 
-const columns: ColumnDef<ActivityDetail>[] = [
+const columns: ColumnDef<ActivityInfo>[] = [
   {
     accessorKey: 'title',
     header: ({ column }) => <SortButton column={column}>Title</SortButton>,

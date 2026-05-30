@@ -119,7 +119,7 @@ export default function HonorariumForm({ form }: HonorariumFormProps) {
                     <GenericCombobox
                       id={field.name}
                       className="flex-1"
-                      itemToStringLabel={item => item.accountNumber}
+                      itemToStringLabel={item => item.accountNoMasked}
                       itemToStringValue={item => item.id.toString()}
                       // eslint-disable-next-line unicorn/no-null
                       value={accounts?.find(account => account.id === field.value) ?? null}
@@ -133,9 +133,9 @@ export default function HonorariumForm({ form }: HonorariumFormProps) {
                       renderItem={item => (
                         <Item size="xs" className="p-0" key={item.id}>
                           <ItemContent>
-                            <ItemTitle>{item.accountNumber}</ItemTitle>
+                            <ItemTitle>{item.accountNoMasked}</ItemTitle>
                             <ItemDescription className="text-balance">
-                              {item.bank} <br /> {item.branch}
+                              {item.bank} <br /> {item.bankBranch}
                             </ItemDescription>
                           </ItemContent>
                         </Item>

@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { HonorariumDetail } from '@shared/schemas/honorarium';
+import type { HonorariumInfo } from '@shared/schemas/honorarium';
 import { formatAmount, getFullName } from '@shared/utils';
 
 type RowHeader = {
@@ -29,7 +29,7 @@ type Cell = {
   value: string;
 };
 
-const formatCells = (honorarium: HonorariumDetail): Cell[] => [
+const formatCells = (honorarium: HonorariumInfo): Cell[] => [
   {
     style: 'text-pretty',
     value: getFullName({
@@ -64,7 +64,7 @@ const formatCells = (honorarium: HonorariumDetail): Cell[] => [
 ];
 
 type HonorariumTableProps = {
-  honoraria: HonorariumDetail[];
+  honoraria: HonorariumInfo[];
 };
 
 export default function HonorariaTable({ honoraria }: HonorariumTableProps) {
@@ -73,7 +73,9 @@ export default function HonorariaTable({ honoraria }: HonorariumTableProps) {
       <TableHeader>
         <TableRow>
           {headers.map(({ label, style }) => (
-            <TableHead className={style}>{label}</TableHead>
+            <TableHead key={label} className={style}>
+              {label}
+            </TableHead>
           ))}
         </TableRow>
       </TableHeader>
@@ -82,7 +84,9 @@ export default function HonorariaTable({ honoraria }: HonorariumTableProps) {
           honoraria.map(honorarium => (
             <TableRow key={honorarium.id}>
               {formatCells(honorarium).map(({ style, value }) => (
-                <TableCell className={style}>{value}</TableCell>
+                <TableCell key={value} className={style}>
+                  {value}
+                </TableCell>
               ))}
             </TableRow>
           ))

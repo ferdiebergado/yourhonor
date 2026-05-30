@@ -1,7 +1,6 @@
 import * as z from 'zod';
 
-import type { AuditFields } from '@shared/types';
-import { BaseSchema, type NewEntity } from './base';
+import { BaseSchema, type AuditFields, type NewEntity } from './base';
 
 const plainAccountNoSchema = z.string().min(1, 'Account number is required.');
 
@@ -32,7 +31,7 @@ export const AccountFormSchema = z.strictObject({
 
 export type AccountFormValues = z.infer<typeof AccountFormSchema>;
 
-export type AccountDetail = Omit<Account, AuditFields | 'accountNo'> & {
+export type AccountDetail = Omit<Account, keyof AuditFields | 'accountNo'> & {
   firstname: string;
   mi?: string;
   lastname: string;

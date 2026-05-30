@@ -1,29 +1,29 @@
 import type { Database } from '@backend/db';
-import { type BaseVenue, type NewVenue, type Venue } from '@shared/schemas/venue';
-import type { IdRow } from '@shared/types';
+import type { Entity, EntityID } from '@shared/schemas/base';
+import { type NewVenue, type VenueItem } from '@shared/schemas/venue';
 
-export async function findActiveVenues(db: Database): Promise<BaseVenue[]> {
+export async function findActiveVenues(db: Database): Promise<VenueItem[]> {
   const sql = `
 SELECT id, name, location
 FROM venues
 WHERE deleted_at IS NULL
-ORDER BY name ASC
+ORDER BY name
 ;`;
 
-  const { rows } = await db.execute<BaseVenue>(sql);
+  const { rows } = await db.execute<VenueItem>(sql);
 
   return rows;
 }
 
-export async function createVenue(db: Database, venue: NewVenue): Promise<Venue['id']> {
+export async function createVenue(db: Database, venue: NewVenue): Promise<Entity['id']> {
   const sql = `
 INSERT INTO venues (name, location, created_by, updated_by)
 VALUES (?, ?, ?, ?)
 RETURNING id
   `;
 
-  const { name, location, createdBy, updatedBy } = venue;
-  const { rows } = await db.execute<IdRow>(sql, [name, location, createdBy, updatedBy]);
+  const { name, location, createdBy } = venue;
+  const { rows } = await db.execute<EntityID>(sql, [name, location, createdBy, createdBy]);
 
   return rows[0].id;
 }
