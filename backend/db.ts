@@ -39,6 +39,8 @@ async function initializeDbClient(): Promise<Client> {
     // Health check
     await runQuery(_dbClient, 'SELECT 1');
 
+    logger.info('Database is up.');
+
     return _dbClient;
   } catch (error) {
     logger.error(error, 'Failed to initialize the database.');

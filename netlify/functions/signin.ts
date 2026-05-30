@@ -3,6 +3,7 @@ import * as z from 'zod';
 
 import { checkMethod, parseJson } from '@backend/http';
 import { respondWithError } from '@backend/http/errors';
+import logger from '@backend/logger';
 import { signin } from '@backend/oauth';
 import { bakeSessionCookie } from '@backend/session/cookie';
 import type { Profile } from '@shared/schemas/user';
@@ -11,6 +12,8 @@ import type { ApiResponse } from '@shared/types';
 export default async (req: Request, ctx: Context) => {
   try {
     checkMethod(req, ['POST']);
+
+    logger.info('Signing in user...');
 
     const schema = z.object({
       code: z.string().trim().min(20).max(512),
@@ -31,6 +34,8 @@ export default async (req: Request, ctx: Context) => {
       success: true,
       data,
     };
+
+    logger.info('User signed in.');
 
     return Response.json(payload);
   } catch (error) {
