@@ -19,7 +19,7 @@ export default function Header() {
   const queryClient = useQueryClient();
 
   return (
-    <header className="bg-background w-full shadow">
+    <header className="bg-background mb-10 w-full shadow">
       <div className="flex items-center justify-between px-8 py-4 md:mx-auto md:max-w-5xl">
         <h1 className="font-heading flex gap-1 text-2xl font-bold tracking-tight">
           <Logo />
