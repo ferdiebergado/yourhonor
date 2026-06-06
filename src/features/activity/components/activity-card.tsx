@@ -8,7 +8,7 @@ import {
   RiUser3Line,
 } from '@remixicon/react';
 import type { ReactNode } from 'react';
-import { toast } from 'sonner';
+import { useNavigate } from 'react-router';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,10 +20,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
-import type { ActivityDetail, ActivityFormValues } from '@shared/schemas/activity';
+import type { ActivityDetail } from '@shared/schemas/activity';
 import { formatDate, formatDateRange, getFullName } from '@shared/utils';
-import { useActivityForm, useUpdateActivity } from '../hooks';
-import ActivityDialog from './activity-dialog';
+import { useActivityContext } from '../hooks';
 
 type SingleFieldConfig = { key: keyof ActivityDetail; label: string; icon?: ReactNode };
 
@@ -63,51 +62,25 @@ const activityFields: ActivityFieldConfig[] = [
   { key: 'fundSource', label: 'Fund Source', icon: <RiBankLine /> },
 ];
 
-type ActivityCardProps = {
-  activity: ActivityDetail;
-};
+export default function ActivityCard() {
+  const activity = useActivityContext();
+  const navigate = useNavigate();
 
-export default function ActivityCard({ activity }: ActivityCardProps) {
-  const form = useActivityForm({
-    title: activity?.title ?? '',
-    code: activity?.code ?? '',
-    venueId: activity?.venueId ?? 0,
-    focalId: activity?.focalId ?? 0,
-    startDate: activity?.startDate ?? '',
-    endDate: activity?.endDate ?? '',
-  });
-
-  const { isPending, mutate: updateActivity } = useUpdateActivity(activity.code);
-
-  const onSubmit = (values: ActivityFormValues) => {
-    updateActivity(values, {
-      onSuccess: () => toast.success('Activity updated successfully.'),
-      onError: () => toast.error('Unable to update activity. Please try again.'),
-    });
-  };
-
-  // eslint-disable-next-line unicorn/no-null
-  if (!activity) return null;
+  const { title, code, createdAt } = activity;
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">{activity.title}</CardTitle>
-        <CardDescription>Created on {formatDate(activity.createdAt)}</CardDescription>
+        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+        <CardDescription>Created on {formatDate(createdAt)}</CardDescription>
         <CardAction>
-          <ActivityDialog
-            title="Update Activity"
-            description="Update the activity by editing the form below."
-            form={form}
-            trigger={
-              <Button variant="ghost" size="icon-lg">
-                <RiBallPenFill className="size-5" />
-              </Button>
-            }
-            onSubmit={onSubmit}
-            isPending={isPending}
-            tooltip="Update Activity"
-          />
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            onClick={() => navigate(`/activities/${code}/edit`)}
+          >
+            <RiBallPenFill className="size-5" />
+          </Button>
         </CardAction>
       </CardHeader>
       <CardContent className="grid gap-6">

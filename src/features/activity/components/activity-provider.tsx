@@ -1,13 +1,17 @@
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useParams } from 'react-router';
-import { ActivityCodeContext } from '../hooks';
+import { ActivityContext, useActivity } from '../hooks';
 
 type ActivityProviderProps = {
   children: ReactNode;
 };
 
-export default function ActivityCodeProvider({ children }: ActivityProviderProps) {
-  const params = useParams();
+export default function ActivityProvider({ children }: ActivityProviderProps) {
+  const { code } = useParams();
+  const { data: activity } = useActivity(code ?? '');
 
-  return <ActivityCodeContext value={params.code}>{children}</ActivityCodeContext>;
+  // eslint-disable-next-line unicorn/no-null
+  if (!activity) return null;
+
+  return <ActivityContext value={activity}>{children}</ActivityContext>;
 }

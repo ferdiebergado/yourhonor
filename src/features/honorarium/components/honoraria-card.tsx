@@ -1,19 +1,23 @@
+import { RiAddLargeLine } from '@remixicon/react';
 import type { ComponentProps } from 'react';
+import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
+import { paths } from '@/app/routes';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useActivityContext } from '@/features/activity/hooks';
 import { useGenCert, useGenComp, useGenORS, useGenPayroll } from '@/features/honorarium/hooks';
-import type { HonorariumInfo } from '@shared/schemas/honorarium';
 import HonorariaTable from './honoraria-table';
 
 type GeneratorButtonProps = {
@@ -31,16 +35,19 @@ function GeneratorButton({ title, isLoading, onClick, disabled = false }: Genera
   );
 }
 
-type HonorariaCardProps = {
-  activityCode: string;
-  honoraria: HonorariumInfo[];
-};
+export default function HonorariaCard() {
+  const activity = useActivityContext();
+  const navigate = useNavigate();
 
-export default function HonorariaCard({ activityCode, honoraria }: HonorariaCardProps) {
   const { isPending: isGeneratingCert, mutate: genCert } = useGenCert();
   const { isPending: isGeneratingComp, mutate: genComp } = useGenComp();
   const { isPending: isGeneratingORS, mutate: genORS } = useGenORS();
   const { isPending: isGeneratingPayroll, mutate: genPayroll } = useGenPayroll();
+
+  // eslint-disable-next-line unicorn/no-null
+  if (!activity) return null;
+
+  const { code: activityCode, honoraria } = activity;
 
   const buttonData: GeneratorButtonProps[] = [
     {
@@ -77,6 +84,15 @@ export default function HonorariaCard({ activityCode, honoraria }: HonorariaCard
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Honoraria</CardTitle>
         <CardDescription>Click on a button below to generate a document.</CardDescription>
+        <CardAction>
+          <Button
+            size="lg"
+            onClick={() => navigate(paths.newHonorarium.replace(':code', activityCode))}
+          >
+            <RiAddLargeLine data-icon="inline-start" />
+            New Honorarium
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent>
         <HonorariaTable honoraria={honoraria} />
