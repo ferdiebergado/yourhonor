@@ -1,24 +1,38 @@
-import { useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import FormButtons from '@/components/form-buttons';
 import RHFSelect from '@/components/rhf-select';
-import SubmitButton from '@/components/submit-button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import BankForm from '@/features/bank/components/bank-form';
+import AddBankDialog from '@/features/bank/components/add-bank-dialog';
 import { useActiveBanks } from '@/features/bank/hooks';
-import { useHonorariumFormContext } from '@/features/honorarium/hooks';
-import { type AccountFormValues } from '@shared/schemas/account';
-import { useAccountForm, useCreateAccount } from '../hooks';
+import { AccountFormSchema, type AccountFormValues } from '@shared/schemas/account';
+import type { HonorariumFormValues } from '@shared/schemas/honorarium';
+import { useCreateAccount } from '../hooks';
 
-export default function AccountForm() {
-  const [isBankFormOpen, setIsBankFormOpen] = useState(false);
+type AccountFormProps = {
+  payeeId: AccountFormValues['payeeId'];
+  honorariumForm: UseFormReturn<HonorariumFormValues>;
+  onClose: () => void;
+};
 
-  const { payeeId, form: honorariumForm, setIsAccountFormOpen } = useHonorariumFormContext();
+export default function AccountForm({ payeeId, honorariumForm, onClose }: AccountFormProps) {
+  const form = useForm<AccountFormValues>({
+    resolver: zodResolver(AccountFormSchema),
+    defaultValues: {
+      payeeId,
+      bankId: 0,
+      bankBranch: '',
+      accountName: '',
+      accountNo: '',
+    },
+  });
+
   const { isLoading: isLoadingBanks, data: banks } = useActiveBanks();
   const { isPending, mutate: createAccount } = useCreateAccount();
-  const form = useAccountForm(payeeId);
 
   const bankItems = banks?.map(({ id, name }) => ({ label: name, value: id.toString() })) ?? [];
 
@@ -30,16 +44,19 @@ export default function AccountForm() {
         form.reset();
         honorariumForm.setValue('accountId', id);
         honorariumForm.trigger('accountId');
-        setIsAccountFormOpen(false);
+        onClose();
       },
     });
   };
 
+  useEffect(() => {
+    form.setValue('payeeId', payeeId);
+    form.trigger('payeeId');
+  }, [payeeId, form]);
+
   return (
     <form>
       <FieldGroup className="gap-4">
-        <Input type="hidden" {...form.register('payeeId')} />
-
         {/* Bank */}
         <Controller
           name="bankId"
@@ -56,11 +73,7 @@ export default function AccountForm() {
                   isLoading={isLoadingBanks}
                   placeholder="Select a bank..."
                 />
-                <BankForm
-                  isOpen={isBankFormOpen}
-                  onOpenChange={setIsBankFormOpen}
-                  accountForm={form}
-                />
+                <AddBankDialog accountForm={form} />
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -131,7 +144,7 @@ export default function AccountForm() {
           )}
         />
 
-        <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
+        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
       </FieldGroup>
     </form>
   );

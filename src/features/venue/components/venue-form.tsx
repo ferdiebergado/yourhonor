@@ -2,30 +2,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import AddButton from '@/components/add-button';
-import SubmitButton from '@/components/submit-button';
+import FormButtons from '@/components/form-buttons';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { ActivityFormValues } from '@shared/schemas/activity';
 import { VenueFormSchema, type VenueFormValues } from '@shared/schemas/venue';
 import { useCreateVenue } from '../hooks';
 
 type VenueFormProps = {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   activityForm: UseFormReturn<ActivityFormValues>;
+  onClose: () => void;
 };
 
-export default function VenueForm({ isOpen, onOpenChange, activityForm }: VenueFormProps) {
+export default function VenueForm({ activityForm, onClose }: VenueFormProps) {
   const form = useForm<VenueFormValues>({
     resolver: zodResolver(VenueFormSchema),
     defaultValues: {
@@ -43,67 +32,59 @@ export default function VenueForm({ isOpen, onOpenChange, activityForm }: VenueF
         toast.success('Venue created successfully.');
         form.reset();
         activityForm.setValue('venueId', id);
-        onOpenChange(false);
+        activityForm.trigger('venueId');
+        onClose();
       },
     });
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <Tooltip>
-        <TooltipTrigger render={<PopoverTrigger render={<AddButton />} />} />
-        <TooltipContent>Add venue</TooltipContent>
-      </Tooltip>
-      <PopoverContent align="start">
-        <PopoverHeader>
-          <PopoverTitle className="font-heading text-xl font-semibold">Add Venue</PopoverTitle>
-          <PopoverDescription>Add a new venue.</PopoverDescription>
-        </PopoverHeader>
+    <form>
+      <FieldGroup className="gap-4">
+        {/* Name */}
+        <Controller
+          name="name"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor={field.name} className="w-1/2">
+                Name
+              </FieldLabel>
+              <Input
+                {...field}
+                id={field.name}
+                aria-invalid={fieldState.invalid}
+                placeholder="Hotel Simara"
+                autoComplete="off"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
 
-        <form>
-          <FieldGroup className="gap-4">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor={field.name} className="w-1/2">
-                    Name
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Hotel Simara"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <Controller
-              name="location"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor={field.name} className="w-1/2">
-                    Location
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Caloocan City"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <SubmitButton form={form} onSubmit={handleSubmit} isPending={isPending} />
-          </FieldGroup>
-        </form>
-      </PopoverContent>
-    </Popover>
+        {/* Location */}
+        <Controller
+          name="location"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor={field.name} className="w-1/2">
+                Location
+              </FieldLabel>
+              <Input
+                {...field}
+                id={field.name}
+                aria-invalid={fieldState.invalid}
+                placeholder="Caloocan City"
+                autoComplete="off"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
+      </FieldGroup>
+    </form>
   );
 }

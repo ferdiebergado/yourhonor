@@ -1,16 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import SubmitButton from '@/components/submit-button';
+import FormButtons from '@/components/form-buttons';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { useHonorariumFormContext } from '@/features/honorarium/hooks';
+import { type HonorariumFormValues } from '@shared/schemas/honorarium';
 import { RoleFormSchema, type RoleFormValues } from '@shared/schemas/role';
 import { useCreateRole } from '../hooks';
 
-export default function RoleForm() {
-  const { form: honorariumForm, setIsRoleFormOpen } = useHonorariumFormContext();
+type RoleFormProps = {
+  honorariumForm: UseFormReturn<HonorariumFormValues>;
+  onClose: () => void;
+};
+
+export default function RoleForm({ honorariumForm, onClose }: RoleFormProps) {
   const { isPending, mutate: createRole } = useCreateRole();
 
   const form = useForm<RoleFormValues>({
@@ -28,7 +32,7 @@ export default function RoleForm() {
         form.reset();
         honorariumForm.setValue('roleId', id);
         honorariumForm.trigger('roleId');
-        setIsRoleFormOpen(false);
+        onClose();
       },
     });
   };
@@ -57,7 +61,7 @@ export default function RoleForm() {
           )}
         />
 
-        <SubmitButton form={form} isPending={isPending} onSubmit={handleSubmit} />
+        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
       </FieldGroup>
     </form>
   );
