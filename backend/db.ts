@@ -137,7 +137,7 @@ export function close() {
 }
 
 // Create and export the db object that implements the Database interface
-const db: Database = {
+export const db: Database = {
   execute: async <T extends QueryRow>(
     sql: string,
     args?: readonly SqlValue[]
@@ -147,8 +147,6 @@ const db: Database = {
     close();
   },
 };
-
-export { db };
 
 // Initialize the database client
 await initializeDbClient();
