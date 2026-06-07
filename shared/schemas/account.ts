@@ -4,7 +4,7 @@ import { BaseSchema, type AuditFields, type NewEntity } from './base';
 
 const plainAccountNoSchema = z.string().min(1, 'Account number is required.');
 
-const AccountSchema = z.strictObject({
+export const AccountSchema = z.strictObject({
   ...BaseSchema.shape,
   payeeId: z.coerce.number<number>().positive('Payee is required.'),
   bankId: z.coerce.number<number>().positive('Bank name is required.'),

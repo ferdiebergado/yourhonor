@@ -1,5 +1,8 @@
 import * as z from 'zod';
+
+import { AccountSchema } from './account';
 import { BaseSchema, type EntityUpdate, type NewEntity } from './base';
+import { PayeeFormSchema } from './payee';
 
 export const HonorariumSchema = z.strictObject({
   ...BaseSchema.shape,
@@ -32,19 +35,7 @@ export const HonorariumFormSchema = HonorariumSchema.pick({
 
 export type HonorariumFormValues = z.infer<typeof HonorariumFormSchema>;
 
-const PayeeSchema = z.strictObject({
-  firstname: z.string(),
-  mi: z.string().nullish(),
-  lastname: z.string(),
-});
-
-const AccountSchema = z.strictObject({
-  bank: z.string(),
-  bankBranch: z.string(),
-  accountName: z.string(),
-  accountNoMasked: z.string(),
-  accountNo: z.instanceof(ArrayBuffer),
-});
+const PayeeSchema = PayeeFormSchema.omit({ tin: true });
 
 export const HonorariumDetailSchema = z.strictObject({
   ...HonorariumSchema.pick({
@@ -58,8 +49,13 @@ export const HonorariumDetailSchema = z.strictObject({
   }).shape,
 
   ...PayeeSchema.shape,
-  ...AccountSchema.shape,
-
+  ...AccountSchema.pick({
+    bankBranch: true,
+    accountName: true,
+    accountNoMasked: true,
+    accountNo: true,
+  }).shape,
+  bank: z.string(),
   role: z.string(),
   tin: z.string().nullish(),
 });

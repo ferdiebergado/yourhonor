@@ -1,7 +1,9 @@
 import * as z from 'zod';
 
 import { BaseSchema, type EntityUpdate, type NewEntity } from './base';
+import { FocalFormSchema } from './focal';
 import type { HonorariumInfo } from './honorarium';
+import { VenueFormSchema } from './venue';
 
 export const ActivitySchema = z.strictObject({
   ...BaseSchema.shape,
@@ -23,11 +25,6 @@ export const ActivitySchema = z.strictObject({
 
 export type Activity = z.infer<typeof ActivitySchema>;
 
-const VenueSchema = z.strictObject({
-  venue: z.string(),
-  location: z.string(),
-});
-
 export const ActivityInfoSchema = z.strictObject({
   ...ActivitySchema.pick({
     id: true,
@@ -37,7 +34,7 @@ export const ActivityInfoSchema = z.strictObject({
     code: true,
   }).shape,
 
-  ...VenueSchema.shape,
+  ...VenueFormSchema.shape,
 });
 
 export type ActivityInfo = z.infer<typeof ActivityInfoSchema>;
@@ -59,9 +56,7 @@ export const ActivityFormSchema = ActivitySchema.pick({
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
 
 const FocalSchema = z.strictObject({
-  firstname: z.string(),
-  mi: z.string().nullish(),
-  lastname: z.string(),
+  ...FocalFormSchema.omit({ positionId: true }).shape,
   position: z.string(),
 });
 
@@ -73,7 +68,7 @@ export const ActivityDetailSchema = z.strictObject({
     deletedAt: true,
   }).shape,
 
-  ...VenueSchema.shape,
+  ...VenueFormSchema.shape,
   ...FocalSchema.shape,
 });
 
