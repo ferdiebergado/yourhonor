@@ -1,4 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import StatCard from '@/components/stat-card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSummary } from '../hooks';
 
 export default function Dashboard() {
@@ -19,26 +20,8 @@ export default function Dashboard() {
         </CardHeader>
       </Card>
       <div className="flex gap-10">
-        <Card className="w-1/2 p-2 md:w-1/4 md:p-5">
-          <CardHeader>
-            <CardTitle>Total Activities</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-center text-6xl font-semibold">
-              {summary.totalActivities}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="w-1/2 p-2 md:w-1/4 md:p-5">
-          <CardHeader>
-            <CardTitle>Total Honoraria</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-center text-6xl font-semibold">
-              {summary.totalHonoraria}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard label="Total Activities" value={summary.totalActivities} />
+        <StatCard label="Total Honoraria" value={summary.totalHonoraria} />
       </div>
     </div>
   );
