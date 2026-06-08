@@ -55,6 +55,11 @@ export const ActivityFormSchema = ActivitySchema.pick({
 
 export type ActivityFormValues = z.infer<typeof ActivityFormSchema>;
 
+const VenueSchema = z.strictObject({
+  ...VenueFormSchema.pick({ location: true }).shape,
+  venue: z.string(),
+});
+
 const FocalSchema = z.strictObject({
   ...FocalFormSchema.omit({ positionId: true }).shape,
   position: z.string(),
@@ -68,7 +73,7 @@ export const ActivityDetailSchema = z.strictObject({
     deletedAt: true,
   }).shape,
 
-  ...VenueFormSchema.shape,
+  ...VenueSchema.shape,
   ...FocalSchema.shape,
 });
 
