@@ -66,6 +66,9 @@ export default function ActivityCard() {
   const activity = useActivityContext();
   const navigate = useNavigate();
 
+  // eslint-disable-next-line unicorn/no-null
+  if (!activity) return null;
+
   const { title, code, createdAt } = activity;
 
   return (
