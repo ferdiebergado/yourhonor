@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
-const EntityIDSchema = z.object({
-  id: z.int().positive(),
+export const EntityIDSchema = z.object({
+  id: z.coerce.number<number>().positive(),
 });
 
 export type EntityID = z.infer<typeof EntityIDSchema>;
