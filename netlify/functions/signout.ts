@@ -1,33 +1,29 @@
 import { db } from '@backend/db';
+import { withErrorHandling } from '@backend/error-handler';
+import { NotFoundError } from '@backend/errors';
 import { checkMethod } from '@backend/http';
-import { NotFoundError, respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
 import { emptySessionCookie } from '@backend/session/cookie';
 import { softDeleteSession } from '@backend/session/repo';
 import type { Context } from '@netlify/functions';
 import type { ApiResponse } from '@shared/types';
 
-export default async (req: Request, ctx: Context) => {
-  try {
-    checkMethod(req, ['POST']);
+async function handler(req: Request, ctx: Context) {
+  checkMethod(req, ['POST']);
 
-    const { sessionId } = await getSession(req);
+  const { sessionId } = await getSession(req);
 
-    const isDeleted = await softDeleteSession(db, sessionId);
+  const isDeleted = await softDeleteSession(db, sessionId);
 
-    if (!isDeleted) throw new NotFoundError('Session not found or already deleted');
+  if (!isDeleted) throw new NotFoundError('Session not found or already deleted.');
 
-    const payload: ApiResponse<{ message: string }> = {
-      success: true,
-      data: {
-        message: 'Signed out.',
-      },
-    };
+  const payload: ApiResponse = {
+    success: true,
+  };
 
-    const sessionCookie = emptySessionCookie();
-    ctx.cookies.set(sessionCookie);
-    return Response.json(payload);
-  } catch (error) {
-    return respondWithError(error);
-  }
-};
+  const sessionCookie = emptySessionCookie();
+  ctx.cookies.set(sessionCookie);
+  return Response.json(payload);
+}
+
+export default withErrorHandling(handler);

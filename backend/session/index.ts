@@ -1,5 +1,5 @@
 import { db, type Database } from '@backend/db';
-import { UnauthorizedError } from '@backend/http/errors';
+import { UnauthorizedError } from '@backend/errors';
 import { randBase64 } from '@backend/utils';
 import { SESSION } from '@shared/constants';
 import { createSession, findSession, touchSession } from './repo';

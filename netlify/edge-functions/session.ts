@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/edge-functions';
 
-import type { ApiResponse } from '@shared/types/index.js';
+import { ERROR_CODES, type ApiResponse } from '@shared/types/index.js';
 
 export const SESSION = {
   COOKIE_NAME: '__Host-session',
@@ -16,7 +16,7 @@ export default (req: Request, ctx: Context) => {
   if (!sessionId) {
     const payload: ApiResponse = {
       success: false,
-      error: { code: 'NO_SESSION_COOKIE', message: 'No session cookie' },
+      error: { code: ERROR_CODES.UNAUTHORIZED, message: 'No session cookie' },
     };
 
     console.warn(payload.error.message);

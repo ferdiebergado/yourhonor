@@ -1,5 +1,5 @@
 import type { Config, Context } from '@netlify/edge-functions';
-import type { ApiResponse } from '@shared/types/index.js';
+import { ERROR_CODES, type ApiResponse } from '@shared/types/index.js';
 
 export const config: Config = {
   method: ['POST', 'PUT', 'PATCH', 'DELETE'],
@@ -19,7 +19,7 @@ export default (req: Request, ctx: Context) => {
   if (!fetchSite) {
     const payload: ApiResponse = {
       success: false,
-      error: { code: 'MISSING_FETCH_METADATA', message: 'missing fetch metadata' },
+      error: { code: ERROR_CODES.UNAUTHORIZED, message: 'missing fetch metadata' },
     };
     console.warn(payload.error.message, { meta });
 
@@ -29,7 +29,7 @@ export default (req: Request, ctx: Context) => {
   if (fetchSite !== 'same-origin') {
     const payload: ApiResponse = {
       success: false,
-      error: { code: 'CROSS_ORIGIN_BLOCKED', message: 'cross-origin requests disallowed' },
+      error: { code: ERROR_CODES.UNAUTHORIZED, message: 'cross-origin requests disallowed' },
     };
     console.warn(payload.error.message, { meta });
     return Response.json(payload, { status: 401 });

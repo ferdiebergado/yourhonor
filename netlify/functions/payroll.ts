@@ -1,23 +1,22 @@
+import { withErrorHandling } from '@backend/error-handler';
+import { NotFoundError } from '@backend/errors';
 import { generatePayroll } from '@backend/features/honorarium';
 import { xlsxResponse } from '@backend/features/honorarium/utils';
 import { checkMethod, parseJson } from '@backend/http';
-import { NotFoundError, respondWithError } from '@backend/http/errors';
 import { getSession } from '@backend/session';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
-export default async (req: Request) => {
-  try {
-    checkMethod(req, ['POST']);
-    const { userId } = await getSession(req);
+async function handler(req: Request) {
+  checkMethod(req, ['POST']);
+  const { userId } = await getSession(req);
 
-    const { code } = await parseJson(req, ActivityCodeSchema);
+  const { code } = await parseJson(req, ActivityCodeSchema);
 
-    const payroll = await generatePayroll(code, userId);
+  const payroll = await generatePayroll(code, userId);
 
-    if (!payroll) throw new NotFoundError('Activity not found.');
+  if (!payroll) throw new NotFoundError('Activity not found.');
 
-    return xlsxResponse(payroll.doc, payroll.filename);
-  } catch (error) {
-    return respondWithError(error);
-  }
-};
+  return xlsxResponse(payroll.doc, payroll.filename);
+}
+
+export default withErrorHandling(handler);

@@ -1,5 +1,5 @@
 import type { Config, Context } from '@netlify/edge-functions';
-import type { ApiResponse } from '@shared/types/index.js';
+import { ERROR_CODES, type ApiResponse } from '@shared/types/index.js';
 
 export const config: Config = {
   method: ['POST', 'PUT', 'PATCH'],
@@ -13,7 +13,7 @@ export default (req: Request, ctx: Context) => {
   if (!contentType || !/^application\/json(;.*)?$/i.test(contentType)) {
     const payload: ApiResponse = {
       success: false,
-      error: { code: 'UNSUPPORTED_CONTENT_TYPE', message: 'Unsupported data type' },
+      error: { code: ERROR_CODES.UNSUPPORTED_MEDIA, message: 'Unsupported data type' },
     };
 
     const meta = {

@@ -1,7 +1,10 @@
+import type { Context } from '@netlify/functions';
+
 import { db } from '@backend/db';
+import { withErrorHandling } from '@backend/error-handler';
+import { NotFoundError } from '@backend/errors';
 import { updateHonorarium } from '@backend/features/honorarium/repo';
-import { checkMethod, parseJson, parseSearchParams } from '@backend/http';
-import { NotFoundError, respondWithError } from '@backend/http/errors';
+import { checkMethod, parseJson, parseRouteParams } from '@backend/http';
 import logger from '@backend/logger';
 import { getSession } from '@backend/session';
 import {
@@ -12,37 +15,35 @@ import {
 import type { ApiResponse } from '@shared/types';
 import { computeHonorarium } from '@shared/utils';
 
-export default async (req: Request) => {
-  try {
-    checkMethod(req, ['PUT']);
-    const { userId } = await getSession(req);
+async function handler(req: Request, ctx: Context) {
+  checkMethod(req, ['PUT']);
+  const { userId } = await getSession(req);
 
-    const { id } = parseSearchParams(req, HonorariumIdSchema);
+  const { id } = parseRouteParams(ctx.params, HonorariumIdSchema);
 
-    logger.info({ id }, 'Updating honorarium...');
+  logger.info({ id }, 'Updating honorarium...');
 
-    const data = await parseJson(req, HonorariumFormSchema);
+  const data = await parseJson(req, HonorariumFormSchema);
 
-    const computed = computeHonorarium(data.amount, data.salary, data.taxRate);
+  const computed = computeHonorarium(data.amount, data.salary, data.taxRate);
 
-    const honorarium: HonorariumUpdate = {
-      ...data,
-      ...computed,
-      updatedBy: userId,
-    };
+  const honorarium: HonorariumUpdate = {
+    ...data,
+    ...computed,
+    updatedBy: userId,
+  };
 
-    const isUpdated = await updateHonorarium(db, id, honorarium);
+  const isUpdated = await updateHonorarium(db, id, honorarium);
 
-    if (!isUpdated) throw new NotFoundError('Honorarium not found.');
+  if (!isUpdated) throw new NotFoundError('Honorarium not found.');
 
-    const payload: ApiResponse = {
-      success: true,
-    };
+  const payload: ApiResponse = {
+    success: true,
+  };
 
-    logger.info('Honorarium updated.');
+  logger.info('Honorarium updated.');
 
-    return Response.json(payload);
-  } catch (error) {
-    return respondWithError(error);
-  }
-};
+  return Response.json(payload);
+}
+
+export default withErrorHandling(handler);

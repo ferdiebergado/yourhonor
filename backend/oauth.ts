@@ -4,7 +4,7 @@ import { GOOGLE_ACCOUNTS_ORIGIN } from '@shared/constants';
 import type { NewUser } from '@shared/schemas/user';
 import config from './config';
 import { db } from './db';
-import { BadRequestError, UnauthorizedError } from './http/errors';
+import { UnauthorizedError, ValidationError } from './errors';
 import { startSession } from './session';
 import { upsertUser } from './user/repo';
 
@@ -18,7 +18,7 @@ export async function verifyCode(oauthClient: OAuth2Client, code: string): Promi
   const {
     tokens: { id_token },
   } = await oauthClient.getToken(code);
-  if (!id_token) throw new BadRequestError('Missing id token');
+  if (!id_token) throw new ValidationError('Missing id token');
 
   const ticket = await oauthClient.verifyIdToken({
     idToken: id_token,

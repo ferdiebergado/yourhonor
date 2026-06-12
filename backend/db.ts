@@ -1,7 +1,7 @@
 import { createClient, type Client, type InArgs, type ResultSet } from '@libsql/client';
 
 import config from './config';
-import { ServiceUnavailableError } from './http/errors';
+import { ServiceUnavailableError } from './errors';
 import logger from './logger';
 
 // Type definitions

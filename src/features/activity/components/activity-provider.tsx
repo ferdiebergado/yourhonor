@@ -11,9 +11,9 @@ type ActivityProviderProps = {
 
 export default function ActivityProvider({ children }: ActivityProviderProps) {
   const { code } = useParams();
-  const { isPending, isError, error, data: activity } = useActivity(code);
+  const { isPending, isFetching, isError, error, data: activity } = useActivity(code);
 
-  if (isPending) return <SkeletonCard />;
+  if (isPending && isFetching) return <SkeletonCard />;
 
   if (isError) {
     toast.error(error.message);
