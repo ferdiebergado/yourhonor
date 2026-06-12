@@ -1,10 +1,11 @@
-import { fetchSummaryOptions } from '@/app/hooks';
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+
+import { fetchSummaryOptions } from '@/app/hooks';
 import { fetchMe, signin, signout } from './api';
 
-const authKeys = {
+export const authKeys = Object.freeze({
   user: ['user'] as const,
-};
+} as const);
 
 export function useSignin() {
   const queryClient = useQueryClient();

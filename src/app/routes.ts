@@ -19,7 +19,7 @@ const TermsPage = lazy(() => import('@/features/auth/components/terms-page'));
 const PrivacyPage = lazy(() => import('@/features/auth/components/privacy-page'));
 const PageNotFound = lazy(() => import('./pages/not-found'));
 
-export const paths = {
+export const paths = Object.freeze({
   home: '/',
   signin: '/signin',
   signout: '/signout',
@@ -32,7 +32,7 @@ export const paths = {
   newHonorarium: '/activities/:code/honoraria/new',
   terms: '/terms',
   privacy: '/privacy',
-};
+} as const);
 
 export const routes: RouteObject[] = [
   {
