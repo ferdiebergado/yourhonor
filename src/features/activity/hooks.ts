@@ -59,12 +59,14 @@ export function useUpdateActivity(code: string) {
   });
 }
 
-export const ActivityContext = createContext<ActivityWithHonoraria | undefined>(undefined);
+// eslint-disable-next-line unicorn/no-null
+export const ActivityContext = createContext<ActivityWithHonoraria | null | undefined>(null);
 
 export function useActivityContext() {
   const context = useContext(ActivityContext);
 
-  if (!context) throw new Error('useActivityContext must be used within an ActivityProvider');
+  if (context === null)
+    throw new Error('useActivityContext must be used within an ActivityProvider');
 
   return context;
 }
