@@ -1,6 +1,6 @@
 import type { Database } from '@backend/db';
 
-type Summary = {
+export type Summary = {
   totalActivities: number;
   totalHonoraria: number;
 };
