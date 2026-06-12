@@ -1,8 +1,44 @@
+import { AuthenticationError } from '@/lib/errors';
 import { api } from '@/lib/http-client';
 import { startDownload } from '@/lib/utils';
 import { API_BASE_URL } from '@shared/constants';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import type { ApiResponse } from '@shared/types';
+
+export const createHonorarium = async (data: HonorariumFormValues): Promise<void | null> =>
+  await api.post('/create-honorarium', data);
+
+export const genCert = async (code: string): Promise<void | null> =>
+  await downloadReport('/certification', code, `certification-${code}.docx`);
+
+export const genComp = async (code: string): Promise<void | null> =>
+  await downloadReport('/computation', code, `computation-${code}.docx`);
+
+export const genORS = async (code: string): Promise<void | null> =>
+  await downloadReport('/ors', code, `ORS-${code}.xlsx`);
+
+export const genPayroll = async (code: string): Promise<void | null> =>
+  await downloadReport('/payroll', code, `Payroll-${code}.xlsx`);
+
+async function downloadReport(url: string, code: string, filename: string) {
+  let res: Response;
+
+  try {
+    res = await fetch(`${API_BASE_URL}${url}`, getfetchOptions(code));
+  } catch (error) {
+    throw new Error('Network error', { cause: error });
+  }
+
+  if (!res.ok) {
+    if (res.status === 401) throw new AuthenticationError();
+
+    const body = (await res.json()) as ApiResponse;
+
+    if (!body.success) throw new Error(body.error.message);
+  }
+
+  await startDownload(res, filename);
+}
 
 const getfetchOptions = (code: string) => ({
   method: 'POST',
@@ -11,94 +47,3 @@ const getfetchOptions = (code: string) => ({
   },
   body: JSON.stringify({ code }),
 });
-
-export const createHonorarium = async (data: HonorariumFormValues): Promise<void | null> =>
-  await api.post('/create-honorarium', data);
-
-export async function genCert(code: string): Promise<void | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/certification`, getfetchOptions(code));
-
-    if (!res.ok) {
-      // eslint-disable-next-line unicorn/no-null
-      if (res.status === 401) return null;
-
-      const data = (await res.json()) as ApiResponse;
-
-      if (!data.success) throw new Error(data.error.message);
-    }
-
-    const filename = `certification-${code}.docx`;
-
-    await startDownload(res, filename);
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to generate certification', { cause: error });
-  }
-}
-
-export async function genComp(code: string): Promise<void | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/computation`, getfetchOptions(code));
-
-    if (!res.ok) {
-      // eslint-disable-next-line unicorn/no-null
-      if (res.status === 401) return null;
-
-      const data = (await res.json()) as ApiResponse;
-
-      if (!data.success) throw new Error(data.error.message);
-    }
-
-    const filename = `computation-${code}.docx`;
-
-    await startDownload(res, filename);
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to generate computation', { cause: error });
-  }
-}
-
-export async function genORS(code: string): Promise<void | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/ors`, getfetchOptions(code));
-
-    if (!res.ok) {
-      // eslint-disable-next-line unicorn/no-null
-      if (res.status === 401) return null;
-
-      const data = (await res.json()) as ApiResponse;
-
-      if (!data.success) throw new Error(data.error.message);
-    }
-
-    const filename = `ORS-${code}.xlsx`;
-
-    await startDownload(res, filename);
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to generate ORS/DV', { cause: error });
-  }
-}
-
-export async function genPayroll(code: string): Promise<void | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/payroll`, getfetchOptions(code));
-
-    if (!res.ok) {
-      // eslint-disable-next-line unicorn/no-null
-      if (res.status === 401) return null;
-
-      const data = (await res.json()) as ApiResponse;
-
-      if (!data.success) throw new Error(data.error.message);
-    }
-
-    const filename = `Payroll-${code}.xlsx`;
-
-    await startDownload(res, filename);
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to generate Payroll', { cause: error });
-  }
-}
