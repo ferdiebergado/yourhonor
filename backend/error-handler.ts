@@ -1,5 +1,3 @@
-import type { Context } from '@netlify/functions';
-
 import type { ApiErrorResponse } from '@shared/types';
 import { AppError } from './errors';
 import logger from './logger';
@@ -61,16 +59,4 @@ function logError(error: unknown, requestId: string) {
     requestId,
     error,
   });
-}
-
-type NetlifyHandler = (request: Request, context: Context) => Promise<Response>;
-
-export function withErrorHandling(handler: NetlifyHandler): NetlifyHandler {
-  return async (request, context) => {
-    try {
-      return await handler(request, context);
-    } catch (error) {
-      return handleError(error, context.requestId);
-    }
-  };
 }
