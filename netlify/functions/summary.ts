@@ -1,22 +1,17 @@
 import { db } from '@backend/db';
-import { withErrorHandling } from '@backend/error-handler';
-import { getSummary } from '@backend/features/summary/repo';
-import { checkMethod } from '@backend/http';
-import { getSession } from '@backend/session';
+import { getSummary, type Summary } from '@backend/features/summary/repo';
+import { withMiddlewares } from '@backend/http/middlewares';
 import type { ApiResponse } from '@shared/types';
 
-async function handler(req: Request) {
-  checkMethod(req, ['GET']);
-  await getSession(req);
+async function handler() {
+  const summary = await getSummary(db);
 
-  const data = await getSummary(db);
-
-  const payload: ApiResponse<typeof data> = {
+  const payload: ApiResponse<Summary> = {
     success: true,
-    data,
+    data: summary,
   };
 
   return Response.json(payload);
 }
 
-export default withErrorHandling(handler);
+export default withMiddlewares(handler);

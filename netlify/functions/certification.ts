@@ -1,16 +1,24 @@
-import { withErrorHandling } from '@backend/error-handler';
+import type { Config, Context } from '@netlify/functions';
+
 import { NotFoundError } from '@backend/errors';
 import { generateCertification } from '@backend/features/honorarium';
 import { docxResponse } from '@backend/features/honorarium/utils';
-import { checkMethod, parseJson } from '@backend/http';
+import { parseRouteParams } from '@backend/http';
+import { withMiddlewares, type AuthenticatedRequest } from '@backend/http/middlewares';
 import { getSession } from '@backend/session';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
-async function handler(req: Request) {
-  checkMethod(req, ['POST']);
+export const config: Config = {
+  path: ['/api/activities/:code/certification'],
+};
+
+async function handler(req: AuthenticatedRequest, ctx: Context) {
+  if (req.method !== 'POST')
+    return new Response(undefined, { status: 405, headers: { Allow: 'POST' } });
+
   const { userId } = await getSession(req);
 
-  const { code } = await parseJson(req, ActivityCodeSchema);
+  const { code } = parseRouteParams(ctx.params, ActivityCodeSchema);
 
   const certification = await generateCertification(code, userId);
 
@@ -19,4 +27,4 @@ async function handler(req: Request) {
   return docxResponse(certification.doc, certification.filename);
 }
 
-export default withErrorHandling(handler);
+export default withMiddlewares(handler);

@@ -1,19 +1,16 @@
 import { db } from '@backend/db';
-import { withErrorHandling } from '@backend/error-handler';
 import { NotFoundError } from '@backend/errors';
-import { checkMethod } from '@backend/http';
-import { getSession } from '@backend/session';
+import { withMiddlewares, type AuthenticatedRequest } from '@backend/http/middlewares';
 import { emptySessionCookie } from '@backend/session/cookie';
 import { softDeleteSession } from '@backend/session/repo';
 import type { Context } from '@netlify/functions';
 import type { ApiResponse } from '@shared/types';
 
-async function handler(req: Request, ctx: Context) {
-  checkMethod(req, ['POST']);
+async function handler(request: AuthenticatedRequest, ctx: Context) {
+  if (request.method !== 'POST')
+    return new Response(undefined, { status: 405, headers: { Allow: 'POST' } });
 
-  const { sessionId } = await getSession(req);
-
-  const isDeleted = await softDeleteSession(db, sessionId);
+  const isDeleted = await softDeleteSession(db, request.session.sessionId);
 
   if (!isDeleted) throw new NotFoundError('Session not found or already deleted.');
 
@@ -26,4 +23,4 @@ async function handler(req: Request, ctx: Context) {
   return Response.json(payload);
 }
 
-export default withErrorHandling(handler);
+export default withMiddlewares(handler);

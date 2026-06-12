@@ -1,18 +1,36 @@
 import { db } from '@backend/db';
-import { withErrorHandling } from '@backend/error-handler';
-import { findActiveFocals } from '@backend/features/focal/repo';
-import { checkMethod } from '@backend/http';
-import { getSession } from '@backend/session';
+import { createFocal, findActiveFocals } from '@backend/features/focal/repo';
+import { parseJson, type HttpMethod } from '@backend/http';
+import { withMiddlewares, type AuthenticatedRequest } from '@backend/http/middlewares';
+import {
+  FocalFormSchema,
+  type FocalDetail,
+  type FocalFormValues,
+  type NewFocal,
+} from '@shared/schemas/focal';
+import type { User } from '@shared/schemas/user';
 import type { ApiResponse } from '@shared/types';
 
-async function handler(req: Request) {
-  checkMethod(req, ['GET']);
+async function handleCreate(data: FocalFormValues, userId: User['id']) {
+  const focal: NewFocal = {
+    ...data,
+    createdBy: userId,
+  };
 
-  await getSession(req);
+  const id = await createFocal(db, focal);
 
+  const payload: ApiResponse<number> = {
+    success: true,
+    data: id,
+  };
+
+  return Response.json(payload, { status: 201 });
+}
+
+async function listFocals() {
   const data = await findActiveFocals(db);
 
-  const payload: ApiResponse<typeof data> = {
+  const payload: ApiResponse<FocalDetail[]> = {
     success: true,
     data,
   };
@@ -20,4 +38,22 @@ async function handler(req: Request) {
   return Response.json(payload);
 }
 
-export default withErrorHandling(handler);
+async function handler(request: AuthenticatedRequest) {
+  switch (request.method as HttpMethod) {
+    case 'GET': {
+      return listFocals();
+    }
+
+    case 'POST': {
+      const focal = await parseJson(request, FocalFormSchema);
+
+      return handleCreate(focal, request.session.userId);
+    }
+
+    default: {
+      return new Response(undefined, { status: 405, headers: { Allowed: 'GET, POST' } });
+    }
+  }
+}
+
+export default withMiddlewares(handler);

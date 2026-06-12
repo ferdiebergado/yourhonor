@@ -1,4 +1,4 @@
-import { AuthenticationError } from '@/lib/errors';
+import { ApiError, AuthenticationError } from '@/lib/errors';
 import { api } from '@/lib/http-client';
 import { startDownload } from '@/lib/utils';
 import { API_BASE_URL } from '@shared/constants';
@@ -6,7 +6,7 @@ import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import type { ApiResponse } from '@shared/types';
 
 export const createHonorarium = async (data: HonorariumFormValues): Promise<void | null> =>
-  await api.post('/create-honorarium', data);
+  await api.post('/honoraria', data);
 
 export const genCert = async (code: string): Promise<void | null> =>
   await downloadReport('/certification', code, `certification-${code}.docx`);
@@ -24,7 +24,7 @@ async function downloadReport(url: string, code: string, filename: string) {
   let res: Response;
 
   try {
-    res = await fetch(`${API_BASE_URL}${url}`, getfetchOptions(code));
+    res = await fetch(`${API_BASE_URL}/activities/${code}${url}`, { method: 'POST' });
   } catch (error) {
     throw new Error('Network error', { cause: error });
   }
@@ -34,16 +34,8 @@ async function downloadReport(url: string, code: string, filename: string) {
 
     const body = (await res.json()) as ApiResponse;
 
-    if (!body.success) throw new Error(body.error.message);
+    if (!body.success) throw new ApiError(body, res.status);
   }
 
   await startDownload(res, filename);
 }
-
-const getfetchOptions = (code: string) => ({
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ code }),
-});
