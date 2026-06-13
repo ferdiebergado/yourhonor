@@ -1,4 +1,4 @@
-import { ApiError, AuthenticationError } from '@/lib/errors';
+import { ApiError } from '@/lib/errors';
 import { api } from '@/lib/http-client';
 import { startDownload } from '@/lib/utils';
 import { API_BASE_URL } from '@shared/constants';
@@ -30,7 +30,8 @@ async function downloadReport(url: string, code: string, filename: string) {
   }
 
   if (!res.ok) {
-    if (res.status === 401) throw new AuthenticationError();
+    // eslint-disable-next-line unicorn/no-null
+    if (res.status === 401) return null;
 
     const body = (await res.json()) as ApiResponse;
 

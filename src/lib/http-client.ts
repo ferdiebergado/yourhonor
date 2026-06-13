@@ -2,7 +2,7 @@ import type { UnknownRecord } from 'type-fest';
 
 import { API_BASE_URL } from '@shared/constants';
 import type { ApiResponse } from '@shared/types';
-import { ApiError, AuthenticationError } from './errors';
+import { ApiError } from './errors';
 
 const headers = { 'Content-Type': 'application/json' };
 
@@ -18,7 +18,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T | null
     throw new Error('Network error', { cause: error });
   }
 
-  if (res.status === 401) throw new AuthenticationError();
+  // eslint-disable-next-line unicorn/no-null
+  if (res.status === 401) return null;
 
   const body = (await res.json()) as ApiResponse<T>;
 
