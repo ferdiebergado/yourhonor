@@ -15,6 +15,7 @@ import AddFocalDialog from '@client/features/focal/components/add-focal-dialog';
 import { useFocals } from '@client/features/focal/hooks';
 import AddVenueDialog from '@client/features/venue/components/add-venue-dialog';
 import { useVenues } from '@client/features/venue/hooks';
+import { setFormErrors } from '@client/lib/utils';
 import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
 import { getFullName } from '@shared/utils';
 import { activityKeys, useCreateActivity, useSyncDateInputs, useUpdateActivity } from '../hooks';
@@ -41,6 +42,7 @@ export default function ActivityForm({ defaultValues, isEditMode }: ActivityForm
     if (isEditMode) {
       updateActivity(values, {
         onSuccess: () => toast.success('Activity updated successfully.'),
+        onError: error => setFormErrors(form, error),
       });
       return;
     }
@@ -51,6 +53,7 @@ export default function ActivityForm({ defaultValues, isEditMode }: ActivityForm
         form.reset(defaultValues);
         navigate(paths.activities);
       },
+      onError: error => setFormErrors(form, error),
     });
   }
 

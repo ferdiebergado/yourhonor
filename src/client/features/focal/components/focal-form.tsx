@@ -8,6 +8,7 @@ import { Input } from '@client/components/ui/input';
 import AddPositionDialog from '@client/features/position/components/add-position-dialog';
 import PositionInput from '@client/features/position/components/position-input';
 import { usePositions } from '@client/features/position/hooks';
+import { setFormErrors } from '@client/lib/utils';
 import type { ActivityFormValues } from '@shared/schemas/activity';
 import { FocalFormSchema, type FocalFormValues } from '@shared/schemas/focal';
 import { useCreateFocal } from '../hooks';
@@ -41,6 +42,7 @@ export default function FocalForm({ activityForm, onClose }: FocalFormProps) {
         activityForm.trigger('focalId');
         onClose();
       },
+      onError: error => setFormErrors(form, error),
     });
   };
 

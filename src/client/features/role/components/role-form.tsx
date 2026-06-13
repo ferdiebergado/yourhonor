@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import FormButtons from '@client/components/form-buttons';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
+import { setFormErrors } from '@client/lib/utils';
 import { type HonorariumFormValues } from '@shared/schemas/honorarium';
 import { RoleFormSchema, type RoleFormValues } from '@shared/schemas/role';
 import { useCreateRole } from '../hooks';
@@ -34,6 +35,7 @@ export default function RoleForm({ honorariumForm, onClose }: RoleFormProps) {
         honorariumForm.trigger('roleId');
         onClose();
       },
+      onError: error => setFormErrors(form, error),
     });
   };
 

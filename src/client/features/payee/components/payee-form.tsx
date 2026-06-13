@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import FormButtons from '@client/components/form-buttons';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
+import { setFormErrors } from '@client/lib/utils';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { PayeeFormSchema, type PayeeFormValues } from '@shared/schemas/payee';
 import { useCreatePayee } from '../hooks';
@@ -37,6 +38,7 @@ export default function PayeeForm({ honorariumForm, onClose }: PayeeFormProps) {
         honorariumForm.trigger('payeeId');
         onClose?.();
       },
+      onError: error => setFormErrors(form, error),
     });
   };
 

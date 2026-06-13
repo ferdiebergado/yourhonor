@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import FormButtons from '@client/components/form-buttons';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
+import { setFormErrors } from '@client/lib/utils';
 import type { ActivityFormValues } from '@shared/schemas/activity';
 import { VenueFormSchema, type VenueFormValues } from '@shared/schemas/venue';
 import { useCreateVenue } from '../hooks';
@@ -35,6 +36,7 @@ export default function VenueForm({ activityForm, onClose }: VenueFormProps) {
         activityForm.trigger('venueId');
         onClose();
       },
+      onError: error => setFormErrors(form, error),
     });
   };
 

@@ -9,6 +9,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui
 import { Input } from '@client/components/ui/input';
 import AddBankDialog from '@client/features/bank/components/add-bank-dialog';
 import { useActiveBanks } from '@client/features/bank/hooks';
+import { setFormErrors } from '@client/lib/utils';
 import { AccountFormSchema, type AccountFormValues } from '@shared/schemas/account';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { useCreateAccount } from '../hooks';
@@ -46,6 +47,7 @@ export default function AccountForm({ payeeId, honorariumForm, onClose }: Accoun
         honorariumForm.trigger('accountId');
         onClose();
       },
+      onError: error => setFormErrors(form, error),
     });
   };
 

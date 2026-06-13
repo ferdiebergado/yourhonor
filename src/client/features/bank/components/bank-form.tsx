@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import FormButtons from '@client/components/form-buttons';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
+import { setFormErrors } from '@client/lib/utils';
 import type { AccountFormValues } from '@shared/schemas/account';
 import { BankFormSchema, type BankFormValues } from '@shared/schemas/bank';
 import { useCreateBank } from '../hooks';
@@ -34,6 +35,7 @@ export default function BankForm({ accountForm, onClose }: BankFormProps) {
         accountForm.trigger('bankId');
         onClose();
       },
+      onError: error => setFormErrors(form, error),
     });
   };
 

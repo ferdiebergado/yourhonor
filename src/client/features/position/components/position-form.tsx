@@ -6,6 +6,7 @@ import FormButtons from '@client/components/form-buttons';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
 import { useCreatePosition } from '@client/features/position/hooks';
+import { setFormErrors } from '@client/lib/utils';
 import type { FocalFormValues } from '@shared/schemas/focal';
 import { PositionFormSchema, type PositionFormValues } from '@shared/schemas/position';
 
@@ -34,6 +35,7 @@ export default function PositionForm({ focalForm, onClose }: PositionFormProps) 
         focalForm.trigger('positionId');
         onClose();
       },
+      onError: error => setFormErrors(form, error),
     });
   };
 

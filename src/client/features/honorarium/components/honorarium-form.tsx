@@ -16,6 +16,7 @@ import AddPayeeDialog from '@client/features/payee/components/add-payee-dialog';
 import { useActivePayees } from '@client/features/payee/hooks';
 import AddRoleDialog from '@client/features/role/components/add-role-dialog';
 import { useActiveRoles } from '@client/features/role/hooks';
+import { setFormErrors } from '@client/lib/utils';
 import { HonorariumFormSchema, type HonorariumFormValues } from '@shared/schemas/honorarium';
 import { computeHonorarium, formatAmount, getFullName } from '@shared/utils';
 import { useCreateHonorarium } from '../hooks';
@@ -57,6 +58,7 @@ export default function HonorariumForm({ defaultValues }: HonorariumFormProps) {
         form.reset();
         navigate(-1);
       },
+      onError: error => setFormErrors(form, error),
     });
   }
 
