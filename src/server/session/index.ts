@@ -1,6 +1,7 @@
+import { randomBytes } from 'node:crypto';
+
 import { db, type Database } from '@server/db';
 import { UnauthorizedError } from '@server/errors';
-import { randBase64 } from '@server/utils';
 import { SESSION } from '@shared/constants';
 import { createSession, findSession, touchSession } from './repo';
 
@@ -21,7 +22,7 @@ export async function startSession(db: Database, userId: number): Promise<Sessio
 }
 
 export function newSession(userId: number): NewSession {
-  const sessionId = randBase64(SESSION.ID_LENGTH);
+  const sessionId = randomBytes(SESSION.ID_LENGTH).toString('base64');
   const expiresAt = setExpiryDate();
 
   return {
