@@ -23,10 +23,10 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@shared/*": ["./shared/*"]
+      "@client/*": ["./src/client/*"],
+      "@shared/*": ["./src/shared/*"]
     },
     "ignoreDeprecations": "6.0"
   },
-  "include": ["src"]
+  "include": ["./src/client"]
 }

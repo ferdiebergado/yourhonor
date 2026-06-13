@@ -2,6 +2,10 @@
 command = "pnpm run build"
 publish = "dist"
 environment = { NODE_VERSION = "22.22.2" }
+edge_functions = "src/server/netlify/edge-functions"
+
+[functions]
+directory = "src/server/netlify/functions"
 
 [[redirects]]
 from = "/api/*"

@@ -27,9 +27,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./src/shared/*"]
     },
     "ignoreDeprecations": "6.0"
   },
-  "include": ["netlify/edge-functions"]
+  "include": ["./src/server/netlify/edge-functions"]
 }

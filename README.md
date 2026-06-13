@@ -89,11 +89,11 @@ pnpm db:reset
 
 ## Project structure
 
-- `src/` — React application, routes, UI components, and auth hooks
-- `backend/` — server utilities, database layer, OAuth, session, and HTTP helpers
-- `netlify/edge-functions/` — edge middleware for request, JSON, session, and CSRF handling
-- `netlify/functions/` — Netlify Functions API handlers
-- `shared/` — shared schemas, types, and utilities
+- `src/client/` — React application, routes, UI components, and auth hooks
+- `src/server/` — server utilities, database layer, OAuth, session, and HTTP helpers
+- `src/server/netlify/edge-functions/` — edge middleware for request, JSON, session, and CSRF handling
+- `src/server/netlify/functions/` — Netlify Functions API handlers
+- `src/shared/` — shared schemas, types, and utilities
 - `tests/` — integration tests and helpers
 
 ## Netlify routing
@@ -108,7 +108,7 @@ The `netlify.toml` configuration defines:
 
 - The project uses `pnpm` and Node 22.
 - Path aliases are configured in `tsconfig.json`:
-  - `@/*` → `./src/*`
-  - `@backend/*` → `./backend/*`
-  - `@shared/*` → `./shared/*`
+  - `@client/*` → `./src/client/*`
+  - `@server/*` → `./src/server/*`
+  - `@shared/*` → `./src/shared/*`
 - React Compiler support is enabled through `@vitejs/plugin-react`.

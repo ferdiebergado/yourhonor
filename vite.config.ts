@@ -5,14 +5,14 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 
-import { CSP_NONCE_PLACEHOLDER } from './shared/constants';
+import { CSP_NONCE_PLACEHOLDER } from './src/shared/constants';
 
 const dirname = import.meta.dirname;
 
 const alias = {
-  '@': resolve(dirname, './src'),
-  '@backend': resolve(dirname, './backend'),
-  '@shared': resolve(dirname, './shared'),
+  '@client': resolve(dirname, './src/client'),
+  '@server': resolve(dirname, './src/server'),
+  '@shared': resolve(dirname, './src/shared'),
 };
 
 const env = loadEnv('testing', process.cwd(), '');
@@ -28,7 +28,7 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          include: ['backend/**/*.{test,spec}.ts'],
+          include: ['src/server/**/*.{test,spec}.ts'],
           alias,
           environment: 'node',
           env,

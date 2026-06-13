@@ -1,0 +1,17 @@
+import { db } from '@server/db';
+import { getSummary, type Summary } from '@server/features/summary/repo';
+import { withMiddlewares } from '@server/http/middlewares';
+import type { ApiResponse } from '@shared/types';
+
+async function handler() {
+  const summary = await getSummary(db);
+
+  const payload: ApiResponse<Summary> = {
+    success: true,
+    data: summary,
+  };
+
+  return Response.json(payload);
+}
+
+export default withMiddlewares(handler);
