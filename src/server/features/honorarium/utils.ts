@@ -1,5 +1,7 @@
 import type { IPatch } from 'docx';
 
+import logger from '@server/logger';
+
 export async function amountToWords(amount: number): Promise<string> {
   const { ToWords } = await import('to-words');
 
@@ -31,22 +33,21 @@ export async function patchDoc(template: string, tags: Record<string, string>) {
       patches,
     });
 
-    console.log('Document patched successfully.');
     return doc;
   } catch (error) {
-    console.error(error);
-    throw new Error('Failed to patch document.', { cause: error });
+    const msg = 'Failed to patch document.';
+    logger.error(error, msg);
+    throw new Error(msg, { cause: error });
   }
 }
 
-export function docxResponse(body: Uint8Array, filename: string) {
-  return new Response(body, {
+export const docxResponse = (body: Uint8Array, filename: string) =>
+  new Response(body, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'Content-Disposition': `attachment; filename="${filename}.docx"`,
     },
   });
-}
 
 export const xlsxResponse = (body: Uint8Array, filename: string) =>
   new Response(body, {
@@ -56,20 +57,20 @@ export const xlsxResponse = (body: Uint8Array, filename: string) =>
     },
   });
 
-const mfoCodes = {
+const MFO_CODES = {
   BEC: '310100100003000',
   ELLN: '310100100007000',
   FLO: '310300100003000',
-} as const satisfies Record<string, string>;
+} as const;
 
 type Appropriation = 'Current' | 'Continuing';
-type Program = keyof typeof mfoCodes;
+type Program = keyof typeof MFO_CODES;
 
 export type FundCluster = {
   year: number;
   appropriation: Appropriation;
   program: Program;
-  mfoCode: (typeof mfoCodes)[Program];
+  mfoCode: (typeof MFO_CODES)[Program];
 };
 
 export function parseActivityCode(activityCode: string): FundCluster {
@@ -77,7 +78,7 @@ export function parseActivityCode(activityCode: string): FundCluster {
   const [_, year, _bureau, _division, pap, code] = activityCode.split('-');
 
   const program = pap as Program;
-  const mfoCode = mfoCodes[program];
+  const mfoCode = MFO_CODES[program];
   const appropriation: Appropriation = code.startsWith('P') ? 'Continuing' : 'Current';
   return {
     year: Number.parseInt(year) + 2000,
