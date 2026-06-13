@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import * as z from 'zod';
 
-import { parseJson } from '@server/http';
+import { parseJson, type HttpMethod } from '@server/http';
 import { withErrorHandling } from '@server/http/middlewares';
 import logger from '@server/logger';
 import { signin } from '@server/oauth';
@@ -14,8 +14,10 @@ const authCodeSchema = z.object({
 });
 
 async function handler(request: Request, ctx: Context) {
-  if (request.method !== 'POST')
-    return new Response(undefined, { status: 405, headers: { Allow: 'POST' } });
+  const allowedMethod: HttpMethod = 'POST';
+
+  if (request.method !== allowedMethod)
+    return new Response(undefined, { status: 405, headers: { Allow: allowedMethod } });
 
   logger.info('Signing in user...');
 

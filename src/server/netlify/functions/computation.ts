@@ -3,7 +3,7 @@ import type { Config, Context } from '@netlify/functions';
 import { NotFoundError } from '@server/errors';
 import { generateComputation } from '@server/features/honorarium';
 import { docxResponse } from '@server/features/honorarium/utils';
-import { parseRouteParams } from '@server/http';
+import { parseRouteParams, type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
@@ -12,8 +12,10 @@ export const config: Config = {
 };
 
 async function handler(request: AuthenticatedRequest, ctx: Context) {
-  if (request.method !== 'POST')
-    return new Response(undefined, { status: 405, headers: { Allow: 'POST' } });
+  const allowedMethod: HttpMethod = 'POST';
+
+  if (request.method !== allowedMethod)
+    return new Response(undefined, { status: 405, headers: { Allow: allowedMethod } });
 
   const { code } = parseRouteParams(ctx.params, ActivityCodeSchema);
 

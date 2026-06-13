@@ -1,13 +1,16 @@
 import { db } from '@server/db';
 import { UnauthorizedError } from '@server/errors';
+import type { HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
 import findUser from '@server/user/repo';
 import type { Profile } from '@shared/schemas/user';
 import type { ApiResponse } from '@shared/types';
 
 async function handler(request: AuthenticatedRequest) {
-  if (request.method !== 'GET')
-    return new Response(undefined, { status: 405, headers: { Allow: 'GET' } });
+  const allowedMethod: HttpMethod = 'GET';
+
+  if (request.method !== allowedMethod)
+    return new Response(undefined, { status: 405, headers: { Allow: allowedMethod } });
 
   const user = await findUser(db, request.session.userId);
 
