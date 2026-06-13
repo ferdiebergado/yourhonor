@@ -33,3 +33,8 @@ export type ApiSuccessResponse<T> = {
 };
 
 export type ApiResponse<T = undefined> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+export type Summary = {
+  totalActivities: number;
+  totalHonoraria: number;
+};

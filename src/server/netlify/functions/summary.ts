@@ -1,8 +1,8 @@
 import { db } from '@server/db';
-import { getSummary, type Summary } from '@server/features/summary/repo';
+import { getSummary } from '@server/features/summary/repo';
 import type { HttpMethod } from '@server/http';
 import { withMiddlewares } from '@server/http/middlewares';
-import type { ApiResponse } from '@shared/types';
+import type { ApiResponse, Summary } from '@shared/types';
 
 async function handler(request: Request) {
   const allowedMethod: HttpMethod = 'GET';

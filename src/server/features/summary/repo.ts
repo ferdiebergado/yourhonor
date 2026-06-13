@@ -1,9 +1,5 @@
 import type { Database } from '@server/db';
-
-export type Summary = {
-  totalActivities: number;
-  totalHonoraria: number;
-};
+import type { Summary } from '@shared/types';
 
 export async function getSummary(db: Database): Promise<Summary> {
   const sql = `
