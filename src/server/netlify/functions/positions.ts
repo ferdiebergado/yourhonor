@@ -1,7 +1,8 @@
 import { db } from '@server/db';
 import { createPosition, findActivePositions } from '@server/features/position/repo';
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import {
   PositionFormSchema,
   type NewPosition,

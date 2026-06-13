@@ -1,7 +1,8 @@
 import { db } from '@server/db';
 import { createFocal, findActiveFocals } from '@server/features/focal/repo';
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import {
   FocalFormSchema,
   type FocalDetail,

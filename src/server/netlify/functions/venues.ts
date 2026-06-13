@@ -1,7 +1,8 @@
 import { db } from '@server/db';
 import { createVenue, findActiveVenues } from '@server/features/venue/repo';
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import type { User } from '@shared/schemas/user';
 import {
   VenueFormSchema,

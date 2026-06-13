@@ -3,8 +3,9 @@ import type { Config } from '@netlify/functions';
 import { NotFoundError } from '@server/errors';
 import { generatePayroll } from '@server/features/honorarium';
 import { xlsxResponse } from '@server/features/honorarium/utils';
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
 export const config: Config = {

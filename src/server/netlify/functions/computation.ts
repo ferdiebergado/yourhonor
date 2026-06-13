@@ -3,8 +3,9 @@ import type { Config, Context } from '@netlify/functions';
 import { NotFoundError } from '@server/errors';
 import { generateComputation } from '@server/features/honorarium';
 import { docxResponse } from '@server/features/honorarium/utils';
-import { parseRouteParams, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseRouteParams } from '@server/http/parsers';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
 export const config: Config = {

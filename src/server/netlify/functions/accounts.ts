@@ -1,8 +1,9 @@
 import { db } from '@server/db';
 import { createAccount, findActiveAccounts } from '@server/features/account/repo';
 import { maskAccountNo } from '@server/features/account/utils';
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import { encrypt } from '@server/security';
 import {
   AccountFormSchema,

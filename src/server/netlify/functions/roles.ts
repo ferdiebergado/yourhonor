@@ -1,7 +1,8 @@
 import { db } from '@server/db';
 import { createRole, findActiveRoles } from '@server/features/role/repo';
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import {
   RoleFormSchema,
   type NewRole,

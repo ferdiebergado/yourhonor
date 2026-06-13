@@ -1,7 +1,8 @@
 import { db } from '@server/db';
 import { createBank, findActiveBanks } from '@server/features/bank/repo';
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import {
   BankFormSchema,
   type Bank,

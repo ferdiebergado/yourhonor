@@ -1,8 +1,9 @@
 import type { Context } from '@netlify/functions';
 import * as z from 'zod';
 
-import { parseJson, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withErrorHandling } from '@server/http/middlewares';
+import { parseJson } from '@server/http/parsers';
 import logger from '@server/logger';
 import { signin } from '@server/oauth';
 import { bakeSessionCookie } from '@server/session/cookie';

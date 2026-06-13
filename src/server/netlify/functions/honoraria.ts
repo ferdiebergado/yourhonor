@@ -3,8 +3,9 @@ import type { Context } from '@netlify/functions';
 import { db } from '@server/db';
 import { NotFoundError } from '@server/errors';
 import { createHonorarium, updateHonorarium } from '@server/features/honorarium/repo';
-import { parseJson, parseRouteParams, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson, parseRouteParams } from '@server/http/parsers';
 import logger from '@server/logger';
 import {
   HonorariumFormSchema,

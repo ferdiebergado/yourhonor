@@ -11,8 +11,9 @@ import {
 } from '@server/features/activity/repo';
 import { findActiveHonorariaByActivity } from '@server/features/honorarium/repo';
 import { getFundCluster } from '@server/features/honorarium/utils';
-import { parseJson, parseRouteParams, type HttpMethod } from '@server/http';
+import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import { parseJson, parseRouteParams } from '@server/http/parsers';
 import logger from '@server/logger';
 import {
   ActivityCodeSchema,
