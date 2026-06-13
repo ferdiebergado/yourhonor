@@ -1,25 +1,5 @@
-import type { CamelCasedProperties } from 'type-fest';
-
 import { SG29 } from './constants';
 import type { NewHonorarium } from './schemas/honorarium';
-
-const snakeKeyToCamelKey = (key: string): string =>
-  key.replaceAll(/_([a-z])/g, (_, char: string) => char.toUpperCase());
-
-export const snakeToCamel = <T extends Record<string, unknown>>(
-  value: T
-): CamelCasedProperties<T> => {
-  const result: Partial<CamelCasedProperties<T>> = {};
-
-  for (const key in value) {
-    if (Object.hasOwn(value, key)) {
-      const camelKey = snakeKeyToCamelKey(key) as keyof CamelCasedProperties<T>;
-      result[camelKey] = value[key] as unknown as CamelCasedProperties<T>[typeof camelKey];
-    }
-  }
-
-  return result as CamelCasedProperties<T>;
-};
 
 export const getMaxSalary = (salary: number) => Math.min(SG29, salary);
 
@@ -33,7 +13,6 @@ export function computeHonorarium(
   let hoursRendered = 0;
   let actual: number;
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     actual = 0.023 * maxSalary * hoursRendered;
 
