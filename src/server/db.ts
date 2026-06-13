@@ -7,7 +7,7 @@ import logger from './logger';
 // Type definitions
 type SqlValue = string | number | bigint | boolean | Uint8Array | ArrayBuffer | null;
 type QueryRow = Record<string, unknown>;
-export type QueryResult<T extends QueryRow = QueryRow> = {
+type QueryResult<T extends QueryRow = QueryRow> = {
   rows: T[];
   rowsAffected: number;
 };
