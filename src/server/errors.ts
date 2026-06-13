@@ -1,5 +1,6 @@
-import { ERROR_CODES, type ErrorCode } from '@shared/types';
 import type { ZodError } from 'zod';
+
+import { ERROR_CODES, type ErrorCode } from '@shared/types';
 
 export class AppError extends Error {
   readonly statusCode: number;
@@ -45,6 +46,16 @@ export class ValidationError extends AppError {
       statusCode: 400,
       code: ERROR_CODES.VALIDATION_ERROR,
       issues,
+    });
+  }
+}
+
+export class BadRequestError extends AppError {
+  constructor(message = 'Bad request') {
+    super({
+      message,
+      statusCode: 400,
+      code: ERROR_CODES.BAD_REQUEST,
     });
   }
 }
