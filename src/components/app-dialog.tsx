@@ -32,7 +32,7 @@ export default function AppDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Tooltip>
-        <TooltipTrigger render={<DialogTrigger disabled={disabled}>{trigger}</DialogTrigger>} />
+        <TooltipTrigger render={<DialogTrigger render={trigger} disabled={disabled} />} />
         <TooltipContent>{title}</TooltipContent>
       </Tooltip>
       <DialogContent>
