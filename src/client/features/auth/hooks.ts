@@ -3,9 +3,9 @@ import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@ta
 import { fetchSummaryOptions } from '@client/app/hooks';
 import { fetchMe, signin, signout } from './api';
 
-export const authKeys = Object.freeze({
-  user: ['user'] as const,
-} as const);
+export const authKeys = {
+  user: ['user'],
+} as const;
 
 export function useSignin() {
   const queryClient = useQueryClient();

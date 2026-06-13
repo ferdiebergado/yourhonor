@@ -60,7 +60,7 @@ function parseEnv(): Config {
 
 const env = parseEnv();
 
-const config: CamelCasedProperties<Config> = Object.freeze({
+const config: CamelCasedProperties<Config> = {
   host: env.HOST,
   databaseUrl: env.DATABASE_URL,
   tursoAuthToken: env.TURSO_AUTH_TOKEN,
@@ -70,6 +70,6 @@ const config: CamelCasedProperties<Config> = Object.freeze({
   logLevel: env.LOG_LEVEL,
   env: env.ENV,
   appKey: env.APP_KEY,
-} as const);
+} as const;
 
 export default config;
