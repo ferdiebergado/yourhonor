@@ -24,7 +24,12 @@ async function downloadReport(url: string, code: string, filename: string) {
   let res: Response;
 
   try {
-    res = await fetch(`${API_BASE_URL}/activities/${code}${url}`, { method: 'POST' });
+    res = await fetch(`${API_BASE_URL}/activities/${code}${url}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error) {
     throw new Error('Network error', { cause: error });
   }
