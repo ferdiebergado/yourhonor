@@ -8,12 +8,8 @@ import { findActiveHonorariaWithAccountByActivity, recordUsage } from '../honora
 import { parseActivityCode } from '../honorarium/utils';
 import { orsdv } from './ors-dv';
 import { findActiveActivityDetailByUser } from './repo';
+import type { Document } from './types';
 import { formatName } from './utils';
-
-type Document = {
-  filename: string;
-  doc: Uint8Array;
-};
 
 type ExcelTextNode = {
   '#text': string;
