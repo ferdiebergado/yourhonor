@@ -1,7 +1,7 @@
 import type { Config, Context } from '@netlify/functions';
 
 import { NotFoundError } from '@server/errors';
-import { generateORS } from '@server/features/honorarium';
+import { generateORS } from '@server/features/activity/ors';
 import { xlsxResponse } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';

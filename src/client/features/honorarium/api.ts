@@ -15,7 +15,7 @@ export const genComp = async (code: string): Promise<void | null> =>
   await downloadReport('/computation', code, `computation-${code}.docx`);
 
 export const genORS = async (code: string): Promise<void | null> =>
-  await downloadReport('/ors', code, `ORS-${code}.xlsx`);
+  await downloadReport('/ors', code, `ORS-${code}.xlsm`);
 
 export const genPayroll = async (code: string): Promise<void | null> =>
   await downloadReport('/payroll', code, `Payroll-${code}.xlsx`);

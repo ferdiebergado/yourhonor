@@ -14,10 +14,9 @@ import {
 } from '@shared/utils';
 import { certification } from './certification';
 import { computation } from './computation';
-import { ors } from './ors';
 import { payroll } from './payroll';
 import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
-import { amountToWords, getFundCluster, parseActivityCode, patchDoc } from './utils';
+import { amountToWords, getFundCluster, patchDoc } from './utils';
 
 type Document = {
   filename: string;
@@ -259,75 +258,6 @@ export async function generateComputation(
   const doc = await genCompDoc(activity, honoraria);
 
   await recordUsage(db, 'Computation', userId);
-
-  return doc;
-}
-
-export async function genORSDoc(
-  activity: ActivityDetail,
-  honoraria: HonorariumDetail[]
-): Promise<Document> {
-  const { title, venue, firstname, mi, lastname, startDate, endDate, code, location } = activity;
-
-  const { default: Excel } = await import('exceljs');
-  const workbook = new Excel.Workbook();
-  const buf = Buffer.from(ors, 'base64');
-  const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-
-  await workbook.xlsx.load(arrayBuffer);
-
-  const orsSheet = workbook.getWorksheet('ORS');
-  if (!orsSheet) throw new Error('Workbook does not have a sheet named ORS.');
-
-  const dvSheet = workbook.getWorksheet('DV');
-  if (!dvSheet) throw new Error('Workbook does not have a sheet named DV.');
-
-  let payee = formatName({ firstname: firstname, mi: mi, lastname: lastname });
-
-  const numPayees = honoraria.length;
-  let other = 'OTHER';
-  if (numPayees > 2) other += 'S';
-  if (numPayees > 1) payee += ` AND ${(numPayees - 1).toString()} ${other}`;
-
-  orsSheet.getCell('E7').value = payee;
-  dvSheet.getCell('F11').value = payee;
-
-  const dateRange = formatDateRange(startDate, endDate);
-
-  const particulars = `To payment of honorarium as Resource Person during the ${title} held at ${venue}, ${location} on ${dateRange}`;
-  orsSheet.getCell('E16').value = particulars;
-  dvSheet.getCell('B16').value = particulars;
-
-  const amount = honoraria.reduce((acc, payment) => acc + payment.amount, 0);
-  orsSheet.getCell('N16').value = amount;
-  dvSheet.getCell('AC17').value = amount;
-
-  orsSheet.getCell('E34').value = code;
-  orsSheet.getCell('K16').value = parseActivityCode(code).mfoCode;
-
-  const excelBuffer = await workbook.xlsx.writeBuffer();
-
-  const filename = `ORS-${code}.xlsx`;
-
-  return {
-    doc: new Uint8Array(excelBuffer),
-    filename,
-  };
-}
-
-export async function generateORS(
-  activityCode: string,
-  userId: number
-): Promise<Document | undefined> {
-  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
-  if (!activity) return;
-
-  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
-  if (honoraria.length === 0) return;
-
-  const doc = await genORSDoc(activity, honoraria);
-
-  await recordUsage(db, 'ORS-DV', userId);
 
   return doc;
 }

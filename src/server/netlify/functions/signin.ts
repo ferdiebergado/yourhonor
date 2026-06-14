@@ -14,19 +14,17 @@ const authCodeSchema = z.object({
   code: z.string().trim().min(20).max(512),
 });
 
-async function handler(request: Request, ctx: Context) {
+async function handler(request: Request, context: Context) {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)
     return new Response(undefined, { status: 405, headers: { Allow: allowedMethod } });
 
-  logger.info('Signing in user...');
-
   const { code } = await parseJson(request, authCodeSchema);
   const { user, sessionId, expiresAt } = await signin(code);
 
   const sessionCookie = bakeSessionCookie(sessionId, expiresAt);
-  ctx.cookies.set(sessionCookie);
+  context.cookies.set(sessionCookie);
 
   const data: Profile = {
     email: user.email,
@@ -39,7 +37,16 @@ async function handler(request: Request, ctx: Context) {
     data,
   };
 
-  logger.info('User signed in.');
+  logger.info(
+    {
+      requestId: context.requestId,
+      event: 'auth.signin.success',
+      userId: user.googleId,
+      ip: context.ip,
+      userAgent: request.headers.get('user-agent') ?? 'unknown',
+    },
+    'User signed in.'
+  );
 
   return Response.json(payload);
 }
