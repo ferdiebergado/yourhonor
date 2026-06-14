@@ -1,5 +1,6 @@
 import type { Config, Context } from '@netlify/edge-functions';
-import { ERROR_CODES, type ApiResponse } from '@shared/types/index.js';
+
+import { ERROR_CODES, type ApiResponse } from '../../../shared/types/index.ts';
 
 export const config: Config = {
   method: ['POST', 'PUT', 'PATCH'],

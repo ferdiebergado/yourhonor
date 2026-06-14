@@ -25,11 +25,7 @@
 
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.edge-functions.tsbuildinfo",
 
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["./src/shared/*"]
-    },
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
   },
-  "include": ["./src/server/netlify/edge-functions"]
+  "include": ["./src/server/netlify/edge-functions"],
 }
