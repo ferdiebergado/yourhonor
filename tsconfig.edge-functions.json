@@ -24,6 +24,7 @@
     "noEmit": true,
 
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.edge-functions.tsbuildinfo",
+    "allowImportingTsExtensions": true,
 
     "ignoreDeprecations": "6.0",
   },
