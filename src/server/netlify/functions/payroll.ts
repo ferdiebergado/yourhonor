@@ -1,24 +1,24 @@
-import type { Config } from '@netlify/functions';
+import type { Config, Context } from '@netlify/functions';
 
 import { NotFoundError } from '@server/errors';
-import { generatePayroll } from '@server/features/honorarium';
+import { generatePayroll } from '@server/features/activity/payroll-service';
 import { xlsxResponse } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
 import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
-import { parseJson } from '@server/http/parsers';
+import { parseRouteParams } from '@server/http/parsers';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
 export const config: Config = {
   path: ['/api/activities/:code/payroll'],
 };
 
-async function handler(request: AuthenticatedRequest) {
+async function handler(request: AuthenticatedRequest, context: Context) {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)
     return new Response(undefined, { status: 405, headers: { Allow: allowedMethod } });
 
-  const { code } = await parseJson(request, ActivityCodeSchema);
+  const { code } = parseRouteParams(context.params, ActivityCodeSchema);
 
   const payroll = await generatePayroll(code, request.session.userId);
 
