@@ -1,14 +1,15 @@
-import type { Context } from '@netlify/edge-functions';
+import type { Context, EdgeFunction } from '@netlify/edge-functions';
 
+import { getRequestContext } from '../../../server/http/index.ts';
 import { API_BASE_URL, SESSION } from '../../../shared/constants.ts';
 import { ERROR_CODES, type ApiResponse } from '../../../shared/types/index.ts';
 
-export default (request: Request, context: Context) => {
+const session: EdgeFunction = async (request: Request, context: Context) => {
   const sessionId = context.cookies.get(SESSION.COOKIE_NAME);
 
   if (sessionId) {
     request.headers.set(SESSION.HEADER_NAME, sessionId);
-    return context.next();
+    return await context.next();
   }
 
   const url = new URL(request.url);
@@ -18,10 +19,14 @@ export default (request: Request, context: Context) => {
       error: { code: ERROR_CODES.UNAUTHORIZED, message: 'No session cookie' },
     };
 
-    console.warn(payload.error.message);
+    const status = 401;
+    const meta = { ...getRequestContext(request, context), status };
+    console.warn(payload.error.message, { meta });
 
-    return Response.json(payload, { status: 401 });
+    return Response.json(payload, { status });
   }
 
   return Response.redirect('/signin', 302);
 };
+
+export default session;

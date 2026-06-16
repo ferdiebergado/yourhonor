@@ -1,15 +1,14 @@
-import type { Config, Context } from '@netlify/edge-functions';
+import type { Config, Context, EdgeFunction } from '@netlify/edge-functions';
 
+import { getRequestContext } from '../../../server/http/index.ts';
 import { ERROR_CODES, type ApiResponse } from '../../../shared/types/index.ts';
 
 export const config: Config = {
   method: ['POST', 'PUT', 'PATCH'],
 };
 
-export default (req: Request, ctx: Context) => {
-  console.log('Validating content-type...');
-
-  const contentType = req.headers.get('content-type');
+const json: EdgeFunction = async (request: Request, context: Context) => {
+  const contentType = request.headers.get('content-type');
 
   if (!contentType || !/^application\/json(;.*)?$/i.test(contentType)) {
     const payload: ApiResponse = {
@@ -17,15 +16,15 @@ export default (req: Request, ctx: Context) => {
       error: { code: ERROR_CODES.UNSUPPORTED_MEDIA, message: 'Unsupported data type' },
     };
 
-    const meta = {
-      requestId: ctx.requestId,
-      contentType,
-      ip: ctx.ip,
-      geo: ctx.geo,
-    };
+    const status = 415;
+    const meta = { ...getRequestContext(request, context), status };
 
     console.warn(payload.error, { meta });
 
-    return Response.json(payload, { status: 415 });
+    return Response.json(payload, { status });
   }
+
+  return await context.next();
 };
+
+export default json;

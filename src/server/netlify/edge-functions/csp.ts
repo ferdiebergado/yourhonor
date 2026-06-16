@@ -1,4 +1,4 @@
-import type { Context } from '@netlify/edge-functions';
+import type { Context, EdgeFunction } from '@netlify/edge-functions';
 import { randomBytes } from 'node:crypto';
 
 import { CSP_NONCE_PLACEHOLDER, GOOGLE_ACCOUNTS_ORIGIN } from '../../../shared/constants.ts';
@@ -136,16 +136,12 @@ function buildPermissionsPolicy(directives: Record<PermissionsDirective, string>
     .join(', ');
 }
 
-export default async (req: Request, ctx: Context) => {
-  console.log({ url: req.url }, 'Processing security headers...');
-
-  const res = await ctx.next();
+const csp: EdgeFunction = async (_request: Request, context: Context) => {
+  const res = await context.next();
   const contentType = res.headers.get('content-type');
 
   // Only process HTML responses
   if (!contentType?.includes('text/html')) return res;
-
-  console.log('Injecting CSP nonce...');
 
   // Generate a secure nonce for this request
   const nonce = randomBytes(16).toString('base64');
@@ -171,3 +167,5 @@ export default async (req: Request, ctx: Context) => {
     headers,
   });
 };
+
+export default csp;
