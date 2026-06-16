@@ -22,8 +22,16 @@ path = "/api/*"
 function = "csrf"
 
 [[edge_functions]]
-path = "/*"
-excludedPath = "/api/signin"
+path = "/"
+function = "session"
+
+[[edge_functions]]
+path = "/activities/*"
+function = "session"
+
+[[edge_functions]]
+path = "/api/*"
+excludedPath = ["/api/signin"]
 function = "session"
 
 [[edge_functions]]
