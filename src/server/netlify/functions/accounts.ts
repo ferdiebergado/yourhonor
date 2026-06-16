@@ -2,7 +2,11 @@ import { db } from '@server/db';
 import { createAccount, findActiveAccounts } from '@server/features/account/repo';
 import { maskAccountNo } from '@server/features/account/utils';
 import { type HttpMethod } from '@server/http';
-import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import {
+  withMiddlewares,
+  type AuthenticatedRequest,
+  type NetlifyHandler,
+} from '@server/http/middlewares';
 import { parseJson } from '@server/http/parsers';
 import { encrypt } from '@server/security';
 import {
@@ -49,7 +53,7 @@ async function listAccounts() {
   return Response.json(payload);
 }
 
-async function handler(request: AuthenticatedRequest) {
+const handler: NetlifyHandler = async (request: AuthenticatedRequest) => {
   switch (request.method as HttpMethod) {
     case 'GET': {
       return listAccounts();
@@ -65,6 +69,6 @@ async function handler(request: AuthenticatedRequest) {
       return new Response(undefined, { status: 405, headers: { Allowed: 'GET, POST' } });
     }
   }
-}
+};
 
 export default withMiddlewares(handler);

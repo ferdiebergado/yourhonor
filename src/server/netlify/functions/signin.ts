@@ -2,7 +2,7 @@ import type { Context } from '@netlify/functions';
 import * as z from 'zod';
 
 import { type HttpMethod } from '@server/http';
-import { withErrorHandling } from '@server/http/middlewares';
+import { withErrorHandling, type NetlifyHandler } from '@server/http/middlewares';
 import { parseJson } from '@server/http/parsers';
 import logger from '@server/logger';
 import { signin } from '@server/oauth';
@@ -14,7 +14,7 @@ const authCodeSchema = z.object({
   code: z.string().trim().min(20).max(512),
 });
 
-async function handler(request: Request, context: Context) {
+const handler: NetlifyHandler = async (request: Request, context: Context) => {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)
@@ -37,18 +37,15 @@ async function handler(request: Request, context: Context) {
     data,
   };
 
-  logger.info(
-    {
-      requestId: context.requestId,
-      event: 'auth.signin.success',
-      userId: user.googleId,
-      ip: context.ip,
-      userAgent: request.headers.get('user-agent') ?? 'unknown',
-    },
-    'User signed in.'
-  );
+  logger.info({
+    timestamp: new Date().toISOString(),
+    requestId: context.requestId,
+    msg: 'User signed in.',
+    event: 'auth.signin.success',
+    userId: user.googleId,
+  });
 
   return Response.json(payload);
-}
+};
 
 export default withErrorHandling(handler);

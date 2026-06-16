@@ -4,7 +4,11 @@ import { db } from '@server/db';
 import { NotFoundError } from '@server/errors';
 import { createHonorarium, updateHonorarium } from '@server/features/honorarium/repo';
 import { type HttpMethod } from '@server/http';
-import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import {
+  withMiddlewares,
+  type AuthenticatedRequest,
+  type NetlifyHandler,
+} from '@server/http/middlewares';
 import { parseJson, parseRouteParams } from '@server/http/parsers';
 import logger from '@server/logger';
 import {
@@ -60,7 +64,7 @@ async function handleUpdate(data: HonorariumFormValues, id: Honorarium['id'], us
   return Response.json(payload);
 }
 
-async function handler(request: AuthenticatedRequest, ctx: Context) {
+const handler: NetlifyHandler = async (request: AuthenticatedRequest, ctx: Context) => {
   const userId = request.session.userId;
 
   switch (request.method as HttpMethod) {
@@ -81,6 +85,6 @@ async function handler(request: AuthenticatedRequest, ctx: Context) {
       return new Response(undefined, { status: 405, headers: { Allowed: 'POST, PUT' } });
     }
   }
-}
+};
 
 export default withMiddlewares(handler);

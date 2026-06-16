@@ -1,12 +1,16 @@
 import { db } from '@server/db';
 import { UnauthorizedError } from '@server/errors';
 import type { HttpMethod } from '@server/http';
-import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import {
+  withMiddlewares,
+  type AuthenticatedRequest,
+  type NetlifyHandler,
+} from '@server/http/middlewares';
 import findUser from '@server/user/repo';
 import type { Profile } from '@shared/schemas/user';
 import type { ApiResponse } from '@shared/types';
 
-async function handler(request: AuthenticatedRequest) {
+const handler: NetlifyHandler = async (request: AuthenticatedRequest) => {
   const allowedMethod: HttpMethod = 'GET';
 
   if (request.method !== allowedMethod)
@@ -28,6 +32,6 @@ async function handler(request: AuthenticatedRequest) {
   };
 
   return Response.json(payload);
-}
+};
 
 export default withMiddlewares(handler);

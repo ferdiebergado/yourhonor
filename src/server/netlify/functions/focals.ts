@@ -1,7 +1,11 @@
 import { db } from '@server/db';
 import { createFocal, findActiveFocals } from '@server/features/focal/repo';
 import { type HttpMethod } from '@server/http';
-import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import {
+  withMiddlewares,
+  type AuthenticatedRequest,
+  type NetlifyHandler,
+} from '@server/http/middlewares';
 import { parseJson } from '@server/http/parsers';
 import {
   FocalFormSchema,
@@ -39,7 +43,7 @@ async function listFocals() {
   return Response.json(payload);
 }
 
-async function handler(request: AuthenticatedRequest) {
+const handler: NetlifyHandler = async (request: AuthenticatedRequest) => {
   switch (request.method as HttpMethod) {
     case 'GET': {
       return listFocals();
@@ -55,6 +59,6 @@ async function handler(request: AuthenticatedRequest) {
       return new Response(undefined, { status: 405, headers: { Allowed: 'GET, POST' } });
     }
   }
-}
+};
 
 export default withMiddlewares(handler);

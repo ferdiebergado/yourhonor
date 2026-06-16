@@ -12,7 +12,11 @@ import {
 import { findActiveHonorariaByActivity } from '@server/features/honorarium/repo';
 import { getFundCluster } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
-import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import {
+  withMiddlewares,
+  type AuthenticatedRequest,
+  type NetlifyHandler,
+} from '@server/http/middlewares';
 import { parseJson, parseRouteParams } from '@server/http/parsers';
 import logger from '@server/logger';
 import {
@@ -32,9 +36,7 @@ export const config: Config = {
   path: ['/api/activities', '/api/activities/:code'],
 };
 
-export default withMiddlewares(handler);
-
-async function handler(req: AuthenticatedRequest, ctx: Context) {
+const handler: NetlifyHandler = async (req: AuthenticatedRequest, ctx: Context) => {
   const userId = req.session.userId;
 
   switch (req.method as HttpMethod) {
@@ -63,7 +65,7 @@ async function handler(req: AuthenticatedRequest, ctx: Context) {
       return new Response(undefined, { status: 405, headers: { Allowed: 'GET, POST, PUT' } });
     }
   }
-}
+};
 
 async function handleCreate(data: ActivityFormValues, userId: User['id']) {
   const newActivity: NewActivity = {
@@ -134,3 +136,5 @@ async function handleUpdate(code: string, data: ActivityFormValues, userId: User
 
   return Response.json(payload);
 }
+
+export default withMiddlewares(handler);

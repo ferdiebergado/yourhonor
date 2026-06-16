@@ -3,12 +3,16 @@ import type { Context } from '@netlify/functions';
 import { db } from '@server/db';
 import { NotFoundError } from '@server/errors';
 import type { HttpMethod } from '@server/http';
-import { withMiddlewares, type AuthenticatedRequest } from '@server/http/middlewares';
+import {
+  withMiddlewares,
+  type AuthenticatedRequest,
+  type NetlifyHandler,
+} from '@server/http/middlewares';
 import { emptySessionCookie } from '@server/session/cookie';
 import { softDeleteSession } from '@server/session/repo';
 import type { ApiResponse } from '@shared/types';
 
-async function handler(request: AuthenticatedRequest, ctx: Context) {
+const handler: NetlifyHandler = async (request: AuthenticatedRequest, ctx: Context) => {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)
@@ -25,6 +29,6 @@ async function handler(request: AuthenticatedRequest, ctx: Context) {
   const sessionCookie = emptySessionCookie();
   ctx.cookies.set(sessionCookie);
   return Response.json(payload);
-}
+};
 
 export default withMiddlewares(handler);
