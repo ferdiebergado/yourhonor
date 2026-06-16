@@ -19,20 +19,16 @@ status = 200
 
 [[edge_functions]]
 path = "/api/*"
-function = "request"
+function = "csrf"
 
 [[edge_functions]]
-path = "/api/*"
-function = "json"
-
-[[edge_functions]]
-path = "/api/*"
+path = "/*"
 excludedPath = "/api/signin"
 function = "session"
 
 [[edge_functions]]
 path = "/api/*"
-function = "csrf"
+function = "json"
 
 [[edge_functions]]
 path = "/*"
@@ -61,7 +57,7 @@ excludedPath = [
   "/**/*.ts",
   "/**/*.tsx",
 ]
-function = "response"
+function = "csp"
 
 [dev]
 command = "vite"
