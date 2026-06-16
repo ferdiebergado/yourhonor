@@ -30,7 +30,6 @@ async function initializeDbClient(): Promise<Client> {
   if (_dbClient) return _dbClient;
 
   try {
-    logger.info('Initializing database...');
     _dbClient = createClient({
       url: config.databaseUrl,
       authToken: config.tursoAuthToken,
@@ -38,8 +37,6 @@ async function initializeDbClient(): Promise<Client> {
 
     // Health check
     await runQuery(_dbClient, 'SELECT 1');
-
-    logger.info('Database is up.');
 
     return _dbClient;
   } catch (error) {
