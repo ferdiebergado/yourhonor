@@ -1,9 +1,12 @@
 import type { ApiErrorResponse } from '@shared/types';
 import { AppError } from './errors';
+import type { RequestContext } from './http';
 import logger from './logger';
 
-export function handleError(error: unknown, requestId: string): Response {
-  logError(error, requestId);
+export function handleError(error: unknown, context: RequestContext): Response {
+  logError(error, context);
+
+  const { requestId } = context;
 
   if (error instanceof AppError) {
     const body: ApiErrorResponse = {
@@ -40,11 +43,12 @@ export function handleError(error: unknown, requestId: string): Response {
   });
 }
 
-function logError(error: unknown, requestId: string) {
+function logError(error: unknown, context: RequestContext) {
+  const loggerWithCtx = logger.child({ context });
+
   if (error instanceof Error) {
-    logger.error({
+    loggerWithCtx.error({
       level: 'error',
-      requestId,
       name: error.name,
       message: error.message,
       stack: error.stack,
@@ -54,9 +58,8 @@ function logError(error: unknown, requestId: string) {
     return;
   }
 
-  logger.error({
+  loggerWithCtx.error({
     level: 'error',
-    requestId,
     error,
   });
 }
