@@ -12,7 +12,7 @@ import { findActiveActivityDetailByUser } from './repo';
 import type { Document } from './types';
 import { formatName } from './utils';
 
-export async function genPayrollDoc(
+async function genPayrollDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[]
 ): Promise<Document> {
