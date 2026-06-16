@@ -4,21 +4,21 @@ import { GOOGLE_ACCOUNTS_ORIGIN } from '@shared/constants';
 import type { NewUser } from '@shared/schemas/user';
 import config from './config';
 import { db } from './db';
-import { UnauthorizedError, ValidationError } from './errors';
+import { UnauthorizedError } from './errors';
 import { startSession } from './session';
 import { upsertUser } from './user/repo';
 
-export const oauthClient = new OAuth2Client({
+const oauthClient = new OAuth2Client({
   clientId: config.googleClientId,
   clientSecret: config.googleClientSecret,
   redirectUri: config.googleRedirectUri,
 });
 
-export async function verifyCode(oauthClient: OAuth2Client, code: string): Promise<NewUser> {
+async function verifyAuthCode(oauthClient: OAuth2Client, authCode: string): Promise<NewUser> {
   const {
     tokens: { id_token },
-  } = await oauthClient.getToken(code);
-  if (!id_token) throw new ValidationError('Missing id token');
+  } = await oauthClient.getToken(authCode);
+  if (!id_token) throw new UnauthorizedError('Missing id token');
 
   const ticket = await oauthClient.verifyIdToken({
     idToken: id_token,
@@ -42,7 +42,7 @@ export async function verifyCode(oauthClient: OAuth2Client, code: string): Promi
 export async function signin(
   code: string
 ): Promise<{ user: NewUser; sessionId: string; expiresAt: string }> {
-  const user = await verifyCode(oauthClient, code);
+  const user = await verifyAuthCode(oauthClient, code);
   const userId = await upsertUser(db, user);
   const { sessionId, expiresAt } = await startSession(db, userId);
 
