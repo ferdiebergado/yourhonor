@@ -17,6 +17,7 @@ export const withLogger: Middleware = (handler: NetlifyHandler) => {
     const durationMs = Math.round(performance.now() - start);
 
     logger.info({
+      msg: 'Request completed.',
       ...getBaseRequestContext(request, context),
       statusCode: response.status,
       durationInMs: durationMs,
