@@ -1,6 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
 
-import { GOOGLE_ACCOUNTS_ORIGIN } from '@shared/constants';
 import type { NewUser } from '@shared/schemas/user';
 import config from './config';
 import { db } from './db';
@@ -28,8 +27,6 @@ async function verifyAuthCode(oauthClient: OAuth2Client, authCode: string): Prom
   const tokenPayload = ticket.getPayload();
 
   if (!tokenPayload) throw new UnauthorizedError('Invalid token payload');
-
-  if (tokenPayload.iss !== GOOGLE_ACCOUNTS_ORIGIN) throw new UnauthorizedError('Invalid issuer');
 
   return {
     googleId: tokenPayload.sub,
