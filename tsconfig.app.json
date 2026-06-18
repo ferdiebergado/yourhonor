@@ -28,5 +28,5 @@
     },
     "ignoreDeprecations": "6.0"
   },
-  "include": ["./src/client"]
+  "include": ["./src/client", "./src/shared"]
 }
