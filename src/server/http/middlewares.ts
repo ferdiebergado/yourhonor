@@ -1,41 +1,15 @@
-import type { Context } from '@netlify/functions';
-
 import { handleError } from '@server/error-handler';
 import logger from '@server/logger';
-import { getSession, type Session } from '@server/session';
+import { getSession } from '@server/session';
+import type { NetlifyFunction } from '@server/types';
 import { getBaseRequestContext, getRequestContext } from '.';
 
-export type AuthenticatedRequest = Request & { session: Session };
-export type NetlifyHandler = (request: AuthenticatedRequest, context: Context) => Promise<Response>;
+type Middleware = (handler: NetlifyFunction) => NetlifyFunction;
 
-type Middleware = (handler: NetlifyHandler) => NetlifyHandler;
+export const withMiddlewares: Middleware = (handler: NetlifyFunction) =>
+  withErrorHandler(logRequest(attachSession(handler)));
 
-export const withLogger: Middleware = (handler: NetlifyHandler) => {
-  return async (request, context) => {
-    const start = performance.now();
-    const response = await handler(request, context);
-    const durationMs = Math.round(performance.now() - start);
-
-    logger.info({
-      msg: 'Request completed.',
-      ...getBaseRequestContext(request, context),
-      statusCode: response.status,
-      durationInMs: durationMs,
-    });
-
-    return response;
-  };
-};
-
-export const withSession: Middleware = (handler: NetlifyHandler) => {
-  return async (request, context) => {
-    const session = await getSession(request);
-    request.session = session;
-    return await handler(request, context);
-  };
-};
-
-export const withErrorHandling: Middleware = (handler: NetlifyHandler) => {
+export const withErrorHandler: Middleware = (handler: NetlifyFunction) => {
   return async (request, context) => {
     try {
       return await handler(request, context);
@@ -46,5 +20,27 @@ export const withErrorHandling: Middleware = (handler: NetlifyHandler) => {
   };
 };
 
-export const withMiddlewares: Middleware = (handler: NetlifyHandler) =>
-  withErrorHandling(withLogger(withSession(handler)));
+export const logRequest: Middleware = (handler: NetlifyFunction) => {
+  return async (request, context) => {
+    const start = performance.now();
+    const response = await handler(request, context);
+    const durationMs = Math.round(performance.now() - start);
+
+    logger.info({
+      msg: 'Request completed.',
+      ...getBaseRequestContext(request, context),
+      statusCode: response.status,
+      durationMs,
+    });
+
+    return response;
+  };
+};
+
+export const attachSession: Middleware = (handler: NetlifyFunction) => {
+  return async (request, context) => {
+    const session = await getSession(request);
+    request.session = session;
+    return await handler(request, context);
+  };
+};
