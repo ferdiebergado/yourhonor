@@ -5,7 +5,7 @@ const BASE_COOKIE: Readonly<Omit<Cookie, 'name' | 'value'>> = {
   path: '/',
   secure: true,
   httpOnly: true,
-  sameSite: 'Strict',
+  sameSite: 'Lax',
 };
 
 export function bakeSessionCookie(sessionId: string, expiresAt: string): Cookie {
