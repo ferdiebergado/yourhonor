@@ -12,18 +12,18 @@ const session: EdgeFunction = async (request: Request, context: Context) => {
     return await context.next();
   }
 
+  const msg = 'No session cookie';
+  const meta = { ...getRequestContext(request, context) };
+  console.warn(msg, { meta });
+
   const url = new URL(request.url);
   if (url.pathname.startsWith(API_BASE_URL + '/')) {
     const payload: ApiResponse = {
       success: false,
-      error: { code: ERROR_CODES.UNAUTHORIZED, message: 'No session cookie' },
+      error: { code: ERROR_CODES.UNAUTHORIZED, message: msg },
     };
 
-    const status = 401;
-    const meta = { ...getRequestContext(request, context), status };
-    console.warn(payload.error.message, { meta });
-
-    return Response.json(payload, { status });
+    return Response.json(payload, { status: 401 });
   }
 
   return Response.redirect('/signin', 302);
