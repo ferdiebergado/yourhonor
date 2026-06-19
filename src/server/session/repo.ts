@@ -1,10 +1,10 @@
 import type { Database } from '@server/db';
-import type { NewSession, Session } from '.';
+import type { Session } from '.';
 
 const sessionColumns =
   'id, session_id sessionId, user_id userId, expires_at expiresAt, last_active_at lastActiveAt, updated_at updatedAt, created_at createdAt, deleted_at deletedAt';
 
-export async function createSession(db: Database, session: NewSession): Promise<Session> {
+export async function createSession(db: Database, session: Session): Promise<Session> {
   const sql = `
 INSERT INTO sessions (session_id, user_id, expires_at)
 VALUES (?, ?, ?)
@@ -26,7 +26,7 @@ export async function findSession(db: Database, id: string): Promise<Session | u
   const sql = `
 SELECT ${sessionColumns}
 FROM sessions
-WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 AND deleted_at IS NULL
+WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND revoked_at IS NULL AND deleted_at IS NULL
 LIMIT 1
 `;
 
@@ -41,7 +41,7 @@ export async function touchSession(db: Database, id: string): Promise<boolean> {
   const sql = `
 UPDATE sessions
 SET last_active_at = ?, updated_at = ?
-WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 AND deleted_at IS NULL
+WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND revoked_at IS NULL AND deleted_at IS NULL
 `;
 
   const now = new Date().toISOString();
@@ -57,7 +57,7 @@ export async function softDeleteSession(db: Database, id: string): Promise<boole
   const sql = `
 UPDATE sessions
 SET deleted_at = ?
-WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 AND deleted_at IS NULL
+WHERE session_id = ? AND datetime(expires_at) > datetime(?) AND revoked_at IS NULL AND deleted_at IS NULL
     `;
 
   const { rowsAffected } = await db.execute(sql, [now, id, now]);
@@ -74,11 +74,11 @@ export async function revokeSession(
 
   const sql = `
 UPDATE sessions
-SET is_revoked = 1, updated_at = ?
-WHERE session_id = ? AND user_id = ? AND datetime(expires_at) > datetime(?) AND is_revoked = 0 AND deleted_at IS NULL
+SET revoked_at = ?, updated_at = ?
+WHERE session_id = ? AND user_id = ? AND datetime(expires_at) > datetime(?) AND revoked_at IS NULL AND deleted_at IS NULL
 `;
 
-  const { rowsAffected } = await db.execute(sql, [now, sessionId, userId, now]);
+  const { rowsAffected } = await db.execute(sql, [now, now, sessionId, userId, now]);
 
   return rowsAffected === 1;
 }

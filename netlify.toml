@@ -31,7 +31,7 @@ function = "session"
 
 [[edge_functions]]
 path = "/api/*"
-excludedPath = ["/api/signin"]
+excludedPath = ["/api/signin", "/api/oauthcallback"]
 function = "session"
 
 [[edge_functions]]

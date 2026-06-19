@@ -1,51 +1,34 @@
 import type { Context } from '@netlify/functions';
-import * as z from 'zod';
+import { randomBytes } from 'node:crypto';
 
+import { generateAuthUrl, OAUTH_STATE_COOKIE } from '@server/features/auth/google';
 import { type HttpMethod } from '@server/http';
-import { withErrorHandling, type NetlifyHandler } from '@server/http/middlewares';
-import { parseJson } from '@server/http/parsers';
-import logger from '@server/logger';
-import { signin } from '@server/oauth';
-import { bakeSessionCookie } from '@server/session/cookie';
-import type { Profile } from '@shared/schemas/user';
-import type { ApiResponse } from '@shared/types';
+import { logRequest, withErrorHandler } from '@server/http/middlewares';
+import type { AppRequest, Cookie, NetlifyFunction } from '@server/types';
 
-const authCodeSchema = z.object({
-  code: z.string().trim().min(20).max(512),
-});
-
-const handler: NetlifyHandler = async (request: Request, context: Context) => {
-  const allowedMethod: HttpMethod = 'POST';
+const handler: NetlifyFunction = async (request: AppRequest, context: Context) => {
+  const allowedMethod: HttpMethod = 'GET';
 
   if (request.method !== allowedMethod)
     return new Response(undefined, { status: 405, headers: { Allow: allowedMethod } });
 
-  const { code } = await parseJson(request, authCodeSchema);
-  const { user, sessionId, expiresAt } = await signin(code);
+  const state = randomBytes(32).toString('base64url');
 
-  const sessionCookie = bakeSessionCookie(sessionId, expiresAt);
-  context.cookies.set(sessionCookie);
+  const authUrl = generateAuthUrl(state);
 
-  const data: Profile = {
-    email: user.email,
-    name: user.name,
-    picture: user.picture,
+  const stateCookie: Cookie = {
+    name: OAUTH_STATE_COOKIE,
+    value: state,
+    path: '/',
+    maxAge: 300,
+    secure: true,
+    httpOnly: true,
+    sameSite: 'Lax',
   };
 
-  const payload: ApiResponse<Profile> = {
-    success: true,
-    data,
-  };
+  context.cookies.set(stateCookie);
 
-  logger.info({
-    timestamp: new Date().toISOString(),
-    requestId: context.requestId,
-    msg: 'User signed in.',
-    event: 'auth.signin.success',
-    userId: user.googleId,
-  });
-
-  return Response.json(payload);
+  return Response.redirect(authUrl, 302);
 };
 
-export default withErrorHandling(handler);
+export default withErrorHandler(logRequest(handler));

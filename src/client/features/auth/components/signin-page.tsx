@@ -1,11 +1,23 @@
+import { RiGoogleFill } from '@remixicon/react';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router';
+import { toast } from 'sonner';
+
 import Logo from '@client/components/logo';
 import PrivacyLink from '@client/components/privacy-link';
 import TermsLink from '@client/components/terms-link';
+import { buttonVariants } from '@client/components/ui/button';
 import { Card, CardContent } from '@client/components/ui/card';
 import config from '@client/config';
-import SigninButton from './signin-button';
 
 export default function SigninPage() {
+  const [searchParams] = useSearchParams();
+  const error = searchParams.get('error') ?? 'Signin failed.';
+
+  useEffect(() => {
+    toast.error(error);
+  }, [error]);
+
   return (
     <Card className="border-border/40 m-3 w-full max-w-md overflow-hidden md:m-0">
       <CardContent className="flex flex-col items-center space-y-6 p-8 sm:p-10">
@@ -27,7 +39,9 @@ export default function SigninPage() {
         </div>
 
         {/* Sign In Button */}
-        <SigninButton />
+        <a href="/api/signin" className={buttonVariants({ variant: 'default', size: 'lg' })}>
+          <RiGoogleFill className="size-5" data-icon="inline-start" /> Continue with Google
+        </a>
 
         {/* Legal Footer */}
         <p className="text-muted-foreground mt-4 text-center text-xs">

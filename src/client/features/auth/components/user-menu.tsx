@@ -18,7 +18,7 @@ export default function UserMenu() {
   const handleSignout = () => signout(undefined, { onSuccess: () => toast.info('Signed out.') });
 
   // eslint-disable-next-line unicorn/no-null
-  if (!user) return null;
+  if (user === null) return null;
 
   return (
     <DropdownMenu>
@@ -27,7 +27,7 @@ export default function UserMenu() {
           <Button variant="ghost" size="icon" className="rounded-full">
             <span className="sr-only">Toggle user menu</span>
             <Avatar>
-              <AvatarImage src={user.picture} alt="user-avatar" />
+              <AvatarImage src={user?.picture} alt="user-avatar" />
               <AvatarFallback>
                 <RiUserLine className="size-6" />
               </AvatarFallback>

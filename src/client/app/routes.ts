@@ -5,7 +5,6 @@ import GuestLayout from '@client/components/guest-layout';
 import RequireGuest from '@client/features/auth/components/require-guest';
 import SigninPage from '@client/features/auth/components/signin-page';
 
-const OauthCallback = lazy(() => import('@client/features/auth/components/oauth-callback'));
 const RequireUser = lazy(() => import('@client/features/auth/components/require-user'));
 const Layout = lazy(() => import('@client/components/layout'));
 const Dashboard = lazy(() => import('./pages/dashboard'));
@@ -46,10 +45,6 @@ export const routes: RouteObject[] = [
           {
             path: paths.signin,
             Component: SigninPage,
-          },
-          {
-            path: paths.oauthCallback,
-            Component: OauthCallback,
           },
         ],
       },

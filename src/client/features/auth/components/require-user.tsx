@@ -10,11 +10,11 @@ export default function RequireUser() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) navigate(paths.signin, { replace: true, state: { from: pathname } });
+    if (user === null) navigate(paths.signin, { replace: true, state: { from: pathname } });
   }, [navigate, pathname, user]);
 
   // eslint-disable-next-line unicorn/no-null
-  if (!user) return null;
+  if (user === null) return null;
 
   return <Outlet />;
 }

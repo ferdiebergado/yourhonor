@@ -1,12 +1,19 @@
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router';
+import { toast } from 'sonner';
+
 import StatCard from '@client/components/stat-card';
 import { Card, CardDescription, CardHeader, CardTitle } from '@client/components/ui/card';
 import { useSummary } from '../hooks';
 
 export default function Dashboard() {
   const { data: summary } = useSummary();
+  const [searchParams] = useSearchParams();
+  const success = searchParams.get('success') ?? 'Signin success!';
 
-  // eslint-disable-next-line unicorn/no-null
-  if (!summary) return null;
+  useEffect(() => {
+    toast.success(success);
+  }, [success]);
 
   return (
     <div className="space-y-7">
@@ -20,8 +27,8 @@ export default function Dashboard() {
         </CardHeader>
       </Card>
       <div className="flex gap-10">
-        <StatCard label="Total Activities" value={summary.totalActivities} />
-        <StatCard label="Total Honoraria" value={summary.totalHonoraria} />
+        <StatCard label="Total Activities" value={summary?.totalActivities ?? 0} />
+        <StatCard label="Total Honoraria" value={summary?.totalHonoraria ?? 0} />
       </div>
     </div>
   );

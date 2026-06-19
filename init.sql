@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
-  is_revoked INTEGER DEFAULT 0 CHECK (is_revoked IN (0, 1)),
+  revoked_at TEXT,
   FOREIGN KEY (user_id) REFERENCES users (id)
 );
 

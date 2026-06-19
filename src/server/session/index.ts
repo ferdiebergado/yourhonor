@@ -3,25 +3,24 @@ import { randomBytes } from 'node:crypto';
 import { db, type Database } from '@server/db';
 import { UnauthorizedError } from '@server/errors';
 import { SESSION } from '@shared/constants';
+import type { User } from '@shared/schemas/user';
 import { createSession, findSession, touchSession } from './repo';
 
 export type Session = {
   sessionId: string;
-  userId: number;
+  userId: User['id'];
   expiresAt: string;
   isActive?: boolean;
   lastActiveAt: string;
 };
 
-export type NewSession = Omit<Session, 'id' | 'lastActiveAt'>;
-
-export async function startSession(db: Database, userId: number): Promise<Session> {
-  const session = newSession(userId);
+export async function startSession(db: Database, userId: User['id']): Promise<Session> {
+  const session = generateSession(userId);
 
   return await createSession(db, session);
 }
 
-export function newSession(userId: number): NewSession {
+export function generateSession(userId: User['id']): Session {
   const sessionId = randomBytes(SESSION.ID_LENGTH).toString('base64');
   const expiresAt = setExpiryDate();
 
@@ -29,6 +28,7 @@ export function newSession(userId: number): NewSession {
     sessionId,
     userId,
     expiresAt,
+    lastActiveAt: new Date().toISOString(),
   };
 }
 
