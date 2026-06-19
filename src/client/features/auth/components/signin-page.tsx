@@ -12,11 +12,12 @@ import config from '@client/config';
 
 export default function SigninPage() {
   const [searchParams] = useSearchParams();
-  const error = searchParams.get('error') ?? 'Signin failed.';
+  const error = searchParams.get('error');
 
   useEffect(() => {
-    toast.error(error);
-  }, [error]);
+    if (error) toast.error(error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Card className="border-border/40 m-3 w-full max-w-md overflow-hidden md:m-0">

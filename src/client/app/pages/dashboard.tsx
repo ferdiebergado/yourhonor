@@ -9,10 +9,10 @@ import { useSummary } from '../hooks';
 export default function Dashboard() {
   const { data: summary } = useSummary();
   const [searchParams] = useSearchParams();
-  const success = searchParams.get('success') ?? 'Signin success!';
+  const success = searchParams.get('success');
 
   useEffect(() => {
-    toast.success(success);
+    if (success) toast.success(success);
   }, [success]);
 
   return (
