@@ -12,13 +12,10 @@ import {
 import { findActiveHonorariaByActivity } from '@server/features/honorarium/repo';
 import { getFundCluster } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { parseJson, parseRouteParams } from '@server/http/parsers';
 import logger from '@server/logger';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import {
   ActivityCodeSchema,
   ActivityFormSchema,
@@ -36,28 +33,28 @@ export const config: Config = {
   path: ['/api/activities', '/api/activities/:code'],
 };
 
-const handler: NetlifyHandler = async (req: AuthenticatedRequest, ctx: Context) => {
-  const userId = req.session.userId;
+const handler: NetlifyFunction = async (request: AppRequest, context: Context) => {
+  const userId = request.session.userId;
 
-  switch (req.method as HttpMethod) {
+  switch (request.method as HttpMethod) {
     case 'GET': {
-      if (!ctx.params.code) return listActivities(userId);
+      if (!context.params.code) return listActivities(userId);
 
-      const { code } = parseRouteParams(ctx.params, ActivityCodeSchema);
+      const { code } = parseRouteParams(context.params, ActivityCodeSchema);
       return getActivity(code, userId);
     }
 
     case 'POST': {
-      const activity = await parseJson(req, ActivityFormSchema);
+      const activity = await parseJson(request, ActivityFormSchema);
       return handleCreate(activity, userId);
     }
 
     case 'PUT': {
-      const { code } = parseRouteParams(ctx.params, ActivityCodeSchema);
+      const { code } = parseRouteParams(context.params, ActivityCodeSchema);
 
       logger.info({ code }, 'Updating activity...');
 
-      const activity = await parseJson(req, ActivityFormSchema);
+      const activity = await parseJson(request, ActivityFormSchema);
       return handleUpdate(code, activity, userId);
     }
 

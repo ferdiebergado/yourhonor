@@ -3,16 +3,13 @@ import type { Context } from '@netlify/functions';
 import { db } from '@server/db';
 import { NotFoundError } from '@server/errors';
 import type { HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { emptySessionCookie } from '@server/session/cookie';
 import { softDeleteSession } from '@server/session/repo';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import type { ApiResponse } from '@shared/types';
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest, ctx: Context) => {
+const handler: NetlifyFunction = async (request: AppRequest, ctx: Context) => {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)

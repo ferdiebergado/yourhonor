@@ -1,16 +1,13 @@
 import { db } from '@server/db';
 import { UnauthorizedError } from '@server/errors';
 import type { HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import findUser from '@server/user/repo';
 import type { Profile } from '@shared/schemas/user';
 import type { ApiResponse } from '@shared/types';
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest) => {
+const handler: NetlifyFunction = async (request: AppRequest) => {
   const allowedMethod: HttpMethod = 'GET';
 
   if (request.method !== allowedMethod)

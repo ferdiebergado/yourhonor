@@ -4,13 +4,10 @@ import { db } from '@server/db';
 import { NotFoundError } from '@server/errors';
 import { createHonorarium, updateHonorarium } from '@server/features/honorarium/repo';
 import { type HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { parseJson, parseRouteParams } from '@server/http/parsers';
 import logger from '@server/logger';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import {
   HonorariumFormSchema,
   HonorariumIdSchema,
@@ -64,7 +61,7 @@ async function handleUpdate(data: HonorariumFormValues, id: Honorarium['id'], us
   return Response.json(payload);
 }
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest, ctx: Context) => {
+const handler: NetlifyFunction = async (request: AppRequest, ctx: Context) => {
   const userId = request.session.userId;
 
   switch (request.method as HttpMethod) {

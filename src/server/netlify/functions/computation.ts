@@ -4,19 +4,16 @@ import { NotFoundError } from '@server/errors';
 import { generateComputation } from '@server/features/honorarium';
 import { docxResponse } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { parseRouteParams } from '@server/http/parsers';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
 export const config: Config = {
   path: ['/api/activities/:code/computation'],
 };
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest, ctx: Context) => {
+const handler: NetlifyFunction = async (request: AppRequest, ctx: Context) => {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)

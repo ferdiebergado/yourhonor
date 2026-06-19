@@ -4,19 +4,16 @@ import { NotFoundError } from '@server/errors';
 import { generatePayroll } from '@server/features/activity/payroll-service';
 import { xlsxResponse } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { parseRouteParams } from '@server/http/parsers';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
 export const config: Config = {
   path: ['/api/activities/:code/payroll'],
 };
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest, context: Context) => {
+const handler: NetlifyFunction = async (request: AppRequest, context: Context) => {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)

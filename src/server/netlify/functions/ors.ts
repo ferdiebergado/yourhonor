@@ -4,19 +4,16 @@ import { NotFoundError } from '@server/errors';
 import { generateORS } from '@server/features/activity/ors';
 import { xlsxResponse } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { parseRouteParams } from '@server/http/parsers';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
 export const config: Config = {
   path: ['/api/activities/:code/ors'],
 };
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest, ctx: Context) => {
+const handler: NetlifyFunction = async (request: AppRequest, ctx: Context) => {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)

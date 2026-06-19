@@ -2,13 +2,10 @@ import { db } from '@server/db';
 import { createAccount, findActiveAccounts } from '@server/features/account/repo';
 import { maskAccountNo } from '@server/features/account/utils';
 import { type HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { parseJson } from '@server/http/parsers';
 import { encrypt } from '@server/security';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import {
   AccountFormSchema,
   type AccountDetail,
@@ -53,7 +50,7 @@ async function listAccounts() {
   return Response.json(payload);
 }
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest) => {
+const handler: NetlifyFunction = async (request: AppRequest) => {
   switch (request.method as HttpMethod) {
     case 'GET': {
       return listAccounts();

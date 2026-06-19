@@ -1,12 +1,9 @@
 import { db } from '@server/db';
 import { createRole, findActiveRoles } from '@server/features/role/repo';
 import { type HttpMethod } from '@server/http';
-import {
-  withMiddlewares,
-  type AuthenticatedRequest,
-  type NetlifyHandler,
-} from '@server/http/middlewares';
+import { withMiddlewares } from '@server/http/middlewares';
 import { parseJson } from '@server/http/parsers';
+import type { AppRequest, NetlifyFunction } from '@server/types';
 import {
   RoleFormSchema,
   type NewRole,
@@ -43,7 +40,7 @@ async function listRoles() {
   return Response.json(payload);
 }
 
-const handler: NetlifyHandler = async (request: AuthenticatedRequest) => {
+const handler: NetlifyFunction = async (request: AppRequest) => {
   switch (request.method as HttpMethod) {
     case 'GET': {
       return listRoles();

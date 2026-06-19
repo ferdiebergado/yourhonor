@@ -1,23 +1,10 @@
+import type { Cookie } from '@server/types';
 import { SESSION } from '@shared/constants';
-
-type Cookie = {
-  name: string;
-  value: string;
-  url?: string;
-  domain?: string;
-  path?: string;
-  maxAge?: number;
-  expires?: Date;
-  httpOnly?: boolean;
-  secure?: boolean;
-  sameSite?: 'Strict' | 'Lax' | 'None';
-  partitioned?: boolean;
-};
 
 const BASE_COOKIE: Readonly<Omit<Cookie, 'name' | 'value'>> = {
   path: '/',
-  httpOnly: true,
   secure: true,
+  httpOnly: true,
   sameSite: 'Strict',
 };
 
