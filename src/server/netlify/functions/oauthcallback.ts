@@ -8,13 +8,13 @@ import { bakeSessionCookie } from '@server/session/cookie';
 import type { AppRequest, Cookie, NetlifyFunction } from '@server/types';
 
 const handler: NetlifyFunction = async (request: AppRequest, context: Context) => {
-  const searchParams = new URL(request.url).searchParams;
+  const { searchParams } = new URL(request.url);
   const incomingCode = searchParams.get('code');
   const incomingState = searchParams.get('state');
 
   const storedState = context.cookies.get(OAUTH_STATE_COOKIE);
 
-  const stateCookie: Cookie = {
+  const expiredStateCookie: Cookie = {
     name: OAUTH_STATE_COOKIE,
     value: '',
     path: '/',
@@ -23,15 +23,15 @@ const handler: NetlifyFunction = async (request: AppRequest, context: Context) =
     httpOnly: true,
     sameSite: 'Lax',
   };
-  context.cookies.set(stateCookie);
+  context.cookies.set(expiredStateCookie);
 
   const { host } = config;
 
   if (!incomingCode || !incomingState || incomingState !== storedState) {
-    const url = new URL(`${host}/signin`);
-    url.searchParams.set('error', 'Access denied.');
+    const signinUrl = new URL(`${host}/signin`);
+    signinUrl.searchParams.set('error', 'Access denied.');
 
-    return Response.redirect(url, 302);
+    return Response.redirect(signinUrl);
   }
 
   const { user, sessionId, expiresAt } = await signin(incomingCode);
@@ -47,10 +47,10 @@ const handler: NetlifyFunction = async (request: AppRequest, context: Context) =
     userId: user.googleId,
   });
 
-  const url = new URL(`${host}`);
-  url.searchParams.set('success', 'Signed in succesfully.');
+  const dashboardUrl = new URL(`${host}`);
+  dashboardUrl.searchParams.set('success', 'Signed in succesfully.');
 
-  return Response.redirect(host, 302);
+  return Response.redirect(dashboardUrl);
 };
 
 export default withErrorHandler(logRequest(handler));
