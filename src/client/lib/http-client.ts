@@ -26,9 +26,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T | null
   if (!body.success) throw new ApiError(body, res.status);
 
   // eslint-disable-next-line unicorn/no-null
-  if (!body.data) return null;
-
-  return body.data;
+  return body.data ?? null;
 }
 
 export const api = {
