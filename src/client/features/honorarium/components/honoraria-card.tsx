@@ -16,13 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@client/components/ui/card';
-import { useActivityContext } from '@client/features/activity/hooks';
 import {
   useGenCert,
   useGenComp,
   useGenORS,
   useGenPayroll,
 } from '@client/features/honorarium/hooks';
+import type { Activity } from '@shared/schemas/activity';
+import type { HonorariumInfo } from '@shared/schemas/honorarium';
 import HonorariaTable from './honoraria-table';
 
 type GeneratorButtonProps = {
@@ -40,19 +41,18 @@ function GeneratorButton({ title, isLoading, onClick, disabled = false }: Genera
   );
 }
 
-export default function HonorariaCard() {
-  const activity = useActivityContext();
+type HonorariaCardProps = {
+  activityCode: Activity['code'];
+  honoraria: HonorariumInfo[];
+};
+
+export default function HonorariaCard({ activityCode, honoraria }: HonorariaCardProps) {
   const navigate = useNavigate();
 
   const { isPending: isGeneratingCert, mutate: genCert } = useGenCert();
   const { isPending: isGeneratingComp, mutate: genComp } = useGenComp();
   const { isPending: isGeneratingORS, mutate: genORS } = useGenORS();
   const { isPending: isGeneratingPayroll, mutate: genPayroll } = useGenPayroll();
-
-  // eslint-disable-next-line unicorn/no-null
-  if (!activity) return null;
-
-  const { code: activityCode, honoraria } = activity;
 
   const buttonData: GeneratorButtonProps[] = [
     {
