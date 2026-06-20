@@ -1,11 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-function handleError(error: Error) {
-  console.error(error);
-  toast.error(error.message);
-}
-
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -16,3 +11,8 @@ export const queryClient = new QueryClient({
     onError: error => handleError(error),
   }),
 });
+
+function handleError(error: Error) {
+  console.error(error);
+  toast.error(error.message);
+}
