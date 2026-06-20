@@ -13,7 +13,7 @@ import { useMe, useSignout } from '../hooks';
 
 export default function UserMenu() {
   const { data: user } = useMe();
-  const { isPending, mutate: signout } = useSignout();
+  const { isPending: isSigningOut, mutate: signout } = useSignout();
 
   const handleSignout = () => signout(undefined, { onSuccess: () => toast.info('Signed out.') });
 
@@ -36,8 +36,8 @@ export default function UserMenu() {
         }
       />
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleSignout}>
-          {isPending ? (
+        <DropdownMenuItem closeOnClick={false} onClick={handleSignout}>
+          {isSigningOut ? (
             <>
               <RiLoader2Line className="animate-spin" data-icon="inline-start" />
               Signing out...
