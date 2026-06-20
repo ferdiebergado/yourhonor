@@ -2,6 +2,7 @@ import type { Context } from '@netlify/edge-functions';
 
 import config from '@server/config';
 import { OAUTH_STATE_COOKIE, signin } from '@server/features/auth/google';
+import { getBaseRequestContext } from '@server/http';
 import { logRequest, withErrorHandler } from '@server/http/middlewares';
 import logger from '@server/logger';
 import { bakeSessionCookie } from '@server/session/cookie';
@@ -9,10 +10,10 @@ import type { AppRequest, Cookie, NetlifyFunction } from '@server/types';
 
 const handler: NetlifyFunction = async (request: AppRequest, context: Context) => {
   const { searchParams } = new URL(request.url);
-  const incomingCode = searchParams.get('code');
-  const incomingState = searchParams.get('state');
+  const authCode = searchParams.get('code');
+  const state = searchParams.get('state');
 
-  const storedState = context.cookies.get(OAUTH_STATE_COOKIE);
+  const savedState = context.cookies.get(OAUTH_STATE_COOKIE);
 
   const expiredStateCookie: Cookie = {
     name: OAUTH_STATE_COOKIE,
@@ -27,14 +28,15 @@ const handler: NetlifyFunction = async (request: AppRequest, context: Context) =
 
   const { host } = config;
 
-  if (!incomingCode || !incomingState || incomingState !== storedState) {
+  if (!authCode || !state || state !== savedState) {
     const signinUrl = new URL(`${host}/signin`);
     signinUrl.searchParams.set('error', 'Access denied.');
+    logger.warn({ ...getBaseRequestContext(request, context), msg: 'Signin failed.' });
 
     return Response.redirect(signinUrl);
   }
 
-  const { user, sessionId, expiresAt } = await signin(incomingCode);
+  const { user, sessionId, expiresAt } = await signin(authCode);
 
   const sessionCookie = bakeSessionCookie(sessionId, expiresAt);
   context.cookies.set(sessionCookie);
@@ -47,7 +49,7 @@ const handler: NetlifyFunction = async (request: AppRequest, context: Context) =
     userId: user.googleId,
   });
 
-  const dashboardUrl = new URL(`${host}`);
+  const dashboardUrl = new URL(host);
   dashboardUrl.searchParams.set('success', 'Signed in succesfully.');
 
   return Response.redirect(dashboardUrl);
