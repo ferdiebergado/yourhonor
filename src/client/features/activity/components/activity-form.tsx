@@ -1,10 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useIsMutating } from '@tanstack/react-query';
-import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';
-import { toast } from 'sonner';
+import { Controller, type FieldValues, type UseFormReturn } from 'react-hook-form';
 
-import { paths } from '@client/app/routes';
 import FormButtons from '@client/components/form-buttons';
 import GenericCombobox from '@client/components/generic-combobox';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
@@ -15,47 +11,20 @@ import AddFocalDialog from '@client/features/focal/components/add-focal-dialog';
 import { useFocals } from '@client/features/focal/hooks';
 import AddVenueDialog from '@client/features/venue/components/add-venue-dialog';
 import { useVenues } from '@client/features/venue/hooks';
-import { setFormErrors } from '@client/lib/utils';
-import { ActivityFormSchema, type ActivityFormValues } from '@shared/schemas/activity';
+import { type ActivityFormValues } from '@shared/schemas/activity';
 import { getFullName } from '@shared/utils';
-import { activityKeys, useCreateActivity, useSyncDateInputs, useUpdateActivity } from '../hooks';
+import { activityKeys, useSyncDateInputs } from '../hooks';
 
-type ActivityFormProps = {
-  defaultValues: ActivityFormValues;
-  isEditMode?: boolean;
+type ActivityFormProps<T extends FieldValues = ActivityFormValues> = {
+  form: UseFormReturn<T>;
+  onSubmit: (values: T) => void;
 };
 
-export default function ActivityForm({ defaultValues, isEditMode }: ActivityFormProps) {
+export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
   const { isLoading: isFetchingVenues, data: venues } = useVenues();
   const { isLoading: isFetchingFocals, data: focals } = useFocals();
-  const { mutate: createActivity } = useCreateActivity();
-  const { mutate: updateActivity } = useUpdateActivity(defaultValues.code);
-  const navigate = useNavigate();
+
   const isMutating = useIsMutating({ mutationKey: activityKeys.all }) > 0;
-
-  const form = useForm<ActivityFormValues>({
-    resolver: zodResolver(ActivityFormSchema),
-    defaultValues,
-  });
-
-  function onSubmit(values: ActivityFormValues) {
-    if (isEditMode) {
-      updateActivity(values, {
-        onSuccess: () => toast.success('Activity updated successfully.'),
-        onError: error => setFormErrors(form, error),
-      });
-      return;
-    }
-
-    createActivity(values, {
-      onSuccess: () => {
-        toast.success('Activity created successfully.');
-        form.reset(defaultValues);
-        navigate(paths.activities);
-      },
-      onError: error => setFormErrors(form, error),
-    });
-  }
 
   useSyncDateInputs(form);
 
@@ -76,7 +45,7 @@ export default function ActivityForm({ defaultValues, isEditMode }: ActivityForm
                 aria-invalid={fieldState.invalid}
                 autoComplete="off"
                 className="h-30"
-                autoFocus={!isEditMode}
+                autoFocus
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

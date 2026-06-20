@@ -1,14 +1,13 @@
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createContext, useContext, useEffect } from 'react';
-import { useWatch, type UseFormReturn } from 'react-hook-form';
+import { useForm, useWatch, type UseFormReturn } from 'react-hook-form';
 
-import { type ActivityFormValues, type ActivityWithHonoraria } from '@shared/schemas/activity';
+import {
+  ActivityFormSchema,
+  type ActivityFormValues,
+  type ActivityWithHonoraria,
+} from '@shared/schemas/activity';
 import { createActivity, fetchActivities, fetchActivity, updateActivity } from './api';
 
 export const activityKeys = {
@@ -35,19 +34,14 @@ export const fetchActivitiesOptions = () =>
 
 export const useActivities = () => useSuspenseQuery(fetchActivitiesOptions());
 
-const fetchActivityOptions = (code?: string) =>
+const fetchActivityOptions = (code: string) =>
   queryOptions({
-    queryKey: activityKeys.byCode(code ?? ''),
-    queryFn: () => {
-      // eslint-disable-next-line unicorn/no-null
-      if (!code) return null;
-      return fetchActivity(code);
-    },
+    queryKey: activityKeys.byCode(code),
+    queryFn: () => fetchActivity(code),
     staleTime: 60 * 10 * 1000,
-    enabled: !!code,
   });
 
-export const useActivity = (code?: string) => useQuery(fetchActivityOptions(code));
+export const useActivity = (code: string) => useSuspenseQuery(fetchActivityOptions(code));
 
 export function useUpdateActivity(code: string) {
   const queryClient = useQueryClient();
@@ -104,4 +98,20 @@ export function useSyncDateInputs({
   }
 
   useEffect(syncDateInputs, [startDate, endDate, control, setValue, trigger]);
+}
+
+export function useActivityForm(values?: ActivityFormValues) {
+  const defaultvalues = {
+    title: '',
+    startDate: '',
+    endDate: '',
+    venueId: 0,
+    code: '',
+    focalId: 0,
+  };
+
+  return useForm<ActivityFormValues>({
+    resolver: zodResolver(ActivityFormSchema),
+    defaultValues: values ?? defaultvalues,
+  });
 }

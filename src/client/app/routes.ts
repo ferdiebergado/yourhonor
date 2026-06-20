@@ -9,10 +9,13 @@ const RequireUser = lazy(() => import('@client/features/auth/components/require-
 const Layout = lazy(() => import('@client/components/layout'));
 const Dashboard = lazy(() => import('./pages/dashboard'));
 const Activities = lazy(() => import('@client/features/activity/components/activities'));
-const ActivityFormPage = lazy(
-  () => import('@client/features/activity/components/activity-form-page')
-);
 const ActivityPage = lazy(() => import('@client/features/activity/components/activity-page'));
+const NewActivityPage = lazy(
+  () => import('@client/features/activity/components/new-activity-page')
+);
+const EditActivityPage = lazy(
+  () => import('@client/features/activity/components/edit-activity-page')
+);
 const HonorariumFormPage = lazy(
   () => import('@client/features/honorarium/components/honorarium-form-page')
 );
@@ -70,11 +73,11 @@ export const routes: RouteObject[] = [
           },
           {
             path: paths.newActivity,
-            Component: ActivityFormPage,
+            Component: NewActivityPage,
           },
           {
             path: paths.editActivity,
-            Component: ActivityFormPage,
+            Component: EditActivityPage,
           },
           {
             path: paths.newHonorarium,
