@@ -7,13 +7,13 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@client/components
 import { useSummary } from '../hooks';
 
 export default function Dashboard() {
-  const { data: summary } = useSummary();
   const [searchParams] = useSearchParams();
-  const success = searchParams.get('success');
+  const { data: summary } = useSummary();
 
   useEffect(() => {
+    const success = searchParams.get('success');
     if (success) toast.success(success);
-  }, [success]);
+  }, [searchParams]);
 
   return (
     <div className="space-y-7">
