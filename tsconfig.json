@@ -3,15 +3,13 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
-    { "path": "./tsconfig.edge-functions.json" }
+    { "path": "./tsconfig.edge.json" }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@client/*": ["./src/client/*"],
       "@shared/*": ["./src/shared/*"],
       "@server/*": ["./src/server/*"]
-    },
-    "ignoreDeprecations": "6.0"
+    }
   }
 }

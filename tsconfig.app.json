@@ -21,12 +21,10 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
 
-    "baseUrl": ".",
     "paths": {
       "@client/*": ["./src/client/*"],
       "@shared/*": ["./src/shared/*"]
-    },
-    "ignoreDeprecations": "6.0"
+    }
   },
-  "include": ["./src/client", "./src/shared"]
+  "include": ["src/client", "src/shared"]
 }

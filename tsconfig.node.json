@@ -20,19 +20,17 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
 
-    "baseUrl": ".",
     "paths": {
       "@shared/*": ["./src/shared/*"],
       "@server/*": ["./src/server/*"]
-    },
-    "ignoreDeprecations": "6.0"
+    }
   },
   "include": [
     "vite.config.ts",
-    "src/server/netlify/functions",
     "src/shared",
     "src/server",
     "src/tests/helpers",
     "src/tests/integration"
-  ]
+  ],
+  "exclude": ["src/server/netlify/edge-functions"]
 }
