@@ -1,6 +1,8 @@
 import js from '@eslint/js';
 import pluginQuery from '@tanstack/eslint-plugin-query';
 import prettier from 'eslint-config-prettier';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import { createNodeResolver, importX } from 'eslint-plugin-import-x';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import unicorn from 'eslint-plugin-unicorn';
@@ -19,8 +21,8 @@ const unicornRelaxedRules = {
 export default defineConfig([
   globalIgnores(['dist', '.netlify']),
   {
-    files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/components/ui/*.tsx'],
+    files: ['src/client/**'],
+    ignores: ['src/components/ui/**'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -35,13 +37,8 @@ export default defineConfig([
     rules: unicornRelaxedRules,
   },
   {
-    files: [
-      'backend/**/*ts',
-      'netlify/functions/**/*.ts',
-      'shared/**/*.ts',
-      'tests/integration/**/*.ts',
-      'tests/helpers/**/*.ts',
-    ],
+    files: ['src/server/**', 'src/shared/**', 'tests/integration/**', 'tests/helpers/**'],
+    ignores: ['src/server/netlify/edge-functions/**'],
     extends: [js.configs.recommended, tseslint.configs.strictTypeChecked, sharedExtends],
     languageOptions: {
       globals: globals.node,
@@ -53,15 +50,22 @@ export default defineConfig([
     rules: unicornRelaxedRules,
   },
   {
-    files: ['netlify/edge-functions/**/*.ts'],
+    files: ['src/server/netlify/edge-functions/**'],
     extends: [js.configs.recommended, tseslint.configs.strictTypeChecked, sharedExtends],
     languageOptions: {
-      globals: globals.node,
+      globals: { browser: true, es2024: true },
       parserOptions: {
-        project: ['./tsconfig.edge-functions.json'],
+        project: ['./tsconfig.edge.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
-    rules: unicornRelaxedRules,
+    plugins: { 'import-x': importX },
+    rules: {
+      ...unicornRelaxedRules,
+      'import-x/extensions': ['error', 'always', { ignorePackages: true }],
+    },
+    settings: {
+      'import-x/resolver-next': [createTypeScriptImportResolver(), createNodeResolver()],
+    },
   },
 ]);
