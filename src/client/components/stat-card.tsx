@@ -7,12 +7,12 @@ type StatCardProps = {
 
 export default function StatCard({ label, value }: StatCardProps) {
   return (
-    <Card className="w-1/2 p-2 md:w-1/4 md:p-5">
+    <Card className="w-full p-2 md:p-5">
       <CardHeader>
         <CardTitle className="text-center">{label}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="font-heading text-center text-6xl font-semibold">{value}</p>
+        <p className="font-heading text-center text-5xl font-semibold">{value}</p>
       </CardContent>
     </Card>
   );
