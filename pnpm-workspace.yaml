@@ -1,10 +1,5 @@
 blockExoticSubdeps: true
 minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
 trustPolicy: no-downgrade
-trustPolicyExclude:
-  - 'semver@6.3.1'
-  - 'netlify-cli@26.0.2'
-  - '@netlify/zip-it-and-ship-it@14.7.0'
-  - 'chokidar@4.0.3'
-  - '@netlify/edge-bundler@14.10.3'
-  - '@netlify/serverless-functions-api@2.16.0'
+trustPolicyIgnoreAfter: 10080
