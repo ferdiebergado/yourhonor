@@ -1,5 +1,4 @@
 import type { Context, EdgeFunction } from '@netlify/edge-functions';
-import { randomBytes } from 'node:crypto';
 
 import { CSP_NONCE_PLACEHOLDER, GOOGLE_ACCOUNTS_ORIGIN } from '../../../shared/constants.ts';
 
@@ -83,9 +82,6 @@ type CSPDirective = keyof typeof SECURITY_HEADERS.CSP_DIRECTIVES;
  * @returns Formatted CSP string
  */
 function buildCSP(directives: Record<CSPDirective, string[]>, nonce?: string): string {
-  // Extract environment check for clarity and performance
-  const isDevelopment = process.env.ENV === 'development';
-
   return Object.entries(directives)
     .map(([directive, values]) => {
       let value = '';
@@ -101,7 +97,7 @@ function buildCSP(directives: Record<CSPDirective, string[]>, nonce?: string): s
           }
           case 'style-src': {
             // Use unsafe-inline in development for HMR, nonce in production
-            value = isDevelopment ? `'unsafe-inline'` : nonceValue;
+            value = nonceValue;
             break;
           }
         }
@@ -144,7 +140,9 @@ const csp: EdgeFunction = async (_request: Request, context: Context) => {
   if (!contentType?.includes('text/html')) return res;
 
   // Generate a secure nonce for this request
-  const nonce = randomBytes(16).toString('base64');
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  const nonce = btoa(String.fromCodePoint(...array));
 
   // Build security headers
   const csp = buildCSP(SECURITY_HEADERS.CSP_DIRECTIVES, nonce);
