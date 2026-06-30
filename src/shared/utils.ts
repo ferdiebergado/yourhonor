@@ -1,6 +1,8 @@
 import { SG29 } from './constants';
 import type { NewHonorarium } from './schemas/honorarium';
 
+const HONORARIUM_RATE = 0.023;
+
 export const getMaxSalary = (salary: number) => Math.min(SG29, salary);
 
 export function computeHonorarium(
@@ -10,14 +12,15 @@ export function computeHonorarium(
 ): Pick<NewHonorarium, 'hoursRendered' | 'actual' | 'net'> {
   const maxSalary = getMaxSalary(salary);
 
+  // Handle edge cases where gross or salary is zero or negative
   let hoursRendered = 0;
-  let actual: number;
+  let actual = 0;
 
-  while (true) {
-    actual = 0.023 * maxSalary * hoursRendered;
-
-    if (actual >= gross) break;
-    hoursRendered++;
+  if (gross > 0 && maxSalary > 0) {
+    // Calculate hours needed to reach or exceed the gross amount
+    hoursRendered = Math.ceil(gross / (HONORARIUM_RATE * maxSalary));
+    // Calculate the actual honorarium based on the hours rendered
+    actual = HONORARIUM_RATE * maxSalary * hoursRendered;
   }
 
   const net = gross - gross * (taxRate / 100);
