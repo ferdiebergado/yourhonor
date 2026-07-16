@@ -28,20 +28,20 @@ type ExcelCell = {
 
 type ExcelRow = {
   '@_r': string; // Row index string (e.g., "7")
-  c: ExcelCell[]; // Array of cells
+  c?: ExcelCell[];
 };
 
 type ExcelSheetData = {
-  row: ExcelRow[];
+  row?: ExcelRow[];
 };
 
 type ExcelWorksheet = {
-  sheetData: ExcelSheetData;
+  sheetData?: ExcelSheetData;
   [key: string]: unknown; // Captures other sheet properties like pageMargins, dimension, etc.
 };
 
 type ExcelWorksheetRoot = {
-  worksheet: ExcelWorksheet;
+  worksheet?: ExcelWorksheet;
 };
 
 // Types for the Workbook Mapping Structure
@@ -128,7 +128,7 @@ async function genORSDoc(
   const files: Record<string, Uint8Array> = {};
 
   for (const entry of entries) {
-    if (!entry.directory && entry.getData)
+    if (!entry.directory)
       files[entry.filename] = await entry.getData(new Uint8ArrayWriter());
   }
 
@@ -141,11 +141,12 @@ async function genORSDoc(
   const orsXml = new TextDecoder().decode(files[orsPath]);
   const dvXml = new TextDecoder().decode(files[dvPath]);
 
-  const orsObj = parser.parse(orsXml);
-  const dvObj = parser.parse(dvXml);
+  const orsObj = parser.parse(orsXml) as ExcelWorksheetRoot;
+  const dvObj = parser.parse(dvXml) as ExcelWorksheetRoot;
 
   // 5. Data Calculations
-  const { title, venue, firstname, mi, lastname, startDate, endDate, code, location } = activity;
+  const { title, venue, startDate, endDate, code, location } = activity;
+  const {firstname,mi,lastname} = honoraria[0]
   let payee = formatName({ firstname, mi, lastname });
   const numPayees = honoraria.length;
   let other = 'OTHER';
@@ -224,7 +225,7 @@ function setCellValue(
 
   if (!row.c) row.c = [];
 
-  const cellRef = `${getColName(colNum)}${rowNum}`;
+  const cellRef = `${getColName(colNum)}${String(rowNum)}`;
   let cell = row.c.find(c => c['@_r'] === cellRef);
 
   if (!cell) {
@@ -240,7 +241,7 @@ function setCellValue(
   } else {
     cell['@_t'] = 'inlineStr';
     delete cell.v;
-    cell.is = { t: { '#text': String(value) } };
+    cell.is = { t: { '#text': value } };
   }
 }
 
@@ -254,7 +255,7 @@ function getSheetPathByName(
   const workbookObj = parser.parse(workbookXml) as ExcelWorkbookRoot;
 
   // Normalize sheets array
-  const rawSheets = workbookObj?.workbook?.sheets?.sheet;
+  const rawSheets = workbookObj.workbook?.sheets?.sheet;
   const sheetsList = Array.isArray(rawSheets) ? rawSheets : [rawSheets].filter(Boolean);
 
   const targetSheet = sheetsList.find(s => s['@_name'] === sheetName);
@@ -265,9 +266,9 @@ function getSheetPathByName(
   // Find matching path in relationships
   const relsXml = new TextDecoder().decode(files['xl/_rels/workbook.xml.rels']);
   const relsObj = parser.parse(relsXml) as ExcelRelsRoot;
-  const relsList = Array.isArray(relsObj?.Relationships?.Relationship)
+  const relsList = Array.isArray(relsObj.Relationships?.Relationship)
     ? relsObj.Relationships.Relationship
-    : [relsObj?.Relationships?.Relationship].filter(Boolean);
+    : [relsObj.Relationships?.Relationship].filter(Boolean);
 
   const rel = relsList.find(r => r['@_Id'] === rId);
   if (!rel) throw new Error(`Relationship target missing for sheet: ${sheetName}`);
