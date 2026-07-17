@@ -9,6 +9,7 @@ import TermsLink from '@client/components/terms-link';
 import { buttonVariants } from '@client/components/ui/button';
 import { Card, CardContent } from '@client/components/ui/card';
 import config from '@client/config';
+import { cn } from '@client/lib/utils';
 
 export default function SigninPage() {
   const [searchParams] = useSearchParams();
@@ -39,7 +40,10 @@ export default function SigninPage() {
         </div>
 
         {/* Sign In Button */}
-        <a href="/api/signin" className={buttonVariants({ variant: 'default', size: 'lg' })}>
+        <a
+          href="/api/signin"
+          className={cn(buttonVariants({ variant: 'default', size: 'lg' }), 'w-full max-w-sm')}
+        >
           <RiGoogleFill className="size-5" data-icon="inline-start" /> Continue with Google
         </a>
 
