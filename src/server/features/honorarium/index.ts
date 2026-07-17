@@ -81,7 +81,7 @@ const buildCertPatches = async (
   }),
   role: honorarium.role,
   activity: activity.title,
-  venue: activity.location === 'online' ? 'online' : `at ${activity.venue}, ${activity.location}`,
+  venue: activity.location.toLocaleLowerCase() === 'online' ? 'online' : `at ${activity.venue}, ${activity.location}`,
   end_date: formatDate(new Date()),
   amount: formatAmount(honorarium.amount),
   tax: honorarium.taxRate.toString(),

@@ -31,7 +31,7 @@ async function genPayrollDoc(
   sheet.getCell(7, 1).value = fundClusterText;
 
   const particularsCell = sheet.getCell(9, 1);
-  const particulars = `${String(particularsCell.value)} ${title} held at ${location === 'online' ? 'online' : `at ${venue}, ${location}`} on ${formatDateRange(startDate, endDate)}`;
+  const particulars = `${String(particularsCell.value)} ${title} held at ${location.toLocaleLowerCase() === 'online' ? 'online' : `at ${venue}, ${location}`} on ${formatDateRange(startDate, endDate)}`;
   particularsCell.value = particulars;
 
   const baseStyle = style()
