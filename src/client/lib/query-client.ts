@@ -16,3 +16,14 @@ function handleError(error: Error) {
   console.error(error);
   toast.error(error.message);
 }
+
+// Expose the queryClient on the window object for debugging purposes.
+// Install the TanStack Query DevTools Chrome Extension to inspect queries, mutations, and cache state in real-time:
+// https://chromewebstore.google.com/detail/tanstack-query-devtools/annajfchloimdhceglpgglpeepfghfai',
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: QueryClient;
+  }
+}
+
+window.__TANSTACK_QUERY_CLIENT__ = queryClient;
