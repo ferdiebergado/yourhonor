@@ -3,7 +3,13 @@ import { Controller, type FieldValues, type UseFormReturn } from 'react-hook-for
 
 import FormButtons from '@client/components/form-buttons';
 import GenericCombobox from '@client/components/generic-combobox';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@client/components/ui/item';
 import { Textarea } from '@client/components/ui/textarea';
@@ -44,7 +50,7 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
                 placeholder="Lesson Exemplars on Biology (Development Phase)"
                 aria-invalid={fieldState.invalid}
                 autoComplete="off"
-                className="h-30"
+                className="h-20"
                 autoFocus
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -52,54 +58,61 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
           )}
         />
 
-        {/* Venue */}
-        <Controller
-          name="venueId"
-          control={form.control}
-          render={({ field, fieldState }) => {
-            // eslint-disable-next-line unicorn/no-null
-            const selectedVenue = venues?.find(venue => venue.id === field.value) ?? null;
+        <div className="flex flex-col gap-8 md:flex-row md:justify-between">
+          {/* Venue */}
+          <Controller
+            name="venueId"
+            control={form.control}
+            render={({ field, fieldState }) => {
+              // eslint-disable-next-line unicorn/no-null
+              const selectedVenue = venues?.find(venue => venue.id === field.value) ?? null;
 
-            return (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>Venue</FieldLabel>
-                <div className="flex gap-2">
-                  <GenericCombobox
-                    id={field.name}
-                    className="flex-1"
-                    items={venues ?? []}
-                    aria-invalid={fieldState.invalid}
-                    placeholder={isFetchingVenues ? 'Loading venues…' : 'Select a venue'}
-                    itemToStringLabel={item => item.name}
-                    itemToStringValue={item => item.id.toString()}
-                    value={selectedVenue}
-                    onValueChange={venue => field.onChange(venue?.id ?? 0)}
-                    renderItem={item => (
-                      <Item size="xs" className="p-0">
-                        <ItemContent>
-                          <ItemTitle className="whitespace-nowrap">{item.name}</ItemTitle>
-                          <ItemDescription>{item.location}</ItemDescription>
-                        </ItemContent>
-                      </Item>
-                    )}
-                    disabled={isFetchingVenues}
-                  />
+              return (
+                <Field
+                  className="w-full md:max-w-1/2 md:shrink-0"
+                  data-invalid={fieldState.invalid}
+                >
+                  <FieldLabel htmlFor={field.name}>Venue</FieldLabel>
+                  <div className="flex gap-2">
+                    <GenericCombobox
+                      id={field.name}
+                      className="flex-1"
+                      items={venues ?? []}
+                      aria-invalid={fieldState.invalid}
+                      placeholder={isFetchingVenues ? 'Loading venues…' : 'Select a venue'}
+                      itemToStringLabel={item => item.name}
+                      itemToStringValue={item => item.id.toString()}
+                      value={selectedVenue}
+                      onValueChange={venue => field.onChange(venue?.id ?? 0)}
+                      renderItem={item => (
+                        <Item size="xs" className="p-0">
+                          <ItemContent>
+                            <ItemTitle className="whitespace-nowrap">{item.name}</ItemTitle>
+                            <ItemDescription>{item.location}</ItemDescription>
+                          </ItemContent>
+                        </Item>
+                      )}
+                      disabled={isFetchingVenues}
+                    />
 
-                  <AddVenueDialog activityForm={form} />
-                </div>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            );
-          }}
-        />
+                    <AddVenueDialog activityForm={form} />
+                  </div>
+                  <FieldDescription>
+                    If a venue is not on the list, click the "+" button next to the dropdown to add
+                    it.
+                  </FieldDescription>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              );
+            }}
+          />
 
-        <div className="grid gap-6 md:grid-cols-2">
           {/* Start Date */}
           <Controller
             name="startDate"
             control={form.control}
             render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
+              <Field className="w-full" data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Start Date</FieldLabel>
                 <Input {...field} id={field.name} type="date" aria-invalid={fieldState.invalid} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -112,7 +125,7 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
             name="endDate"
             control={form.control}
             render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
+              <Field className="w-full" data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>End Date</FieldLabel>
                 <Input {...field} id={field.name} type="date" aria-invalid={fieldState.invalid} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -121,7 +134,7 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-8 md:flex-row">
           {/* Activity Code */}
           <Controller
             name="code"
@@ -176,6 +189,10 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
 
                     <AddFocalDialog activityForm={form} />
                   </div>
+                  <FieldDescription>
+                    If a focal person is not on the list, click the "+" button next to the dropdown
+                    to add it.
+                  </FieldDescription>
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               );
