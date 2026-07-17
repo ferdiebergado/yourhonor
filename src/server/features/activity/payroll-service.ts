@@ -23,7 +23,7 @@ async function genPayrollDoc(
   const sheet = workbook.getSheet(sheetName);
   if (!sheet) throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
 
-  const { title, venue, startDate, endDate, code, position, location } = activity;
+  const { title, venue, startDate, endDate, code, location } = activity;
 
   const fundCluster = getFundCluster(code);
   const fundClusterCell = sheet.getCell(7, 1);
@@ -58,9 +58,9 @@ async function genPayrollDoc(
       {
         value: payee,
       },
-      {
-        value: position,
-      },
+      // {
+      //   value: position,
+      // },
       {
         value: decrypt(Buffer.from(accountNo)),
       },
