@@ -31,3 +31,5 @@ dist-ssr
 .env.testing
 
 local.db
+
+deno.lock
