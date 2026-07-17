@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "options": {
+    "typeAware": true
+  },
+  "overrides": [
+    {
+      "files": ["./src/client/**"],
+      "plugins": ["react", "typescript", "oxc", "unicorn"],
+      "rules": {
+        "react/rules-of-hooks": "error",
+        "react/only-export-components": [
+          "warn",
+          { "allowConstantExport": true }
+        ],
+        "react/exhaustive-deps": "error",
+        "react/jsx-key": "error",
+        "react/no-array-index-key": "error",
+        "react/no-children-prop": "error"
+      }
+    },
+    {
+      "files": ["./src/server/**"],
+      "excludeFiles": ["./src/server/netlify/edge-functions/**"],
+      "plugins": ["typescript", "oxc", "node", "unicorn"]
+    },
+    {
+      "files": ["./src/server/netlify/edge-functions/**"],
+      "plugins": ["typescript", "oxc", "import", "unicorn"],
+      "rules": {
+        "import/extensions": ["error", "always", { "ignorePackages": true }]
+      }
+    },
+    {
+      "files": ["./src/shared/**"],
+      "plugins": ["unicorn", "typescript", "oxc"],
+      "env": {
+        "browser": false,
+        "node": false
+      },
+      "rules": {
+        "node/no-process-env": "error",
+        "no-restricted-globals": [
+          "error",
+          "window",
+          "document",
+          "navigator",
+          "localStorage",
+          "sessionStorage",
+          "process",
+          "Buffer",
+          "Deno"
+        ],
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": ["node:*", "react", "react-dom", "@netlify/*"]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.{test|spec}.{ts,tsx}"],
+      "plugins": ["typescript", "oxc", "node", "unicorn", "vitest"]
+    }
+  ]
+}
