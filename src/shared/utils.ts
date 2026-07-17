@@ -32,12 +32,14 @@ export function computeHonorarium(
   };
 }
 
-export const formatAmount = (amount: number) =>
-  new Intl.NumberFormat('en-US', {
+const currencyFormat = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'PHP',
     currencyDisplay: 'code',
-  }).format(amount);
+  })
+
+export const formatAmount = (amount: number) =>
+  currencyFormat.format(amount);
 
 export const getFullName = (person: { firstname: string; mi?: string | null; lastname: string }) =>
   `${person.firstname} ${person.mi ? person.mi + '. ' : ''}${person.lastname}`;
