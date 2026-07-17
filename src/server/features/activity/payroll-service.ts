@@ -27,11 +27,11 @@ async function genPayrollDoc(
 
   const fundCluster = getFundCluster(code);
   const fundClusterCell = sheet.getCell(7, 1);
-  const fundClusterText = `${fundClusterCell.value} ${fundCluster}`;
+  const fundClusterText = `${String(fundClusterCell.value)} ${fundCluster}`;
   sheet.getCell(7, 1).value = fundClusterText;
 
   const particularsCell = sheet.getCell(9, 1);
-  const particulars = `${particularsCell.value} ${title} held at ${venue}, ${location} on ${formatDateRange(startDate, endDate)}`;
+  const particulars = `${String(particularsCell.value)} ${title} held at ${location === 'online' ? 'online' : `at ${venue}, ${location}`} on ${formatDateRange(startDate, endDate)}`;
   particularsCell.value = particulars;
 
   const baseStyle = style()

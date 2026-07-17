@@ -154,7 +154,7 @@ async function genORSDoc(
   if (numPayees > 1) payee += ` AND ${(numPayees - 1).toString()} ${other}`;
 
   const dateRange = formatDateRange(startDate, endDate);
-  const particulars = `To payment of honorarium as Resource Person during the ${title} held at ${venue}, ${location} on ${dateRange}`;
+  const particulars = `To payment of honorarium as Resource Person during the ${title} held ${location === 'online' ? 'online' : `at ${venue}, ${location}`} on ${dateRange}`;
   const amount = honoraria.reduce((acc, payment) => acc + payment.amount, 0);
   const { mfoCode } = parseActivityCode(code);
 
