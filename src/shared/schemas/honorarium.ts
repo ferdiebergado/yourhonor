@@ -13,7 +13,9 @@ export const HonorariumSchema = z.strictObject({
   salary: z.coerce.number<number>().positive('Salary is required.'),
   amount: z.coerce.number<number>().positive('Amount is required.'),
   taxRate: z.coerce.number<number>().positive('Tax rate is required.'),
-  hoursRendered: z.coerce.number<number>().positive('Hours rendered is required.'),
+  hoursRendered: z.coerce
+    .number<number>()
+    .positive('Hours rendered is required.'),
   actual: z.number(),
   net: z.number(),
   accountId: z.coerce.number<number>().positive('Bank account is required.'),
@@ -54,6 +56,7 @@ export const HonorariumDetailSchema = z.strictObject({
     accountName: true,
     accountNoMasked: true,
     accountNo: true,
+    dob: true,
   }).shape,
   bank: z.string(),
   role: z.string(),
@@ -70,13 +73,21 @@ export const HonorariumIdSchema = z.object({
   id: z.coerce.number<number>().positive(),
 });
 
-export const HonorariumInfoSchema = HonorariumDetailSchema.omit({
-  bank: true,
-  bankBranch: true,
-  accountName: true,
-  accountNo: true,
-  accountNoMasked: true,
-  tin: true,
+export const HonorariumInfoSchema = z.strictObject({
+  ...HonorariumDetailSchema.omit({
+    bank: true,
+    bankBranch: true,
+    accountName: true,
+    accountNo: true,
+    accountNoMasked: true,
+    tin: true,
+  }).shape,
+
+  ...HonorariumSchema.pick({
+    payeeId: true,
+    roleId: true,
+    accountId: true,
+  }).shape,
 });
 
 export type HonorariumInfo = z.infer<typeof HonorariumInfoSchema>;
