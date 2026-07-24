@@ -15,6 +15,13 @@ import { findActiveActivityDetailByUser } from './repo';
 import type { Document } from './types';
 import { formatName } from './utils';
 
+const SHEET = 'PAYROLL';
+const START_ROW = 13;
+const HONORARIUM_COL = 'J';
+const TAX_COL = 'K';
+
+const numberFormat = { formatCode: NumFmt.Decimal2 };
+
 async function genPayrollDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[],
@@ -22,10 +29,8 @@ async function genPayrollDoc(
   const { Workbook, style } = await import('@node-projects/excelforge');
   const workbook = await Workbook.fromBase64(payroll);
 
-  const sheetName = 'PAYROLL';
-  const sheet = workbook.getSheet(sheetName);
-  if (!sheet)
-    throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
+  const sheet = workbook.getSheet(SHEET);
+  if (!sheet) throw new Error(`Workbook does not have a sheet named ${SHEET}.`);
 
   const { title, venue, startDate, endDate, code, location } = activity;
 
@@ -43,7 +48,7 @@ async function genPayrollDoc(
     .border('medium')
     .build();
 
-  let currentRow = 13;
+  let currentRow = START_ROW;
 
   for (const [index, honorarium] of honoraria.entries()) {
     if (index > 1) sheet.insertRows(currentRow, 1);
@@ -51,7 +56,7 @@ async function genPayrollDoc(
     sheet.merge(currentRow, 6, currentRow, 7);
     sheet.setStyle(currentRow, 7, style().borderBottom('medium').build());
 
-    const num = index + 1;
+    const seq = index + 1;
     const {
       firstname,
       mi,
@@ -61,18 +66,14 @@ async function genPayrollDoc(
       bank,
       tin,
       amount,
+      dob,
     } = honorarium;
-    const payee = formatName({ firstname, mi, lastname });
-
     const cells: Cell[] = [
       {
-        value: num,
+        value: seq,
       },
       {
-        value: payee,
-      },
-      {
-        value: '',
+        value: formatName({ firstname, mi, lastname }),
       },
       {
         value: decrypt(Buffer.from(accountNo)),
@@ -87,24 +88,32 @@ async function genPayrollDoc(
         value: tin,
       },
       {
+        value: dob
+          ? Intl.DateTimeFormat('en-US', {
+              dateStyle: 'medium',
+              timeZone: 'UTC',
+            }).format(new Date(dob))
+          : '',
+      },
+      {
         value: amount,
-        style: { numberFormat: { formatCode: NumFmt.Decimal2 } },
+        style: { numberFormat },
       },
       {
-        style: { numberFormat: { formatCode: NumFmt.Decimal2 } },
-        formula: `J${currentRow.toString()}*${(honorarium.taxRate / 100).toString()}`,
+        style: { numberFormat },
+        formula: `${HONORARIUM_COL}${currentRow}*${(honorarium.taxRate / 100).toString()}`,
       },
       {
-        style: { numberFormat: { formatCode: NumFmt.Decimal2 } },
-        formula: `J${currentRow.toString()}-K${currentRow.toString()}`,
+        style: { numberFormat },
+        formula: `${HONORARIUM_COL}${currentRow}-${TAX_COL}${currentRow}`,
       },
-      { value: num },
+      { value: seq },
     ];
 
     for (const [i, cell] of cells.entries()) {
       let col = i + 1;
 
-      if (i >= 6) col = i + 3;
+      if (i >= 5) col = i + 3;
 
       cell.style = { ...baseStyle, ...cell.style };
       sheet.setCell(currentRow, col, cell);

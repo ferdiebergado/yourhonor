@@ -1,16 +1,29 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
+import {
+  Controller,
+  useForm,
+  useWatch,
+  type UseFormReturn,
+} from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@client/components/form-buttons';
 import RHFSelect from '@client/components/rhf-select';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
 import AddBankDialog from '@client/features/bank/components/add-bank-dialog';
 import { useActiveBanks } from '@client/features/bank/hooks';
 import { setFormErrors } from '@client/lib/utils';
-import { AccountFormSchema, type AccountFormValues } from '@shared/schemas/account';
+import {
+  AccountFormSchema,
+  type AccountFormValues,
+} from '@shared/schemas/account';
 import type { HonorariumFormValues } from '@shared/schemas/honorarium';
 import { useCreateAccount } from '../hooks';
 
@@ -20,7 +33,11 @@ type AccountFormProps = {
   onClose: () => void;
 };
 
-export default function AccountForm({ payeeId, honorariumForm, onClose }: AccountFormProps) {
+export default function AccountForm({
+  payeeId,
+  honorariumForm,
+  onClose,
+}: AccountFormProps) {
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(AccountFormSchema),
     defaultValues: {
@@ -29,31 +46,39 @@ export default function AccountForm({ payeeId, honorariumForm, onClose }: Accoun
       bankBranch: '',
       accountName: '',
       accountNo: '',
+      dob: null,
     },
   });
 
   const { isLoading: isLoadingBanks, data: banks } = useActiveBanks();
   const { isPending, mutate: createAccount } = useCreateAccount();
 
-  const bankItems = banks?.map(({ id, name }) => ({ label: name, value: id.toString() })) ?? [];
+  const bankItems =
+    banks?.map(({ id, name }) => ({ label: name, value: id.toString() })) ?? [];
+
+  const isNonLandbank = useWatch({
+    name: 'bankId',
+    control: form.control,
+    compute: (val) => val !== 1,
+  });
 
   const handleSubmit = (values: AccountFormValues) => {
     createAccount(values, {
-      onSuccess: id => {
+      onSuccess: (id) => {
         if (!id) return;
         toast.success('Account created successfully.');
         form.reset();
         honorariumForm.setValue('accountId', id);
-        honorariumForm.trigger('accountId');
+        void honorariumForm.trigger('accountId');
         onClose();
       },
-      onError: error => setFormErrors(form, error),
+      onError: (error) => setFormErrors(form, error),
     });
   };
 
   useEffect(() => {
     form.setValue('payeeId', payeeId);
-    form.trigger('payeeId');
+    void form.trigger('payeeId');
   }, [payeeId, form]);
 
   return (
@@ -146,7 +171,38 @@ export default function AccountForm({ payeeId, honorariumForm, onClose }: Accoun
           )}
         />
 
-        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
+        {/* Date of Birth */}
+        {isNonLandbank && (
+          <Controller
+            name="dob"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel htmlFor={field.name} className="w-1/2">
+                  Date of Birth
+                </FieldLabel>
+                <Input
+                  {...field}
+                  type="date"
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                  autoComplete="off"
+                  value={field.value ?? ''}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+        )}
+
+        <FormButtons
+          form={form}
+          onSubmit={handleSubmit}
+          onClose={onClose}
+          isPending={isPending}
+        />
       </FieldGroup>
     </form>
   );

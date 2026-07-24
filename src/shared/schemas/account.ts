@@ -13,21 +13,33 @@ export const AccountSchema = z.strictObject({
   accountNo: z.instanceof(ArrayBuffer),
   accountNoLast4: z.string().min(1).max(4),
   accountNoMasked: z.string(),
+  dob: z.iso.date().nullish(),
 });
 
 export type Account = z.infer<typeof AccountSchema>;
 
 export type NewAccount = NewEntity<Account>;
 
-export const AccountFormSchema = z.strictObject({
-  ...AccountSchema.pick({
-    payeeId: true,
-    bankId: true,
-    bankBranch: true,
-    accountName: true,
-  }).shape,
-  accountNo: plainAccountNoSchema,
-});
+export const AccountFormSchema = z
+  .strictObject({
+    ...AccountSchema.pick({
+      payeeId: true,
+      bankId: true,
+      bankBranch: true,
+      accountName: true,
+      dob: true,
+    }).shape,
+    accountNo: plainAccountNoSchema,
+  })
+  .superRefine((data, ctx) => {
+    if (data.bankId !== 1 && !data.dob) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['dob'],
+        message: 'Date of birth is required for non-Landbank account holders.',
+      });
+    }
+  });
 
 export type AccountFormValues = z.infer<typeof AccountFormSchema>;
 

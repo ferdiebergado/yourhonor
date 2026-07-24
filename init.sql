@@ -174,6 +174,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   account_no BLOB NOT NULL,
   account_no_last4 TEXT NOT NULL,
   account_no_masked TEXT NOT NULL,
+  dob TEXT,
   created_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   updated_at TEXT DEFAULT (STRFTIME ('%Y-%m-%dT%H:%M:%fZ', 'NOW')),
   deleted_at TEXT,
