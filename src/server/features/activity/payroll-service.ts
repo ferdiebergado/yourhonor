@@ -1,4 +1,9 @@
-import { Colors, NumFmt, type Cell } from '@node-projects/excelforge';
+import {
+  Colors,
+  NumFmt,
+  type BorderStyle,
+  type Cell,
+} from '@node-projects/excelforge';
 
 import { db } from '@server/db';
 import { decrypt } from '@server/security';
@@ -24,7 +29,7 @@ const NET_COL_NUM = 12;
 const TAX_COL = 'K';
 const FONT = 'Book Antiqua';
 const FONT_SIZE = 9;
-const numberFormat = { formatCode: NumFmt.Decimal2 };
+const BORDER_STYLE = 'medium' satisfies BorderStyle;
 
 async function genPayrollDoc(
   activity: ActivityDetail,
@@ -49,8 +54,11 @@ async function genPayrollDoc(
 
   const baseStyle = style()
     .font({ name: FONT, size: FONT_SIZE, bold: true })
-    .border('medium')
+    .border(BORDER_STYLE)
     .build();
+
+  const withBottomBorder = style().borderBottom(BORDER_STYLE).build();
+  const decimalFormat = style().numFmt(NumFmt.Decimal2).build();
 
   let currentRow = START_ROW;
 
@@ -58,7 +66,7 @@ async function genPayrollDoc(
     if (index > 1) sheet.insertRows(currentRow, 1);
 
     sheet.merge(currentRow, 6, currentRow, 7);
-    sheet.setStyle(currentRow, 7, style().borderBottom('medium').build());
+    sheet.setStyle(currentRow, 7, withBottomBorder);
 
     const seq = index + 1;
     const {
@@ -87,6 +95,7 @@ async function genPayrollDoc(
       },
       {
         value: bankBranch,
+        style: withBottomBorder,
       },
       {
         value: tin,
@@ -101,17 +110,21 @@ async function genPayrollDoc(
       },
       {
         value: amount,
-        style: { numberFormat },
+        style: decimalFormat,
       },
       {
-        style: { numberFormat },
+        style: decimalFormat,
         formula: `${HONORARIUM_COL}${currentRow}*${(honorarium.taxRate / 100).toString()}`,
       },
       {
-        style: { numberFormat },
+        style: decimalFormat,
         formula: `${HONORARIUM_COL}${currentRow}-${TAX_COL}${currentRow}`,
       },
       { value: seq },
+      {
+        value: '',
+        style: style().border(BORDER_STYLE).build(),
+      },
     ];
 
     for (const [i, cell] of cells.entries()) {
@@ -124,6 +137,10 @@ async function genPayrollDoc(
     }
 
     sheet.mergeByRef(`E${currentRow}:G${currentRow}`);
+    const fillerCell = {
+      style: withBottomBorder,
+    } satisfies Cell;
+    sheet.setCell(currentRow, 6, fillerCell);
 
     currentRow++;
   }
