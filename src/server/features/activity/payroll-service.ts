@@ -1,4 +1,4 @@
-import { NumFmt, type Cell } from '@node-projects/excelforge';
+import { Colors, NumFmt, type Cell } from '@node-projects/excelforge';
 
 import { db } from '@server/db';
 import { decrypt } from '@server/security';
@@ -18,8 +18,12 @@ import { formatName } from './utils';
 const SHEET = 'PAYROLL';
 const START_ROW = 13;
 const HONORARIUM_COL = 'J';
+const NET_COL = 'L';
+const GROSS_COL_NUM = 10;
+const NET_COL_NUM = 12;
 const TAX_COL = 'K';
-
+const FONT = 'Book Antiqua';
+const FONT_SIZE = 9;
 const numberFormat = { formatCode: NumFmt.Decimal2 };
 
 async function genPayrollDoc(
@@ -44,7 +48,7 @@ async function genPayrollDoc(
   particularsCell.value = particulars;
 
   const baseStyle = style()
-    .font({ name: 'Book Antiqua', size: 9, bold: true })
+    .font({ name: FONT, size: FONT_SIZE, bold: true })
     .border('medium')
     .build();
 
@@ -119,8 +123,28 @@ async function genPayrollDoc(
       sheet.setCell(currentRow, col, cell);
     }
 
+    sheet.mergeByRef(`E${currentRow}:G${currentRow}`);
+
     currentRow++;
   }
+
+  const totalStyle = style()
+    .font({ name: FONT, size: FONT_SIZE, bold: true })
+    .bg(Colors.LightGray)
+    .numFmt(NumFmt.Decimal2)
+    .build();
+
+  const grossCell = {
+    formula: `SUM(${HONORARIUM_COL}${START_ROW}:${HONORARIUM_COL}${currentRow - 1})`,
+    style: totalStyle,
+  } satisfies Cell;
+  sheet.setCell(currentRow, GROSS_COL_NUM, grossCell);
+
+  const netCell = {
+    formula: `SUM(${NET_COL}${START_ROW}:${NET_COL}${currentRow - 1})`,
+    style: totalStyle,
+  } satisfies Cell;
+  sheet.setCell(currentRow, NET_COL_NUM, netCell);
 
   sheet.markDirty();
 
