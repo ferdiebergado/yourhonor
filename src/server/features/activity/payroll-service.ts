@@ -5,7 +5,10 @@ import { decrypt } from '@server/security';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatDateRange } from '@shared/utils';
-import { findActiveHonorariaWithAccountByActivity, recordUsage } from '../honorarium/repo';
+import {
+  findActiveHonorariaWithAccountByActivity,
+  recordUsage,
+} from '../honorarium/repo';
 import { getFundCluster } from '../honorarium/utils';
 import { payroll } from './payroll';
 import { findActiveActivityDetailByUser } from './repo';
@@ -14,14 +17,15 @@ import { formatName } from './utils';
 
 async function genPayrollDoc(
   activity: ActivityDetail,
-  honoraria: HonorariumDetail[]
+  honoraria: HonorariumDetail[],
 ): Promise<Document> {
   const { Workbook, style } = await import('@node-projects/excelforge');
   const workbook = await Workbook.fromBase64(payroll);
 
   const sheetName = 'PAYROLL';
   const sheet = workbook.getSheet(sheetName);
-  if (!sheet) throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
+  if (!sheet)
+    throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
 
   const { title, venue, startDate, endDate, code, location } = activity;
 
@@ -48,7 +52,16 @@ async function genPayrollDoc(
     sheet.setStyle(currentRow, 7, style().borderBottom('medium').build());
 
     const num = index + 1;
-    const { firstname, mi, lastname, bankBranch, accountNo, bank, tin, amount } = honorarium;
+    const {
+      firstname,
+      mi,
+      lastname,
+      bankBranch,
+      accountNo,
+      bank,
+      tin,
+      amount,
+    } = honorarium;
     const payee = formatName({ firstname, mi, lastname });
 
     const cells: Cell[] = [
@@ -58,9 +71,9 @@ async function genPayrollDoc(
       {
         value: payee,
       },
-      // {
-      //   value: position,
-      // },
+      {
+        value: '',
+      },
       {
         value: decrypt(Buffer.from(accountNo)),
       },
@@ -113,12 +126,20 @@ async function genPayrollDoc(
 
 export async function generatePayroll(
   activityCode: string,
-  userId: number
+  userId: number,
 ): Promise<Document | undefined> {
-  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  const activity = await findActiveActivityDetailByUser(
+    db,
+    activityCode,
+    userId,
+  );
   if (!activity) return;
 
-  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
+  const honoraria = await findActiveHonorariaWithAccountByActivity(
+    db,
+    activityCode,
+    userId,
+  );
   if (honoraria.length === 0) return;
 
   const doc = await genPayrollDoc(activity, honoraria);
