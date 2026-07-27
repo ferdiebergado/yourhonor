@@ -1,10 +1,10 @@
 import type { IPatch } from 'docx';
+import { patchDocument, PatchType, TextRun } from 'docx';
+import { ToWords } from 'to-words';
 
 import logger from '@server/logger';
 
 export async function amountToWords(amount: number): Promise<string> {
-  const { ToWords } = await import('to-words');
-
   return new ToWords({ localeCode: 'en-PH' }).convert(amount, {
     currency: true,
     doNotAddOnly: true,
@@ -13,8 +13,6 @@ export async function amountToWords(amount: number): Promise<string> {
 
 export async function patchDoc(template: string, tags: Record<string, string>) {
   try {
-    const { patchDocument, TextRun, PatchType } = await import('docx');
-
     const data = Buffer.from(template, 'base64');
 
     const patches = Object.fromEntries(
@@ -24,7 +22,7 @@ export async function patchDoc(template: string, tags: Record<string, string>) {
           children: [new TextRun(text)],
         };
         return [tag, patch];
-      })
+      }),
     );
 
     const doc = await patchDocument({
@@ -44,7 +42,8 @@ export async function patchDoc(template: string, tags: Record<string, string>) {
 export const docxResponse = (body: Uint8Array, filename: string) =>
   new Response(body, {
     headers: {
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'Content-Disposition': `attachment; filename="${filename}.docx"`,
     },
   });
@@ -79,7 +78,9 @@ export function parseActivityCode(activityCode: string): FundCluster {
 
   const program = pap as Program;
   const mfoCode = MFO_CODES[program];
-  const appropriation: Appropriation = code.startsWith('P') ? 'Continuing' : 'Current';
+  const appropriation: Appropriation = code.startsWith('P')
+    ? 'Continuing'
+    : 'Current';
   return {
     year: Number.parseInt(year) + 2000,
     appropriation,

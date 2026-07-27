@@ -1,3 +1,4 @@
+import { mergeDocx } from '@benedicte/docx-merge';
 import { db } from '@server/db';
 import { findActiveActivityDetailByUser } from '@server/features/activity/repo';
 import { decrypt } from '@server/security';
@@ -71,7 +72,6 @@ async function mergeDocuments(
     );
   }
 
-  const { mergeDocx } = await import('@benedicte/docx-merge');
   // normalize to Buffer
   let mergedDoc: Buffer = Buffer.from(docs[0]);
   for (let i = 1; i < docs.length; i++) {
