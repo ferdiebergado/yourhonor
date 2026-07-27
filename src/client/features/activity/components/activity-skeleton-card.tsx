@@ -1,4 +1,10 @@
-import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@client/components/ui/card';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@client/components/ui/card';
 import { Item, ItemContent, ItemMedia } from '@client/components/ui/item';
 import { Skeleton } from '@client/components/ui/skeleton';
 
@@ -43,9 +49,14 @@ export default function ActivitySkeletonCard() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2">
-            {['w-42', 'w-22', 'w-36', 'w-34', 'w-38', 'w-24', 'w-36'].map((width, i) => (
-              <Skeleton key={`content-${i}`} className={`h-10 ${width}`} />
-            ))}
+            {['w-42', 'w-22', 'w-36', 'w-34', 'w-38', 'w-24', 'w-36'].map(
+              (width) => (
+                <Skeleton
+                  key={`content-${crypto.randomUUID()}`}
+                  className={`h-10 ${width}`}
+                />
+              ),
+            )}
           </div>
           <Skeleton className="h-7 w-32" />
         </CardContent>

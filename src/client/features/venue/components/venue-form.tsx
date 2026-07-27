@@ -3,7 +3,12 @@ import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@client/components/form-buttons';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
 import { setFormErrors } from '@client/lib/utils';
 import type { ActivityFormValues } from '@shared/schemas/activity';
@@ -28,15 +33,15 @@ export default function VenueForm({ activityForm, onClose }: VenueFormProps) {
 
   const handleSubmit = (values: VenueFormValues) => {
     createVenue(values, {
-      onSuccess: id => {
+      onSuccess: (id) => {
         if (!id) return;
         toast.success('Venue created successfully.');
         form.reset();
         activityForm.setValue('venueId', id);
-        activityForm.trigger('venueId');
+        void activityForm.trigger('venueId');
         onClose();
       },
-      onError: error => setFormErrors(form, error),
+      onError: (error) => setFormErrors(form, error),
     });
   };
 
@@ -85,7 +90,12 @@ export default function VenueForm({ activityForm, onClose }: VenueFormProps) {
           )}
         />
 
-        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
+        <FormButtons
+          form={form}
+          onSubmit={handleSubmit}
+          onClose={onClose}
+          isPending={isPending}
+        />
       </FieldGroup>
     </form>
   );

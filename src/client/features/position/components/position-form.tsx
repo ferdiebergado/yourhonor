@@ -3,19 +3,30 @@ import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@client/components/form-buttons';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
 import { useCreatePosition } from '@client/features/position/hooks';
 import { setFormErrors } from '@client/lib/utils';
 import type { FocalFormValues } from '@shared/schemas/focal';
-import { PositionFormSchema, type PositionFormValues } from '@shared/schemas/position';
+import {
+  PositionFormSchema,
+  type PositionFormValues,
+} from '@shared/schemas/position';
 
 type PositionFormProps = {
   focalForm: UseFormReturn<FocalFormValues>;
   onClose: () => void;
 };
 
-export default function PositionForm({ focalForm, onClose }: PositionFormProps) {
+export default function PositionForm({
+  focalForm,
+  onClose,
+}: PositionFormProps) {
   const { isPending, mutate: createPosition } = useCreatePosition();
 
   const form = useForm<PositionFormValues>({
@@ -27,15 +38,15 @@ export default function PositionForm({ focalForm, onClose }: PositionFormProps) 
 
   const handleSubmit = (values: PositionFormValues) => {
     createPosition(values, {
-      onSuccess: id => {
+      onSuccess: (id) => {
         if (!id) return;
         toast.success('Position created successfully.');
         form.reset();
         focalForm.setValue('positionId', id);
-        focalForm.trigger('positionId');
+        void focalForm.trigger('positionId');
         onClose();
       },
-      onError: error => setFormErrors(form, error),
+      onError: (error) => setFormErrors(form, error),
     });
   };
 
@@ -62,7 +73,12 @@ export default function PositionForm({ focalForm, onClose }: PositionFormProps) 
           )}
         />
 
-        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
+        <FormButtons
+          form={form}
+          onSubmit={handleSubmit}
+          onClose={onClose}
+          isPending={isPending}
+        />
       </FieldGroup>
     </form>
   );

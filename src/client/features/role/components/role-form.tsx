@@ -3,7 +3,12 @@ import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@client/components/form-buttons';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
 import { setFormErrors } from '@client/lib/utils';
 import { type HonorariumFormValues } from '@shared/schemas/honorarium';
@@ -27,15 +32,15 @@ export default function RoleForm({ honorariumForm, onClose }: RoleFormProps) {
 
   const handleSubmit = (values: RoleFormValues) => {
     createRole(values, {
-      onSuccess: id => {
+      onSuccess: (id) => {
         if (!id) return;
         toast.success('Role created successfully.');
         form.reset();
         honorariumForm.setValue('roleId', id);
-        honorariumForm.trigger('roleId');
+        void honorariumForm.trigger('roleId');
         onClose();
       },
-      onError: error => setFormErrors(form, error),
+      onError: (error) => setFormErrors(form, error),
     });
   };
 
@@ -63,7 +68,12 @@ export default function RoleForm({ honorariumForm, onClose }: RoleFormProps) {
           )}
         />
 
-        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
+        <FormButtons
+          form={form}
+          onSubmit={handleSubmit}
+          onClose={onClose}
+          isPending={isPending}
+        />
       </FieldGroup>
     </form>
   );

@@ -31,7 +31,11 @@ import type { ActivityDetail } from '@shared/schemas/activity';
 import { formatDate, formatDateRange, getFullName } from '@shared/utils';
 import { useActivity } from '../hooks';
 
-type SingleFieldConfig = { key: keyof ActivityDetail; label: string; icon?: ReactNode };
+type SingleFieldConfig = {
+  key: keyof ActivityDetail;
+  label: string;
+  icon?: ReactNode;
+};
 
 type MultiFieldConfig = {
   keys: [keyof ActivityDetail, keyof ActivityDetail];
@@ -42,14 +46,16 @@ type MultiFieldConfig = {
 
 type ActivityFieldConfig = SingleFieldConfig | MultiFieldConfig;
 
-const isMultiFieldConfig = (field: ActivityFieldConfig): field is MultiFieldConfig =>
-  'keys' in field && 'format' in field;
+const isMultiFieldConfig = (
+  field: ActivityFieldConfig,
+): field is MultiFieldConfig => 'keys' in field && 'format' in field;
 
 const activityFields: ActivityFieldConfig[] = [
   {
     keys: ['startDate', 'endDate'],
     label: 'Date of Conduct',
-    format: (startDate: string, endDate: string) => formatDateRange(startDate, endDate),
+    format: (startDate: string, endDate: string) =>
+      formatDateRange(startDate, endDate),
     icon: <RiCalendarLine />,
   },
   {
@@ -61,7 +67,8 @@ const activityFields: ActivityFieldConfig[] = [
   {
     keys: ['firstname', 'lastname'],
     label: 'Focal Person',
-    format: (firstname: string, lastname: string) => getFullName({ firstname, lastname }),
+    format: (firstname: string, lastname: string) =>
+      getFullName({ firstname, lastname }),
     icon: <RiUser3Line />,
   },
   { key: 'position', label: 'Focal Position', icon: <RiPencilRulerLine /> },
@@ -74,7 +81,6 @@ export default function ActivityPage() {
   const { data: activity } = useActivity(activityCode as string);
   const navigate = useNavigate();
 
-  // eslint-disable-next-line unicorn/no-null
   if (!activity) return null;
 
   const { title, code, createdAt, honoraria } = activity;
@@ -97,15 +103,17 @@ export default function ActivityPage() {
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {activityFields.map((field, index) => (
-              <Item className="p-0" key={index}>
-                {field.icon && <ItemMedia variant="icon">{field.icon}</ItemMedia>}
+            {activityFields.map((field) => (
+              <Item className="p-0" key={crypto.randomUUID()}>
+                {field.icon && (
+                  <ItemMedia variant="icon">{field.icon}</ItemMedia>
+                )}
                 <ItemContent>
                   <ItemTitle>
                     {isMultiFieldConfig(field)
                       ? field.format(
                           String(activity[field.keys[0]]),
-                          String(activity[field.keys[1]])
+                          String(activity[field.keys[1]]),
                         )
                       : String(activity[field.key])}
                   </ItemTitle>

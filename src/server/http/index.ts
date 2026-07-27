@@ -1,7 +1,13 @@
-import type { Context as EdgeContext } from '@netlify/edge-functions';
 import type { Context } from '@netlify/functions';
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
+export type HttpMethod =
+  | 'GET'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE'
+  | 'HEAD'
+  | 'OPTIONS';
 
 export type RequestContext = {
   timestamp: string;
@@ -16,7 +22,7 @@ export type RequestContext = {
 
 export const getBaseRequestContext = (
   req: Request,
-  ctx: Context | EdgeContext
+  ctx: Context,
 ): RequestContext => ({
   timestamp: new Date().toISOString(),
   requestId: ctx.requestId,
@@ -24,7 +30,10 @@ export const getBaseRequestContext = (
   path: req.url,
 });
 
-export const getRequestContext = (req: Request, ctx: Context | EdgeContext): RequestContext => ({
+export const getRequestContext = (
+  req: Request,
+  ctx: Context,
+): RequestContext => ({
   ...getBaseRequestContext(req, ctx),
   ip: ctx.ip,
   city: ctx.geo.city ?? 'unknown',

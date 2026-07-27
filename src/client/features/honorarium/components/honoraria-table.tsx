@@ -83,9 +83,9 @@ export default function HonorariaTable({ honoraria }: HonorariumTableProps) {
         {honoraria.length > 0 ? (
           honoraria.map(honorarium => (
             <TableRow key={honorarium.id}>
-              {formatCells(honorarium).map(({ style, value }) => (
-                <TableCell key={value} className={style}>
-                  {value}
+              {formatCells(honorarium).map(cell => (
+                <TableCell key={cell.value} className={cell.style}>
+                  {cell.value}
                 </TableCell>
               ))}
             </TableRow>

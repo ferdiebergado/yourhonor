@@ -1,4 +1,9 @@
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 
 import { fetchMe, signout } from './api';
 
@@ -21,9 +26,8 @@ export function useSignout() {
 
   return useMutation({
     mutationFn: signout,
-    onSuccess: () => {
-      queryClient.cancelQueries({ queryKey: authKeys.user });
-      // eslint-disable-next-line unicorn/no-null
+    onSuccess: async () => {
+      await queryClient.cancelQueries({ queryKey: authKeys.user });
       queryClient.setQueryData(authKeys.user, null);
       queryClient.removeQueries();
     },

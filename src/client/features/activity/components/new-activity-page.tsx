@@ -24,16 +24,18 @@ export default function NewActivityPage() {
       onSuccess: () => {
         toast.success('Activity created successfully.');
         form.reset();
-        navigate(paths.activities);
+        void navigate(paths.activities);
       },
-      onError: error => setFormErrors(form, error),
+      onError: (error) => setFormErrors(form, error),
     });
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-2xl font-semibold">New Activity</CardTitle>
-        <CardDescription>Fill up the form below to create a new activity.</CardDescription>
+        <CardDescription>
+          Fill up the form below to create a new activity.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ActivityForm form={form} onSubmit={onSubmit} />

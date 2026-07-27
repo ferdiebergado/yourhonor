@@ -3,7 +3,12 @@ import { Controller, useForm, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import FormButtons from '@client/components/form-buttons';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@client/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
 import AddPositionDialog from '@client/features/position/components/add-position-dialog';
 import PositionInput from '@client/features/position/components/position-input';
@@ -34,15 +39,15 @@ export default function FocalForm({ activityForm, onClose }: FocalFormProps) {
 
   const handleSubmit = (values: FocalFormValues) => {
     createFocal(values, {
-      onSuccess: id => {
+      onSuccess: (id) => {
         if (!id) return;
         toast.success('Focal person created successfully.');
         form.reset();
         activityForm.setValue('focalId', id);
-        activityForm.trigger('focalId');
+        void activityForm.trigger('focalId');
         onClose();
       },
-      onError: error => setFormErrors(form, error),
+      onError: (error) => setFormErrors(form, error),
     });
   };
 
@@ -130,7 +135,12 @@ export default function FocalForm({ activityForm, onClose }: FocalFormProps) {
           )}
         />
 
-        <FormButtons form={form} onSubmit={handleSubmit} onClose={onClose} isPending={isPending} />
+        <FormButtons
+          form={form}
+          onSubmit={handleSubmit}
+          onClose={onClose}
+          isPending={isPending}
+        />
       </FieldGroup>
     </form>
   );

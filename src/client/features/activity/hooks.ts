@@ -1,5 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { createContext, useContext, useEffect } from 'react';
 import { useForm, useWatch, type UseFormReturn } from 'react-hook-form';
 
@@ -8,7 +13,12 @@ import {
   type ActivityFormValues,
   type ActivityWithHonoraria,
 } from '@shared/schemas/activity';
-import { createActivity, fetchActivities, fetchActivity, updateActivity } from './api';
+import {
+  createActivity,
+  fetchActivities,
+  fetchActivity,
+  updateActivity,
+} from './api';
 
 export const activityKeys = {
   all: ['activities'] as const,
@@ -21,7 +31,8 @@ export function useCreateActivity() {
   return useMutation({
     mutationKey: activityKeys.all,
     mutationFn: createActivity,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: activityKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: activityKeys.all }),
   });
 }
 
@@ -41,7 +52,8 @@ const fetchActivityOptions = (code: string) =>
     staleTime: 60 * 10 * 1000,
   });
 
-export const useActivity = (code: string) => useSuspenseQuery(fetchActivityOptions(code));
+export const useActivity = (code: string) =>
+  useSuspenseQuery(fetchActivityOptions(code));
 
 export function useUpdateActivity(code: string) {
   const queryClient = useQueryClient();
@@ -49,18 +61,23 @@ export function useUpdateActivity(code: string) {
   return useMutation({
     mutationKey: activityKeys.byCode(code),
     mutationFn: (data: ActivityFormValues) => updateActivity(code, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: activityKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: activityKeys.all }),
   });
 }
 
 // eslint-disable-next-line unicorn/no-null
-export const ActivityContext = createContext<ActivityWithHonoraria | null | undefined>(null);
+export const ActivityContext = createContext<
+  ActivityWithHonoraria | null | undefined
+>(null);
 
 export function useActivityContext() {
   const context = useContext(ActivityContext);
 
   if (context === null)
-    throw new Error('useActivityContext must be used within an ActivityProvider');
+    throw new Error(
+      'useActivityContext must be used within an ActivityProvider',
+    );
 
   return context;
 }
@@ -78,14 +95,14 @@ export function useSyncDateInputs({
 
     if (startDate && !endDate) {
       setValue('endDate', startDate);
-      trigger('endDate');
+      void trigger('endDate');
       return;
     }
 
     if (startDate && endDate) {
       if (new Date(startDate) > new Date(endDate)) {
         setValue('endDate', startDate);
-        trigger('endDate');
+        void trigger('endDate');
       }
 
       return;
@@ -93,7 +110,7 @@ export function useSyncDateInputs({
 
     if (!startDate && endDate) {
       setValue('startDate', endDate);
-      trigger('startDate');
+      void trigger('startDate');
     }
   }
 

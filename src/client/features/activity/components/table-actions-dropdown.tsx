@@ -11,16 +11,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@client/components/ui/dropdown-menu';
-import { RiDeleteBinLine, RiFileCopyLine, RiInformationLine, RiMore2Fill } from '@remixicon/react';
+import {
+  RiDeleteBinLine,
+  RiFileCopyLine,
+  RiInformationLine,
+  RiMore2Fill,
+} from '@remixicon/react';
 import type { ActivityDetail } from '@shared/schemas/activity';
 
 type TableActionsDropdownProps = {
   activity: ActivityDetail;
 };
 
-export default function TableActionsDropdown({ activity }: TableActionsDropdownProps) {
+export default function TableActionsDropdown({
+  activity,
+}: TableActionsDropdownProps) {
   const handleCopy = () => {
-    navigator.clipboard.writeText(activity.title);
+    void navigator.clipboard.writeText(activity.title);
     toast.info('Copied activity title.');
   };
 

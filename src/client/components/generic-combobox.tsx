@@ -9,7 +9,12 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@client/components/ui/combobox';
-import { Item, ItemContent, ItemDescription, ItemTitle } from '@client/components/ui/item';
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from '@client/components/ui/item';
 
 type GenericComboboxProps<T> = {
   /** Array of items to display in the combobox */
@@ -32,7 +37,7 @@ type GenericComboboxProps<T> = {
 } & Omit<ComponentProps<typeof ComboboxInput>, 'value' | 'onValueChange'>;
 
 export default function GenericCombobox<T>({
-  items = [],
+  items,
   itemToStringLabel,
   itemToStringValue,
   value,
