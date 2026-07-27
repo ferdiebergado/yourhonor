@@ -1,17 +1,25 @@
 import { useIsMutating } from '@tanstack/react-query';
-import { Controller, type FieldValues, type UseFormReturn } from 'react-hook-form';
+import {
+  Controller,
+  type FieldValues,
+  type UseFormReturn,
+} from 'react-hook-form';
 
 import FormButtons from '@client/components/form-buttons';
 import GenericCombobox from '@client/components/generic-combobox';
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from '@client/components/ui/field';
 import { Input } from '@client/components/ui/input';
-import { Item, ItemContent, ItemDescription, ItemTitle } from '@client/components/ui/item';
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from '@client/components/ui/item';
 import { Textarea } from '@client/components/ui/textarea';
 import AddFocalDialog from '@client/features/focal/components/add-focal-dialog';
 import { useFocals } from '@client/features/focal/hooks';
@@ -65,7 +73,8 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
             control={form.control}
             render={({ field, fieldState }) => {
               // eslint-disable-next-line unicorn/no-null
-              const selectedVenue = venues?.find(venue => venue.id === field.value) ?? null;
+              const selectedVenue =
+                venues?.find((venue) => venue.id === field.value) ?? null;
 
               return (
                 <Field
@@ -79,15 +88,19 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
                       className="flex-1"
                       items={venues ?? []}
                       aria-invalid={fieldState.invalid}
-                      placeholder={isFetchingVenues ? 'Loading venues…' : 'Select a venue'}
-                      itemToStringLabel={item => item.name}
-                      itemToStringValue={item => item.id.toString()}
+                      placeholder={
+                        isFetchingVenues ? 'Loading venues…' : 'Select a venue'
+                      }
+                      itemToStringLabel={(item) => item.name}
+                      itemToStringValue={(item) => item.id.toString()}
                       value={selectedVenue}
-                      onValueChange={venue => field.onChange(venue?.id ?? 0)}
-                      renderItem={item => (
+                      onValueChange={(venue) => field.onChange(venue?.id ?? 0)}
+                      renderItem={(item) => (
                         <Item size="xs" className="p-0">
                           <ItemContent>
-                            <ItemTitle className="whitespace-nowrap">{item.name}</ItemTitle>
+                            <ItemTitle className="whitespace-nowrap">
+                              {item.name}
+                            </ItemTitle>
                             <ItemDescription>{item.location}</ItemDescription>
                           </ItemContent>
                         </Item>
@@ -97,11 +110,9 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
 
                     <AddVenueDialog activityForm={form} />
                   </div>
-                  <FieldDescription>
-                    If a venue is not on the list, click the "+" button next to the dropdown to add
-                    it.
-                  </FieldDescription>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               );
             }}
@@ -114,8 +125,15 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
             render={({ field, fieldState }) => (
               <Field className="w-full" data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Start Date</FieldLabel>
-                <Input {...field} id={field.name} type="date" aria-invalid={fieldState.invalid} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                <Input
+                  {...field}
+                  id={field.name}
+                  type="date"
+                  aria-invalid={fieldState.invalid}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
               </Field>
             )}
           />
@@ -127,8 +145,15 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
             render={({ field, fieldState }) => (
               <Field className="w-full" data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>End Date</FieldLabel>
-                <Input {...field} id={field.name} type="date" aria-invalid={fieldState.invalid} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                <Input
+                  {...field}
+                  id={field.name}
+                  type="date"
+                  aria-invalid={fieldState.invalid}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
               </Field>
             )}
           />
@@ -149,7 +174,9 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
                   aria-invalid={fieldState.invalid}
                   autoComplete="off"
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
               </Field>
             )}
           />
@@ -160,7 +187,8 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
             control={form.control}
             render={({ field, fieldState }) => {
               // eslint-disable-next-line unicorn/no-null
-              const selectedFocal = focals?.find(focal => focal.id === field.value) ?? null;
+              const selectedFocal =
+                focals?.find((focal) => focal.id === field.value) ?? null;
 
               return (
                 <Field data-invalid={fieldState.invalid}>
@@ -171,16 +199,20 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
                       className="flex-1"
                       aria-invalid={fieldState.invalid}
                       items={focals ?? []}
-                      itemToStringLabel={item => getFullName(item)}
-                      itemToStringValue={item => item.id.toString()}
+                      itemToStringLabel={(item) => getFullName(item)}
+                      itemToStringValue={(item) => item.id.toString()}
                       value={selectedFocal}
-                      onValueChange={focal => field.onChange(focal?.id ?? 0)}
-                      placeholder={isFetchingFocals ? 'Loading focals…' : 'Select a focal'}
+                      onValueChange={(focal) => field.onChange(focal?.id ?? 0)}
+                      placeholder={
+                        isFetchingFocals ? 'Loading focals…' : 'Select a focal'
+                      }
                       disabled={isFetchingFocals}
-                      renderItem={item => (
+                      renderItem={(item) => (
                         <Item size="xs" className="p-0">
                           <ItemContent>
-                            <ItemTitle className="whitespace-nowrap">{getFullName(item)}</ItemTitle>
+                            <ItemTitle className="whitespace-nowrap">
+                              {getFullName(item)}
+                            </ItemTitle>
                             <ItemDescription>{item.position}</ItemDescription>
                           </ItemContent>
                         </Item>
@@ -189,11 +221,9 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
 
                     <AddFocalDialog activityForm={form} />
                   </div>
-                  <FieldDescription>
-                    If a focal person is not on the list, click the "+" button next to the dropdown
-                    to add it.
-                  </FieldDescription>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               );
             }}
