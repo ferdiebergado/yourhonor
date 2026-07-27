@@ -31,6 +31,66 @@ const FONT = 'Book Antiqua';
 const FONT_SIZE = 9;
 const BORDER_STYLE = 'medium' satisfies BorderStyle;
 
+export async function generatePayroll(
+  activityCode: string,
+  userId: number,
+): Promise<Document | undefined> {
+  const activity = await findActiveActivityDetailByUser(
+    db,
+    activityCode,
+    userId,
+  );
+  if (!activity) return;
+
+  const honoraria = await findActiveHonorariaWithAccountByActivity(
+    db,
+    activityCode,
+    userId,
+  );
+
+  if (honoraria.length === 0) {
+    console.warn(`No honoraria found for activity: ${activityCode}`);
+    return;
+  }
+
+  const doc = await genPayrollDoc(activity, honoraria);
+
+  await recordUsage(db, 'Payroll', userId);
+
+  return doc;
+}
+
+/**
+ * Format activity venue information
+ */
+const formatVenue = (venue: string, location: string) =>
+  location.toLocaleLowerCase() === 'online'
+    ? 'online'
+    : `at ${venue}, ${location}`;
+
+/**
+ * Format date of birth for Excel
+ */
+function formatDob(dob: string | null | undefined): string {
+  if (!dob) return '';
+  return Intl.DateTimeFormat('en-US', {
+    dateStyle: 'medium',
+    timeZone: 'UTC',
+  }).format(new Date(dob));
+}
+
+/**
+ * Safely decrypt account number
+ */
+function getDecryptedAccountNo(accountNo: ArrayBuffer): string {
+  try {
+    return decrypt(Buffer.from(accountNo));
+  } catch {
+    console.error('Failed to decrypt account number');
+    return '';
+  }
+}
+
 async function genPayrollDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[],
@@ -49,7 +109,7 @@ async function genPayrollDoc(
   sheet.getCell(7, 1).value = fundClusterText;
 
   const particularsCell = sheet.getCell(9, 1);
-  const particulars = `${String(particularsCell.value)} ${title} held at ${location.toLocaleLowerCase() === 'online' ? 'online' : `at ${venue}, ${location}`} on ${formatDateRange(startDate, endDate)}`;
+  const particulars = `${String(particularsCell.value)} ${title} held at ${formatVenue(venue, location)} on ${formatDateRange(startDate, endDate)}`;
   particularsCell.value = particulars;
 
   const baseStyle = style()
@@ -81,46 +141,41 @@ async function genPayrollDoc(
       dob,
     } = honorarium;
     const cells: Cell[] = [
-      {
-        value: seq,
-      },
-      {
-        value: formatName({ firstname, mi, lastname }),
-      },
-      {
-        value: decrypt(Buffer.from(accountNo)),
-      },
-      {
-        value: bank,
-      },
+      // Sequence
+      { value: seq },
+      // Payee
+      { value: formatName({ firstname, mi, lastname }) },
+      // Account Number
+      { value: getDecryptedAccountNo(accountNo) },
+      // Bank
+      { value: bank },
+      // Bank Branch
       {
         value: bankBranch,
         style: withBottomBorder,
       },
-      {
-        value: tin,
-      },
-      {
-        value: dob
-          ? Intl.DateTimeFormat('en-US', {
-              dateStyle: 'medium',
-              timeZone: 'UTC',
-            }).format(new Date(dob))
-          : '',
-      },
+      // TIN
+      { value: tin },
+      // Date of Birth
+      { value: formatDob(dob) },
+      // Gross Honorarium
       {
         value: amount,
         style: decimalFormat,
       },
+      // Less: Tax
       {
         style: decimalFormat,
         formula: `${HONORARIUM_COL}${currentRow}*${(honorarium.taxRate / 100).toString()}`,
       },
+      // Net Honorarium
       {
         style: decimalFormat,
         formula: `${HONORARIUM_COL}${currentRow}-${TAX_COL}${currentRow}`,
       },
+      // Sequence
       { value: seq },
+      // Signature
       {
         value: '',
         style: style().border(BORDER_STYLE).build(),
@@ -166,35 +221,10 @@ async function genPayrollDoc(
   sheet.markDirty();
 
   const doc = await workbook.build();
-  const filename = `Payroll-${code}.xlsx`;
+  const filename = `Payroll-${code}-${Date.now()}.xlsx`;
 
   return {
     doc,
     filename,
   };
-}
-
-export async function generatePayroll(
-  activityCode: string,
-  userId: number,
-): Promise<Document | undefined> {
-  const activity = await findActiveActivityDetailByUser(
-    db,
-    activityCode,
-    userId,
-  );
-  if (!activity) return;
-
-  const honoraria = await findActiveHonorariaWithAccountByActivity(
-    db,
-    activityCode,
-    userId,
-  );
-  if (honoraria.length === 0) return;
-
-  const doc = await genPayrollDoc(activity, honoraria);
-
-  await recordUsage(db, 'Payroll', userId);
-
-  return doc;
 }
