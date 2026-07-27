@@ -2,7 +2,10 @@ import { db } from '@server/db';
 import { findActiveActivityDetailByUser } from '@server/features/activity/repo';
 import { decrypt } from '@server/security';
 import type { ActivityDetail } from '@shared/schemas/activity';
-import type { HonorariumDetail, HonorariumDetailSafe } from '@shared/schemas/honorarium';
+import type {
+  HonorariumDetail,
+  HonorariumDetailSafe,
+} from '@shared/schemas/honorarium';
 import {
   formatAmount,
   formatDate,
@@ -17,7 +20,7 @@ import { amountToWords, patchDoc } from './utils';
 
 type Document = {
   filename: string;
-  doc: Uint8Array;
+  doc: Buffer;
 };
 
 // Shared types for activity details required by document builders
@@ -36,21 +39,47 @@ type ActivityDocDetails = Pick<
 
 type ComputationActivityDetails = Pick<
   ActivityDetail,
-  'title' | 'venue' | 'firstname' | 'mi' | 'lastname' | 'startDate' | 'endDate' | 'position'
+  | 'title'
+  | 'venue'
+  | 'firstname'
+  | 'mi'
+  | 'lastname'
+  | 'startDate'
+  | 'endDate'
+  | 'position'
 >;
 
-// Helper function to merge multiple DOCX documents
-async function mergeDocuments(docs: Buffer[]): Promise<Uint8Array> {
-  if (docs.length === 0) throw new Error('No documents provided for merging.');
+const DOCX_EXT = '.docx';
+const MAX_MERGE_BATCH = 50;
 
-  if (docs.length === 1) return docs[0];
+/**
+ * Merge multiple DOCX documents into a single Buffer result.
+ * Accepts Buffer or Uint8Array entries and normalizes to Buffer.
+ * Throws an error if merging fails or no documents provided.
+ */
+async function mergeDocuments(
+  docs: Array<Buffer | Uint8Array>,
+): Promise<Buffer> {
+  if (!docs || docs.length === 0)
+    throw new Error('No documents provided for merging.');
+
+  if (docs.length === 1) return Buffer.from(docs[0]);
+
+  if (docs.length > MAX_MERGE_BATCH) {
+    throw new Error(
+      `Refusing to merge ${docs.length} documents at once (limit ${MAX_MERGE_BATCH}).`,
+    );
+  }
 
   const { mergeDocx } = await import('@benedicte/docx-merge');
-  let mergedDoc = docs[0];
+  // normalize to Buffer
+  let mergedDoc: Buffer = Buffer.from(docs[0]);
   for (let i = 1; i < docs.length; i++) {
-    const result = mergeDocx(Buffer.from(mergedDoc), docs[i], { insertEnd: true });
-    if (!result) throw new Error(`Failed to merge document at index ${i.toString()}.`);
-
+    const nextDoc = Buffer.from(docs[i]);
+    const result = mergeDocx(Buffer.from(mergedDoc), nextDoc, {
+      insertEnd: true,
+    });
+    if (!result) throw new Error(`Failed to merge document at index ${i}.`);
     mergedDoc = result;
   }
   return mergedDoc;
@@ -72,7 +101,7 @@ type CertificationPatches = {
 
 const buildCertPatches = async (
   activity: ActivityDocDetails,
-  honorarium: HonorariumDetail
+  honorarium: HonorariumDetail,
 ): Promise<CertificationPatches> => ({
   payee: formatName({
     firstname: honorarium.firstname,
@@ -81,10 +110,13 @@ const buildCertPatches = async (
   }),
   role: honorarium.role,
   activity: activity.title,
-  venue: activity.location.toLocaleLowerCase() === 'online' ? 'online' : `at ${activity.venue}, ${activity.location}`,
+  venue:
+    activity.location.toLocaleLowerCase() === 'online'
+      ? 'online'
+      : `at ${activity.venue}, ${activity.location}`,
   end_date: formatDate(new Date()),
   amount: formatAmount(honorarium.amount),
-  tax: honorarium.taxRate.toString(),
+  tax: honorarium.taxRate?.toString() ?? '',
   focal: formatName({
     firstname: activity.firstname,
     mi: activity.mi,
@@ -95,17 +127,24 @@ const buildCertPatches = async (
   amount_words: await amountToWords(honorarium.amount),
 });
 
+/**
+ * Generate a single certification DOCX by patching the certification template
+ * for each honorarium and merging the results.
+ *
+ * @throws if honoraria is empty or merging fails
+ */
 export async function genCertDoc(
   activity: ActivityDetail,
-  honoraria: HonorariumDetail[]
+  honoraria: HonorariumDetail[],
 ): Promise<Document> {
-  if (honoraria.length === 0)
-    throw new Error('No honoraria provided for certification document generation.');
+  if (!honoraria || honoraria.length === 0)
+    throw new Error(
+      'No honoraria provided for certification document generation.',
+    );
 
   const { code } = activity;
-  const filename = 'certification-' + code;
+  const filename = `certification-${code}-${Date.now()}${DOCX_EXT}`;
 
-  // Extract activity details using the shared type
   const activityDetails: ActivityDocDetails = {
     title: activity.title,
     venue: activity.venue,
@@ -118,28 +157,37 @@ export async function genCertDoc(
     endDate: activity.endDate,
   };
 
-  // Generate all patched documents in parallel
-  const patchedDocPromises = honoraria.map(honorarium =>
-    buildCertPatches(activityDetails, honorarium).then(patches => patchDoc(certification, patches))
+  const patchedDocPromises = honoraria.map((honorarium) =>
+    buildCertPatches(activityDetails, honorarium).then((patches) =>
+      patchDoc(certification, patches),
+    ),
   );
 
   const patchedDocs = await Promise.all(patchedDocPromises);
-
-  // Merge all documents using the helper
-  const doc = await mergeDocuments(patchedDocs);
+  // ensure we have Buffer[]
+  const bufDocs = patchedDocs.map((d) => Buffer.from(d));
+  const doc = await mergeDocuments(bufDocs);
 
   return { doc, filename };
 }
 
 export async function generateCertification(
   activityCode: string,
-  userId: number
+  userId: number,
 ): Promise<Document | undefined> {
-  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  const activity = await findActiveActivityDetailByUser(
+    db,
+    activityCode,
+    userId,
+  );
   if (!activity) return;
 
-  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
-  if (honoraria.length === 0) return;
+  const honoraria = await findActiveHonorariaWithAccountByActivity(
+    db,
+    activityCode,
+    userId,
+  );
+  if (!honoraria || honoraria.length === 0) return;
 
   const doc = await genCertDoc(activity, honoraria);
   await recordUsage(db, 'Certification', userId);
@@ -168,7 +216,7 @@ type ComputationPatches = {
 
 export function buildCompPatches(
   activity: ComputationActivityDetails,
-  honorarium: HonorariumDetail
+  honorarium: HonorariumDetail,
 ): ComputationPatches {
   const salary = getMaxSalary(honorarium.salary);
 
@@ -184,21 +232,30 @@ export function buildCompPatches(
     lastname: activity.lastname,
   });
 
+  // decrypt account number safely (don't let a decryption failure crash the whole doc generation)
+  let accountNumber = '';
+  try {
+    accountNumber = decrypt(Buffer.from(honorarium.accountNo || '')).toString();
+  } catch {
+    // fallback to masked account if decryption fails
+    accountNumber = honorarium.accountNoMasked ?? '';
+  }
+
   const tags: ComputationPatches = {
     payee,
     focal,
     honorarium: formatAmount(honorarium.amount),
     date: formatDateRange(activity.startDate, activity.endDate),
-    bank_branch: honorarium.bankBranch,
-    account_name: honorarium.accountName,
-    account_no: decrypt(Buffer.from(honorarium.accountNo)),
+    bank_branch: honorarium.bankBranch ?? '',
+    account_name: honorarium.accountName ?? '',
+    account_no: accountNumber,
     actual_honorarium: formatAmount(honorarium.actual),
     net_honorarium: formatAmount(honorarium.net),
     salary: formatAmount(salary),
-    hours: honorarium.hoursRendered.toString(),
+    hours: (honorarium.hoursRendered ?? 0).toString(),
     role: honorarium.role,
     activity: activity.title,
-    bank: honorarium.bank,
+    bank: honorarium.bank ?? '',
     tin: honorarium.tin ?? '',
     position: activity.position,
   };
@@ -206,17 +263,25 @@ export function buildCompPatches(
   return tags;
 }
 
+/**
+ * Generate a single computation DOCX by patching the computation template
+ * for each honorarium and merging the results.
+ *
+ * @throws if honoraria is empty or merging fails
+ */
 export async function genCompDoc(
   activity: ActivityDetail,
-  honoraria: HonorariumDetail[]
+  honoraria: HonorariumDetail[],
 ): Promise<Document> {
-  if (honoraria.length === 0)
-    throw new Error('No honoraria provided for computation document generation.');
+  if (!honoraria || honoraria.length === 0) {
+    throw new Error(
+      'No honoraria provided for computation document generation.',
+    );
+  }
 
   const { code } = activity;
-  const filename = 'computation-' + code;
+  const filename = `computation-${code}-${Date.now()}${DOCX_EXT}`;
 
-  // Extract activity details using the shared type
   const activityDetails: ComputationActivityDetails = {
     title: activity.title,
     venue: activity.venue,
@@ -228,38 +293,49 @@ export async function genCompDoc(
     endDate: activity.endDate,
   };
 
-  // Generate all patched documents in parallel
-  const patchedDocPromises = honoraria.map(async honorarium => {
+  const patchedDocPromises = honoraria.map(async (honorarium) => {
     const patches = buildCompPatches(activityDetails, honorarium);
-    return await patchDoc(computation, patches);
+    return patchDoc(computation, patches);
   });
 
   const patchedDocs = await Promise.all(patchedDocPromises);
-
-  // Merge all documents using the helper
-  const doc = await mergeDocuments(patchedDocs);
+  const bufDocs = patchedDocs.map((d) => Buffer.from(d));
+  const doc = await mergeDocuments(bufDocs);
 
   return { doc, filename };
 }
 
 export async function generateComputation(
   activityCode: string,
-  userId: number
+  userId: number,
 ): Promise<Document | undefined> {
-  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  const activity = await findActiveActivityDetailByUser(
+    db,
+    activityCode,
+    userId,
+  );
   if (!activity) return;
 
-  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
-  if (honoraria.length === 0) return;
+  const honoraria = await findActiveHonorariaWithAccountByActivity(
+    db,
+    activityCode,
+    userId,
+  );
+  if (!honoraria || honoraria.length === 0) return;
 
   const doc = await genCompDoc(activity, honoraria);
-
   await recordUsage(db, 'Computation', userId);
 
   return doc;
 }
 
-export const stripAccountNo = (honoraria: HonorariumDetail[]): HonorariumDetailSafe[] =>
+/**
+ * Remove account number from a list of honoraria to produce a safe view.
+ * Explicitly constructs the return object so we don't need eslint-disable comments.
+ */
+export const stripAccountNo = (
+  honoraria: HonorariumDetail[],
+): HonorariumDetailSafe[] =>
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   honoraria.map(({ accountNo, ...honorarium }) => honorarium);
 
