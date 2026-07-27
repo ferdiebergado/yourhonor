@@ -6,6 +6,7 @@ import {
 } from '@node-projects/excelforge';
 
 import { db } from '@server/db';
+import logger from '@server/logger';
 import { decrypt } from '@server/security';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
@@ -40,7 +41,10 @@ export async function generatePayroll(
     activityCode,
     userId,
   );
-  if (!activity) return;
+  if (!activity) {
+    logger.warn(`Activity not found: ${activityCode} for user ${userId}`);
+    return;
+  }
 
   const honoraria = await findActiveHonorariaWithAccountByActivity(
     db,
@@ -49,7 +53,7 @@ export async function generatePayroll(
   );
 
   if (honoraria.length === 0) {
-    console.warn(`No honoraria found for activity: ${activityCode}`);
+    logger.warn(`No honoraria found for activity: ${activityCode}`);
     return;
   }
 
@@ -85,12 +89,15 @@ function formatDob(dob: string | null | undefined): string {
 function getDecryptedAccountNo(accountNo: ArrayBuffer): string {
   try {
     return decrypt(Buffer.from(accountNo));
-  } catch {
-    console.error('Failed to decrypt account number');
+  } catch (err) {
+    logger.error(err, 'Failed to decrypt account number');
     return '';
   }
 }
 
+/**
+ * Generate payroll Excel document
+ */
 async function genPayrollDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[],
@@ -163,7 +170,7 @@ async function genPayrollDoc(
         value: amount,
         style: decimalFormat,
       },
-      // Less: Tax
+      // Tax
       {
         style: decimalFormat,
         formula: `${HONORARIUM_COL}${currentRow}*${(honorarium.taxRate / 100).toString()}`,
