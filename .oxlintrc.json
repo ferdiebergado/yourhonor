@@ -3,9 +3,10 @@
   "options": {
     "typeAware": true
   },
+  "ignorePatterns": ["src/client/components/ui/**"],
   "overrides": [
     {
-      "files": ["./src/client/**"],
+      "files": ["src/client/**"],
       "plugins": ["react", "typescript", "oxc", "unicorn"],
       "rules": {
         "react/rules-of-hooks": "error",
@@ -20,19 +21,19 @@
       }
     },
     {
-      "files": ["./src/server/**"],
+      "files": ["src/server/**"],
       "excludeFiles": ["./src/server/netlify/edge-functions/**"],
       "plugins": ["typescript", "oxc", "node", "unicorn"]
     },
     {
-      "files": ["./src/server/netlify/edge-functions/**"],
+      "files": ["src/server/netlify/edge-functions/**"],
       "plugins": ["typescript", "oxc", "import", "unicorn"],
       "rules": {
         "import/extensions": ["error", "always", { "ignorePackages": true }]
       }
     },
     {
-      "files": ["./src/shared/**"],
+      "files": ["src/shared/**"],
       "plugins": ["unicorn", "typescript", "oxc"],
       "env": {
         "browser": false,
