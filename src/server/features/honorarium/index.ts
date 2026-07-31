@@ -310,15 +310,22 @@ export async function genCompDoc(
     endDate: activity.endDate,
   };
 
+  const patchingStart = performance.now();
   const patchedDocs = await Promise.all(
     honoraria.map(async (honorarium) => {
+      const start = performance.now();
       const patches = buildCompPatches(activityDetails, honorarium);
-      return patchDoc(computation, patches);
+      const doc = patchDoc(computation, patches);
+      logger.info(`patched computation doc: ${getElapsedTime(start)}`);
+
+      return doc;
     }),
   );
+  logger.info(`patched computation docs: ${getElapsedTime(patchingStart)}`);
 
-  // patchDoc already returns a nodebuffer; pass directly to avoid redundant copies
+  const mergeStart = performance.now();
   const doc = await mergeDocuments(patchedDocs);
+  logger.info(`merged computation docs: ${getElapsedTime(mergeStart)}`);
 
   return { doc, filename };
 }
