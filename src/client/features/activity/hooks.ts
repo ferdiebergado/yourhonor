@@ -66,7 +66,6 @@ export function useUpdateActivity(code: string) {
   });
 }
 
-// eslint-disable-next-line unicorn/no-null
 export const ActivityContext = createContext<
   ActivityWithHonoraria | null | undefined
 >(null);

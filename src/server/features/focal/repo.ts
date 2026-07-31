@@ -1,6 +1,10 @@
 import type { Database } from '@server/db';
 import type { Entity, EntityID } from '@shared/schemas/base';
-import { FocalDetailSchema, type FocalDetail, type NewFocal } from '@shared/schemas/focal';
+import {
+  FocalDetailSchema,
+  type FocalDetail,
+  type NewFocal,
+} from '@shared/schemas/focal';
 
 export async function findActiveFocals(db: Database): Promise<FocalDetail[]> {
   const sql = `
@@ -16,7 +20,10 @@ ORDER BY firstname, mi, lastname
   return FocalDetailSchema.array().parse(rows);
 }
 
-export async function createFocal(db: Database, focal: NewFocal): Promise<Entity['id']> {
+export async function createFocal(
+  db: Database,
+  focal: NewFocal,
+): Promise<Entity['id']> {
   const sql = `
 INSERT INTO focals (firstname, mi, lastname,  position_id, created_by, updated_by)
 VALUES (?, ?, ?, ?, ?, ?)
@@ -27,7 +34,7 @@ RETURNING id
 
   const { rows } = await db.execute<EntityID>(sql, [
     firstname,
-    // eslint-disable-next-line unicorn/no-null
+
     mi ?? null,
     lastname,
     positionId,

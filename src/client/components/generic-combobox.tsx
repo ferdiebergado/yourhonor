@@ -48,7 +48,7 @@ export default function GenericCombobox<T>({
   // Default render function if none provided
   const defaultRenderItem = (item: T) => {
     // Type guard to ensure item is not null or undefined
-    // eslint-disable-next-line unicorn/no-null
+
     if (!item) return null;
 
     return (

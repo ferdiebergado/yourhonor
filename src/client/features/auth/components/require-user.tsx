@@ -14,7 +14,6 @@ export default function RequireUser() {
       void navigate(paths.signin, { replace: true, state: { from: pathname } });
   }, [navigate, pathname, user]);
 
-  // eslint-disable-next-line unicorn/no-null
   if (user === null) return null;
 
   return <Outlet />;

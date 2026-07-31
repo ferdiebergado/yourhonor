@@ -13,7 +13,6 @@ export default function RequireGuest() {
     if (user) void navigate(state?.from ?? paths.home, { replace: true });
   }, [navigate, state?.from, user]);
 
-  // eslint-disable-next-line unicorn/no-null
   if (user) return null;
 
   return <Outlet />;

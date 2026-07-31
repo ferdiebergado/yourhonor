@@ -72,7 +72,6 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
             name="venueId"
             control={form.control}
             render={({ field, fieldState }) => {
-              // eslint-disable-next-line unicorn/no-null
               const selectedVenue =
                 venues?.find((venue) => venue.id === field.value) ?? null;
 
@@ -186,7 +185,6 @@ export default function ActivityForm({ form, onSubmit }: ActivityFormProps) {
             name="focalId"
             control={form.control}
             render={({ field, fieldState }) => {
-              // eslint-disable-next-line unicorn/no-null
               const selectedFocal =
                 focals?.find((focal) => focal.id === field.value) ?? null;
 

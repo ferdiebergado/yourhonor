@@ -6,7 +6,10 @@ import { ApiError } from './errors';
 
 const headers = { 'Content-Type': 'application/json' };
 
-async function request<T>(path: string, options?: RequestInit): Promise<T | null> {
+async function request<T>(
+  path: string,
+  options?: RequestInit,
+): Promise<T | null> {
   let res: Response;
 
   try {
@@ -18,14 +21,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T | null
     throw new Error('Network error', { cause: error });
   }
 
-  // eslint-disable-next-line unicorn/no-null
   if (res.status === 401) return null;
 
   const body = (await res.json()) as ApiResponse<T>;
 
   if (!body.success) throw new ApiError(body, res.status);
 
-  // eslint-disable-next-line unicorn/no-null
   return body.data ?? null;
 }
 

@@ -1,7 +1,15 @@
-import { RiLoader2Line, RiLogoutCircleLine, RiUserLine } from '@remixicon/react';
+import {
+  RiLoader2Line,
+  RiLogoutCircleLine,
+  RiUserLine,
+} from '@remixicon/react';
 import { toast } from 'sonner';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@client/components/ui/avatar';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@client/components/ui/avatar';
 import { Button } from '@client/components/ui/button';
 import {
   DropdownMenu,
@@ -15,9 +23,9 @@ export default function UserMenu() {
   const { data: user } = useMe();
   const { isPending: isSigningOut, mutate: signout } = useSignout();
 
-  const handleSignout = () => signout(undefined, { onSuccess: () => toast.info('Signed out.') });
+  const handleSignout = () =>
+    signout(undefined, { onSuccess: () => toast.info('Signed out.') });
 
-  // eslint-disable-next-line unicorn/no-null
   if (user === null) return null;
 
   return (
@@ -39,7 +47,10 @@ export default function UserMenu() {
         <DropdownMenuItem closeOnClick={false} onClick={handleSignout}>
           {isSigningOut ? (
             <>
-              <RiLoader2Line className="animate-spin" data-icon="inline-start" />
+              <RiLoader2Line
+                className="animate-spin"
+                data-icon="inline-start"
+              />
               Signing out...
             </>
           ) : (
