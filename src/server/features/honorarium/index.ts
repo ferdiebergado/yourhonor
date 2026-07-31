@@ -15,7 +15,7 @@ import {
   getFullName,
   getMaxSalary,
 } from '@shared/utils';
-import { formatVenue, getElapsedTime } from '../activity/utils';
+import { formatVenue } from '../activity/utils';
 import { certification } from './certification';
 import { computation } from './computation';
 import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
@@ -55,6 +55,25 @@ type ComputationActivityDetails = Pick<
 const DOCX_EXT = '.docx';
 const MAX_MERGE_BATCH = 50;
 
+const obs = new PerformanceObserver((list) => {
+  const entries = list.getEntries();
+  entries.forEach((entry) => {
+    logger.info(`${entry.name}: ${entry.duration} milliseconds`);
+  });
+});
+obs.observe({ entryTypes: ['measure'] });
+
+const amountWordsCache = new Map<number, string>();
+
+async function amountToWordsMemo(amount: number): Promise<string> {
+  const key = Number(amount);
+  const cached = amountWordsCache.get(key);
+  if (cached) return cached;
+  const words = await amountToWords(amount);
+  amountWordsCache.set(key, words);
+  return words;
+}
+
 /**
  * Merge multiple DOCX documents into a single Buffer result.
  * Accepts Buffer or Uint8Array entries and normalizes to Buffer.
@@ -74,11 +93,9 @@ async function mergeDocuments(
     );
   }
 
-  // initialize with first document, normalize to Buffer
   let mergedDoc: Buffer = Buffer.from(docs[0]);
   for (let i = 1; i < docs.length; i++) {
     const nextDoc = Buffer.from(docs[i]);
-    // pass mergedDoc directly to avoid copying the entire growing buffer on every iteration
     const result = mergeDocx(mergedDoc, nextDoc, {
       insertEnd: true,
     });
@@ -124,7 +141,7 @@ const buildCertPatches = async (
   }),
   position: activity.position,
   date: formatDateRange(activity.startDate, activity.endDate),
-  amount_words: await amountToWords(honorarium.amount),
+  amount_words: await amountToWordsMemo(honorarium.amount),
 });
 
 /**
@@ -157,23 +174,20 @@ export async function genCertDoc(
     endDate: activity.endDate,
   };
 
-  const patchingStart = performance.now();
+  performance.mark('startPatch');
   const patchedDocs = await Promise.all(
     honoraria.map(async (honorarium) => {
-      const start = performance.now();
       const patches = await buildCertPatches(activityDetails, honorarium);
-      const doc = patchDoc(certification, patches);
-      logger.info(`patched doc: ${getElapsedTime(start)}`);
-
-      return doc;
+      return patchDoc(certification, patches);
     }),
   );
-  logger.info(`patched docs: ${getElapsedTime(patchingStart)}`);
+  performance.mark('endPatch');
+  performance.measure('Patched docs', 'startPatch', 'endPatch');
 
-  // patchDoc already returns a nodebuffer; pass directly to avoid redundant copies
-  const mergeStart = performance.now();
+  performance.mark('startMerge');
   const doc = await mergeDocuments(patchedDocs);
-  logger.info(`merged docs: ${getElapsedTime(mergeStart)}`);
+  performance.mark('endMerge');
+  performance.measure('Merged docs', 'startMerge', 'endMerge');
 
   return { doc, filename };
 }
@@ -182,32 +196,41 @@ export async function generateCertification(
   activityCode: string,
   userId: number,
 ): Promise<Document | undefined> {
-  let startTime = performance.now();
+  performance.mark('startActivityQuery');
+
   const activity = await findActiveActivityDetailByUser(
     db,
     activityCode,
     userId,
   );
-  if (!activity) return;
-  logger.info(
-    `query findActiveActivityDetailByUser: ${getElapsedTime(startTime)}`,
+  performance.mark('endActivityQuery');
+  performance.measure(
+    'findActiveActivityDetailByUser query',
+    'startActivityQuery',
+    'endActivityQuery',
   );
-  startTime = performance.now();
 
+  if (!activity) return;
+
+  performance.mark('startHonorariaQuery');
   const honoraria = await findActiveHonorariaWithAccountByActivity(
     db,
     activityCode,
     userId,
   );
-  if (!honoraria || honoraria.length === 0) return;
-  logger.info(
-    `query findActiveHonorariaWithAccountByActivity: ${getElapsedTime(startTime)}`,
+  performance.mark('endHonorariaQuery');
+  performance.measure(
+    'findActiveHonorariaWithAccountByActivity query',
+    'startHonorariaQuery',
+    'endHonorariaQuery',
   );
+  if (!honoraria || honoraria.length === 0) return;
 
   const doc = await genCertDoc(activity, honoraria);
-  const usageTime = performance.now();
+  performance.mark('startRecord');
   await recordUsage(db, 'Certification', userId);
-  logger.info(`usage recorded: ${getElapsedTime(usageTime)}`);
+  performance.mark('endRecord');
+  performance.measure('Usage recorded', 'startRecord', 'endRecord');
 
   return doc;
 }
@@ -310,22 +333,20 @@ export async function genCompDoc(
     endDate: activity.endDate,
   };
 
-  const patchingStart = performance.now();
+  performance.mark('startPatch');
   const patchedDocs = await Promise.all(
     honoraria.map(async (honorarium) => {
-      const start = performance.now();
       const patches = buildCompPatches(activityDetails, honorarium);
-      const doc = patchDoc(computation, patches);
-      logger.info(`patched computation doc: ${getElapsedTime(start)}`);
-
-      return doc;
+      return patchDoc(computation, patches);
     }),
   );
-  logger.info(`patched computation docs: ${getElapsedTime(patchingStart)}`);
+  performance.mark('endPatch');
+  performance.measure('Patched docs', 'startPatch', 'endPatch');
 
-  const mergeStart = performance.now();
+  performance.mark('startMerge');
   const doc = await mergeDocuments(patchedDocs);
-  logger.info(`merged computation docs: ${getElapsedTime(mergeStart)}`);
+  performance.mark('endMerge');
+  performance.measure('Merged docs', 'startMerge', 'endMerge');
 
   return { doc, filename };
 }
@@ -334,22 +355,42 @@ export async function generateComputation(
   activityCode: string,
   userId: number,
 ): Promise<Document | undefined> {
+  performance.mark('startActivityCompQuery');
+
   const activity = await findActiveActivityDetailByUser(
     db,
     activityCode,
     userId,
   );
+  performance.mark('endActivityCompQuery');
+  performance.measure(
+    'findActiveActivityDetailByUser query',
+    'startActivityCompQuery',
+    'endActivityCompQuery',
+  );
+
   if (!activity) return;
 
+  performance.mark('startHonorariaCompQuery');
   const honoraria = await findActiveHonorariaWithAccountByActivity(
     db,
     activityCode,
     userId,
   );
+  performance.mark('endHonorariaCompQuery');
+  performance.measure(
+    'findActiveHonorariaWithAccountByActivity query',
+    'startHonorariaCompQuery',
+    'endHonorariaCompQuery',
+  );
+
   if (!honoraria || honoraria.length === 0) return;
 
   const doc = await genCompDoc(activity, honoraria);
+  performance.mark('startRecord');
   await recordUsage(db, 'Computation', userId);
+  performance.mark('endRecord');
+  performance.measure('Usage recorded', 'startRecord', 'endRecord');
 
   return doc;
 }
