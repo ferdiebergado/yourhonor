@@ -19,7 +19,7 @@ import { getFundCluster } from '../honorarium/utils';
 import { payroll } from './payroll';
 import { findActiveActivityDetailByUser } from './repo';
 import type { Document } from './types';
-import { formatName } from './utils';
+import { formatName, formatVenue } from './utils';
 
 const SHEET = 'PAYROLL';
 const START_ROW = 13;
@@ -63,14 +63,6 @@ export async function generatePayroll(
 
   return doc;
 }
-
-/**
- * Format activity venue information
- */
-const formatVenue = (venue: string, location: string) =>
-  location.toLocaleLowerCase() === 'online'
-    ? 'online'
-    : `at ${venue}, ${location}`;
 
 /**
  * Format date of birth for Excel

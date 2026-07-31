@@ -2,7 +2,7 @@ import type { Config, Context } from '@netlify/functions';
 
 import { NotFoundError } from '@server/errors';
 import { generateCertification } from '@server/features/honorarium';
-import { docxResponse } from '@server/features/honorarium/utils';
+import { createFileResponse } from '@server/features/honorarium/utils';
 import { type HttpMethod } from '@server/http';
 import { withMiddlewares } from '@server/http/middlewares';
 import { parseRouteParams } from '@server/http/parsers';
@@ -13,19 +13,28 @@ export const config: Config = {
   path: ['/api/activities/:code/certification'],
 };
 
-const handler: NetlifyFunction = async (request: AppRequest, context: Context) => {
+const handler: NetlifyFunction = async (
+  request: AppRequest,
+  context: Context,
+) => {
   const allowedMethod: HttpMethod = 'POST';
 
   if (request.method !== allowedMethod)
-    return new Response(undefined, { status: 405, headers: { Allow: allowedMethod } });
+    return new Response(undefined, {
+      status: 405,
+      headers: { Allow: allowedMethod },
+    });
 
   const { code } = parseRouteParams(context.params, ActivityCodeSchema);
 
-  const certification = await generateCertification(code, request.session.userId);
+  const certification = await generateCertification(
+    code,
+    request.session.userId,
+  );
 
   if (!certification) throw new NotFoundError('Activity not found.');
 
-  return docxResponse(certification.doc, certification.filename);
+  return createFileResponse(certification.doc, 'docx', certification.filename);
 };
 
 export default withMiddlewares(handler);

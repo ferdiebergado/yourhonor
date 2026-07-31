@@ -4,12 +4,15 @@ import { db } from '@server/db';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatDateRange } from '@shared/utils';
-import { findActiveHonorariaWithAccountByActivity, recordUsage } from '../honorarium/repo';
+import {
+  findActiveHonorariaWithAccountByActivity,
+  recordUsage,
+} from '../honorarium/repo';
 import { parseActivityCode } from '../honorarium/utils';
 import { orsdv } from './ors-dv';
 import { findActiveActivityDetailByUser } from './repo';
 import type { Document } from './types';
-import { formatName } from './utils';
+import { formatName, formatVenue } from './utils';
 
 type ExcelTextNode = {
   '#text': string;
@@ -73,12 +76,20 @@ type ExcelRelsRoot = {
 
 export async function generateORS(
   activityCode: string,
-  userId: number
+  userId: number,
 ): Promise<Document | undefined> {
-  const activity = await findActiveActivityDetailByUser(db, activityCode, userId);
+  const activity = await findActiveActivityDetailByUser(
+    db,
+    activityCode,
+    userId,
+  );
   if (!activity) return;
 
-  const honoraria = await findActiveHonorariaWithAccountByActivity(db, activityCode, userId);
+  const honoraria = await findActiveHonorariaWithAccountByActivity(
+    db,
+    activityCode,
+    userId,
+  );
   if (honoraria.length === 0) return;
 
   const doc = await genORSDoc(activity, honoraria);
@@ -90,7 +101,7 @@ export async function generateORS(
 
 async function genORSDoc(
   activity: ActivityDetail,
-  honoraria: HonorariumDetail[]
+  honoraria: HonorariumDetail[],
 ): Promise<Document> {
   // 1. Dynamic imports for zip and XML manipulation
   const { ZipReader, ZipWriter, Uint8ArrayReader, Uint8ArrayWriter } =
@@ -106,7 +117,7 @@ async function genORSDoc(
     attributeNamePrefix: '@_',
     parseAttributeValue: false,
     textNodeName: '#text',
-    isArray: name => ['row', 'c'].includes(name),
+    isArray: (name) => ['row', 'c'].includes(name),
   });
 
   const builder = new XMLBuilder({
@@ -146,7 +157,7 @@ async function genORSDoc(
 
   // 5. Data Calculations
   const { title, venue, startDate, endDate, code, location } = activity;
-  const {firstname,mi,lastname} = honoraria[0]
+  const { firstname, mi, lastname } = honoraria[0];
   let payee = formatName({ firstname, mi, lastname });
   const numPayees = honoraria.length;
   let other = 'OTHER';
@@ -154,7 +165,8 @@ async function genORSDoc(
   if (numPayees > 1) payee += ` AND ${(numPayees - 1).toString()} ${other}`;
 
   const dateRange = formatDateRange(startDate, endDate);
-  const particulars = `To payment of honorarium as Resource Person during the ${title} held ${location.toLocaleLowerCase() === 'online' ? 'online' : `at ${venue}, ${location}`} on ${dateRange}`;
+  const formattedVenue = formatVenue(venue, location);
+  const particulars = `To payment of honorarium as Resource Person during the ${title} held ${formattedVenue} on ${dateRange}`;
   const amount = honoraria.reduce((acc, payment) => acc + payment.amount, 0);
   const { mfoCode } = parseActivityCode(code);
 
@@ -206,7 +218,7 @@ function setCellValue(
   sheetObj: ExcelWorksheetRoot,
   rowNum: number,
   colNum: number,
-  value: string | number
+  value: string | number,
 ) {
   if (!sheetObj.worksheet) sheetObj.worksheet = { sheetData: { row: [] } };
 
@@ -215,18 +227,20 @@ function setCellValue(
   if (!sheetObj.worksheet.sheetData.row) sheetObj.worksheet.sheetData.row = [];
 
   const rows = sheetObj.worksheet.sheetData.row;
-  let row = rows.find(r => Number.parseInt(r['@_r'], 10) === rowNum);
+  let row = rows.find((r) => Number.parseInt(r['@_r'], 10) === rowNum);
 
   if (!row) {
     row = { '@_r': String(rowNum), c: [] };
     rows.push(row);
-    rows.sort((a, b) => Number.parseInt(a['@_r'], 10) - Number.parseInt(b['@_r'], 10));
+    rows.sort(
+      (a, b) => Number.parseInt(a['@_r'], 10) - Number.parseInt(b['@_r'], 10),
+    );
   }
 
   if (!row.c) row.c = [];
 
   const cellRef = `${getColName(colNum)}${String(rowNum)}`;
-  let cell = row.c.find(c => c['@_r'] === cellRef);
+  let cell = row.c.find((c) => c['@_r'] === cellRef);
 
   if (!cell) {
     cell = { '@_r': cellRef };
@@ -249,17 +263,20 @@ function setCellValue(
 function getSheetPathByName(
   parser: XMLParser,
   files: Record<string, Uint8Array>,
-  sheetName: string
+  sheetName: string,
 ): string {
   const workbookXml = new TextDecoder().decode(files['xl/workbook.xml']);
   const workbookObj = parser.parse(workbookXml) as ExcelWorkbookRoot;
 
   // Normalize sheets array
   const rawSheets = workbookObj.workbook?.sheets?.sheet;
-  const sheetsList = Array.isArray(rawSheets) ? rawSheets : [rawSheets].filter(Boolean);
+  const sheetsList = Array.isArray(rawSheets)
+    ? rawSheets
+    : [rawSheets].filter(Boolean);
 
-  const targetSheet = sheetsList.find(s => s['@_name'] === sheetName);
-  if (!targetSheet) throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
+  const targetSheet = sheetsList.find((s) => s['@_name'] === sheetName);
+  if (!targetSheet)
+    throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
 
   const rId = targetSheet['@_r:id'];
 
@@ -270,8 +287,9 @@ function getSheetPathByName(
     ? relsObj.Relationships.Relationship
     : [relsObj.Relationships?.Relationship].filter(Boolean);
 
-  const rel = relsList.find(r => r['@_Id'] === rId);
-  if (!rel) throw new Error(`Relationship target missing for sheet: ${sheetName}`);
+  const rel = relsList.find((r) => r['@_Id'] === rId);
+  if (!rel)
+    throw new Error(`Relationship target missing for sheet: ${sheetName}`);
 
   // Resolve relative path (usually targets are like "worksheets/sheet1.xml")
   return `xl/${rel['@_Target']}`;

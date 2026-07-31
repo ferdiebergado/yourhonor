@@ -4,8 +4,15 @@ import { ToWords } from 'to-words';
 
 import logger from '@server/logger';
 
+const OFFICE_DOC_CONTENT_TYPE = {
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+} as const;
+
+const wordConverter = new ToWords({ localeCode: 'en-PH' });
+
 export async function amountToWords(amount: number): Promise<string> {
-  return new ToWords({ localeCode: 'en-PH' }).convert(amount, {
+  return wordConverter.convert(amount, {
     currency: true,
     doNotAddOnly: true,
   });
@@ -15,15 +22,13 @@ export async function patchDoc(template: string, tags: Record<string, string>) {
   try {
     const data = Buffer.from(template, 'base64');
 
-    const patches = Object.fromEntries(
-      Object.entries(tags).map(([tag, text]) => {
-        const patch: IPatch = {
-          type: PatchType.PARAGRAPH,
-          children: [new TextRun(text)],
-        };
-        return [tag, patch];
-      }),
-    );
+    const patches: Record<string, IPatch> = {};
+    for (const [tag, text] of Object.entries(tags)) {
+      patches[tag] = {
+        type: PatchType.PARAGRAPH,
+        children: [new TextRun(text)],
+      };
+    }
 
     const doc = await patchDocument({
       outputType: 'nodebuffer',
@@ -39,19 +44,14 @@ export async function patchDoc(template: string, tags: Record<string, string>) {
   }
 }
 
-export const docxResponse = (body: Uint8Array, filename: string) =>
+export const createFileResponse = (
+  body: Uint8Array,
+  contentType: keyof typeof OFFICE_DOC_CONTENT_TYPE,
+  filename: string,
+) =>
   new Response(body, {
     headers: {
-      'Content-Type':
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'Content-Disposition': `attachment; filename="${filename}.docx"`,
-    },
-  });
-
-export const xlsxResponse = (body: Uint8Array, filename: string) =>
-  new Response(body, {
-    headers: {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type': contentType,
       'Content-Disposition': `attachment; filename=${filename}`,
     },
   });
@@ -73,8 +73,10 @@ export type FundCluster = {
 };
 
 export function parseActivityCode(activityCode: string): FundCluster {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, year, _bureau, _division, pap, code] = activityCode.split('-');
+
+  if (!Object.keys(MFO_CODES).includes(pap))
+    throw new Error('Invalid MFO Program');
 
   const program = pap as Program;
   const mfoCode = MFO_CODES[program];

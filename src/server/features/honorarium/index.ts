@@ -1,6 +1,7 @@
 import { mergeDocx } from '@benedicte/docx-merge';
 import { db } from '@server/db';
 import { findActiveActivityDetailByUser } from '@server/features/activity/repo';
+import logger from '@server/logger';
 import { decrypt } from '@server/security';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type {
@@ -14,6 +15,7 @@ import {
   getFullName,
   getMaxSalary,
 } from '@shared/utils';
+import { formatVenue, getElapsedTime } from '../activity/utils';
 import { certification } from './certification';
 import { computation } from './computation';
 import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
@@ -72,11 +74,12 @@ async function mergeDocuments(
     );
   }
 
-  // normalize to Buffer
+  // initialize with first document, normalize to Buffer
   let mergedDoc: Buffer = Buffer.from(docs[0]);
   for (let i = 1; i < docs.length; i++) {
     const nextDoc = Buffer.from(docs[i]);
-    const result = mergeDocx(Buffer.from(mergedDoc), nextDoc, {
+    // pass mergedDoc directly to avoid copying the entire growing buffer on every iteration
+    const result = mergeDocx(mergedDoc, nextDoc, {
       insertEnd: true,
     });
     if (!result) throw new Error(`Failed to merge document at index ${i}.`);
@@ -110,10 +113,7 @@ const buildCertPatches = async (
   }),
   role: honorarium.role,
   activity: activity.title,
-  venue:
-    activity.location.toLocaleLowerCase() === 'online'
-      ? 'online'
-      : `at ${activity.venue}, ${activity.location}`,
+  venue: formatVenue(activity.venue, activity.location),
   end_date: formatDate(new Date()),
   amount: formatAmount(honorarium.amount),
   tax: honorarium.taxRate?.toString() ?? '',
@@ -157,16 +157,23 @@ export async function genCertDoc(
     endDate: activity.endDate,
   };
 
-  const patchedDocPromises = honoraria.map((honorarium) =>
-    buildCertPatches(activityDetails, honorarium).then((patches) =>
-      patchDoc(certification, patches),
-    ),
-  );
+  const patchingStart = performance.now();
+  const patchedDocs = await Promise.all(
+    honoraria.map(async (honorarium) => {
+      const start = performance.now();
+      const patches = await buildCertPatches(activityDetails, honorarium);
+      const doc = patchDoc(certification, patches);
+      logger.info(`patched doc: ${getElapsedTime(start)}`);
 
-  const patchedDocs = await Promise.all(patchedDocPromises);
-  // ensure we have Buffer[]
-  const bufDocs = patchedDocs.map((d) => Buffer.from(d));
-  const doc = await mergeDocuments(bufDocs);
+      return doc;
+    }),
+  );
+  logger.info(`patched docs: ${getElapsedTime(patchingStart)}`);
+
+  // patchDoc already returns a nodebuffer; pass directly to avoid redundant copies
+  const mergeStart = performance.now();
+  const doc = await mergeDocuments(patchedDocs);
+  logger.info(`merged docs: ${getElapsedTime(mergeStart)}`);
 
   return { doc, filename };
 }
@@ -175,12 +182,17 @@ export async function generateCertification(
   activityCode: string,
   userId: number,
 ): Promise<Document | undefined> {
+  let startTime = performance.now();
   const activity = await findActiveActivityDetailByUser(
     db,
     activityCode,
     userId,
   );
   if (!activity) return;
+  logger.info(
+    `query findActiveActivityDetailByUser: ${getElapsedTime(startTime)}`,
+  );
+  startTime = performance.now();
 
   const honoraria = await findActiveHonorariaWithAccountByActivity(
     db,
@@ -188,9 +200,14 @@ export async function generateCertification(
     userId,
   );
   if (!honoraria || honoraria.length === 0) return;
+  logger.info(
+    `query findActiveHonorariaWithAccountByActivity: ${getElapsedTime(startTime)}`,
+  );
 
   const doc = await genCertDoc(activity, honoraria);
+  const usageTime = performance.now();
   await recordUsage(db, 'Certification', userId);
+  logger.info(`usage recorded: ${getElapsedTime(usageTime)}`);
 
   return doc;
 }
@@ -293,14 +310,15 @@ export async function genCompDoc(
     endDate: activity.endDate,
   };
 
-  const patchedDocPromises = honoraria.map(async (honorarium) => {
-    const patches = buildCompPatches(activityDetails, honorarium);
-    return patchDoc(computation, patches);
-  });
+  const patchedDocs = await Promise.all(
+    honoraria.map(async (honorarium) => {
+      const patches = buildCompPatches(activityDetails, honorarium);
+      return patchDoc(computation, patches);
+    }),
+  );
 
-  const patchedDocs = await Promise.all(patchedDocPromises);
-  const bufDocs = patchedDocs.map((d) => Buffer.from(d));
-  const doc = await mergeDocuments(bufDocs);
+  // patchDoc already returns a nodebuffer; pass directly to avoid redundant copies
+  const doc = await mergeDocuments(patchedDocs);
 
   return { doc, filename };
 }
