@@ -1,4 +1,3 @@
-import { mergeDocx } from '@benedicte/docx-merge';
 import { db } from '@server/db';
 import { findActiveActivityDetailByUser } from '@server/features/activity/repo';
 import logger from '@server/logger';
@@ -19,11 +18,11 @@ import { formatVenue } from '../activity/utils';
 import { certification } from './certification';
 import { computation } from './computation';
 import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
-import { amountToWords, patchDoc } from './utils';
+import { amountToWords, buildReport } from './utils';
 
 type Document = {
   filename: string;
-  doc: Buffer;
+  doc: Uint8Array;
 };
 
 // Shared types for activity details required by document builders
@@ -53,7 +52,8 @@ type ComputationActivityDetails = Pick<
 >;
 
 const DOCX_EXT = '.docx';
-const MAX_MERGE_BATCH = 50;
+const certTemplate = Buffer.from(certification, 'base64');
+const compTemplate = Buffer.from(computation, 'base64');
 
 const obs = new PerformanceObserver((list) => {
   const entries = list.getEntries();
@@ -74,38 +74,7 @@ async function amountToWordsMemo(amount: number): Promise<string> {
   return words;
 }
 
-/**
- * Merge multiple DOCX documents into a single Buffer result.
- * Accepts Buffer or Uint8Array entries and normalizes to Buffer.
- * Throws an error if merging fails or no documents provided.
- */
-async function mergeDocuments(
-  docs: Array<Buffer | Uint8Array>,
-): Promise<Buffer> {
-  if (!docs || docs.length === 0)
-    throw new Error('No documents provided for merging.');
-
-  if (docs.length === 1) return Buffer.from(docs[0]);
-
-  if (docs.length > MAX_MERGE_BATCH) {
-    throw new Error(
-      `Refusing to merge ${docs.length} documents at once (limit ${MAX_MERGE_BATCH}).`,
-    );
-  }
-
-  let mergedDoc: Buffer = Buffer.from(docs[0]);
-  for (let i = 1; i < docs.length; i++) {
-    const nextDoc = Buffer.from(docs[i]);
-    const result = mergeDocx(mergedDoc, nextDoc, {
-      insertEnd: true,
-    });
-    if (!result) throw new Error(`Failed to merge document at index ${i}.`);
-    mergedDoc = result;
-  }
-  return mergedDoc;
-}
-
-type CertificationPatches = {
+interface CertificationPatches extends Record<string, string> {
   payee: string;
   role: string;
   activity: string;
@@ -117,7 +86,7 @@ type CertificationPatches = {
   amount_words: string;
   amount: string;
   tax: string;
-};
+}
 
 const buildCertPatches = async (
   activity: ActivityDocDetails,
@@ -175,19 +144,18 @@ export async function genCertDoc(
   };
 
   performance.mark('startPatch');
-  const patchedDocs = await Promise.all(
-    honoraria.map(async (honorarium) => {
-      const patches = await buildCertPatches(activityDetails, honorarium);
-      return patchDoc(certification, patches);
-    }),
+  const data = await Promise.all(
+    honoraria.map(
+      async (honorarium) => await buildCertPatches(activityDetails, honorarium),
+    ),
   );
   performance.mark('endPatch');
-  performance.measure('Patched docs', 'startPatch', 'endPatch');
+  performance.measure('Patches built', 'startPatch', 'endPatch');
 
-  performance.mark('startMerge');
-  const doc = await mergeDocuments(patchedDocs);
-  performance.mark('endMerge');
-  performance.measure('Merged docs', 'startMerge', 'endMerge');
+  performance.mark('startReportBuild');
+  const doc = await buildReport(certTemplate, { data });
+  performance.mark('endReportBuild');
+  performance.measure('Report built', 'startReportBuild', 'endReportBuild');
 
   return { doc, filename };
 }
@@ -334,19 +302,16 @@ export async function genCompDoc(
   };
 
   performance.mark('startPatch');
-  const patchedDocs = await Promise.all(
-    honoraria.map(async (honorarium) => {
-      const patches = buildCompPatches(activityDetails, honorarium);
-      return patchDoc(computation, patches);
-    }),
+  const data = honoraria.map((honorarium) =>
+    buildCompPatches(activityDetails, honorarium),
   );
   performance.mark('endPatch');
-  performance.measure('Patched docs', 'startPatch', 'endPatch');
+  performance.measure('Patched built', 'startPatch', 'endPatch');
 
-  performance.mark('startMerge');
-  const doc = await mergeDocuments(patchedDocs);
-  performance.mark('endMerge');
-  performance.measure('Merged docs', 'startMerge', 'endMerge');
+  performance.mark('startBuildReport');
+  const doc = await buildReport(compTemplate, { data });
+  performance.mark('endBuildReport');
+  performance.measure('Built report', 'startBuildReport', 'endBuildReport');
 
   return { doc, filename };
 }

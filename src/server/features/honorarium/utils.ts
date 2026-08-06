@@ -1,8 +1,5 @@
-import type { IPatch } from 'docx';
-import { patchDocument, PatchType, TextRun } from 'docx';
+import { TemplateHandler } from 'easy-template-x';
 import { ToWords } from 'to-words';
-
-import logger from '@server/logger';
 
 const OFFICE_DOC_CONTENT_TYPE = {
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -10,38 +7,13 @@ const OFFICE_DOC_CONTENT_TYPE = {
 } as const;
 
 const wordConverter = new ToWords({ localeCode: 'en-PH' });
+const handler = new TemplateHandler();
 
 export async function amountToWords(amount: number): Promise<string> {
   return wordConverter.convert(amount, {
     currency: true,
     doNotAddOnly: true,
   });
-}
-
-export async function patchDoc(template: string, tags: Record<string, string>) {
-  try {
-    const data = Buffer.from(template, 'base64');
-
-    const patches: Record<string, IPatch> = {};
-    for (const [tag, text] of Object.entries(tags)) {
-      patches[tag] = {
-        type: PatchType.PARAGRAPH,
-        children: [new TextRun(text)],
-      };
-    }
-
-    const doc = await patchDocument({
-      outputType: 'nodebuffer',
-      data,
-      patches,
-    });
-
-    return doc;
-  } catch (error) {
-    const msg = 'Failed to patch document.';
-    logger.error(error, msg);
-    throw new Error(msg, { cause: error });
-  }
 }
 
 export const createFileResponse = (
@@ -95,4 +67,11 @@ export function getFundCluster(activityCode: string): string {
   const { year, appropriation, program } = parseActivityCode(activityCode);
 
   return `${year.toString()} ${program} ${appropriation}`;
+}
+
+export async function buildReport(
+  template: Buffer,
+  data: { data: Record<string, string>[] },
+) {
+  return await handler.process(template, data);
 }
