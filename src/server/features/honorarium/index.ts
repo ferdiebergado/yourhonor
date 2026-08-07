@@ -14,18 +14,18 @@ import {
   getFullName,
   getMaxSalary,
 } from '@shared/utils';
+import { TemplateHandler } from 'easy-template-x';
+import { ToWords } from 'to-words';
 import { formatVenue } from '../activity/utils';
 import { certification } from './certification';
 import { computation } from './computation';
 import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
-import { amountToWords, buildReport } from './utils';
 
-type Document = {
+interface Document {
   filename: string;
   doc: Uint8Array;
-};
+}
 
-// Shared types for activity details required by document builders
 type ActivityDocDetails = Pick<
   ActivityDetail,
   | 'title'
@@ -64,6 +64,15 @@ const obs = new PerformanceObserver((list) => {
 obs.observe({ entryTypes: ['measure'] });
 
 const amountWordsCache = new Map<number, string>();
+
+const wordConverter = new ToWords({ localeCode: 'en-PH' });
+
+async function amountToWords(amount: number): Promise<string> {
+  return wordConverter.convert(amount, {
+    currency: true,
+    doNotAddOnly: true,
+  });
+}
 
 async function amountToWordsMemo(amount: number): Promise<string> {
   const key = Number(amount);
@@ -203,7 +212,7 @@ export async function generateCertification(
   return doc;
 }
 
-type ComputationPatches = {
+interface ComputationPatches extends Record<string, string> {
   payee: string;
   role: string;
   activity: string;
@@ -220,7 +229,7 @@ type ComputationPatches = {
   position: string;
   salary: string;
   hours: string;
-};
+}
 
 export function buildCompPatches(
   activity: ComputationActivityDetails,
@@ -240,12 +249,10 @@ export function buildCompPatches(
     lastname: activity.lastname,
   });
 
-  // decrypt account number safely (don't let a decryption failure crash the whole doc generation)
   let accountNumber = '';
   try {
     accountNumber = decrypt(Buffer.from(honorarium.accountNo || '')).toString();
   } catch {
-    // fallback to masked account if decryption fails
     accountNumber = honorarium.accountNoMasked ?? '';
   }
 
@@ -306,7 +313,7 @@ export async function genCompDoc(
     buildCompPatches(activityDetails, honorarium),
   );
   performance.mark('endPatch');
-  performance.measure('Patched built', 'startPatch', 'endPatch');
+  performance.measure('Patches built', 'startPatch', 'endPatch');
 
   performance.mark('startBuildReport');
   const doc = await buildReport(compTemplate, { data });
@@ -364,11 +371,11 @@ export async function generateComputation(
  * Remove account number from a list of honoraria to produce a safe view.
  * Explicitly constructs the return object so we don't need eslint-disable comments.
  */
-export const stripAccountNo = (
+export function stripAccountNo(
   honoraria: HonorariumDetail[],
-): HonorariumDetailSafe[] =>
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  honoraria.map(({ accountNo, ...honorarium }) => honorarium);
+): HonorariumDetailSafe[] {
+  return honoraria.map(({ accountNo: _, ...honorarium }) => honorarium);
+}
 
 const formatName = ({
   firstname,
@@ -384,3 +391,12 @@ const formatName = ({
     mi,
     lastname,
   }).toLocaleUpperCase();
+
+const templateHandler = new TemplateHandler();
+
+async function buildReport(
+  template: Buffer,
+  data: { data: Record<string, string>[] },
+) {
+  return await templateHandler.process(template, data);
+}
