@@ -1,21 +1,3 @@
-const OFFICE_DOC_CONTENT_TYPE = {
-  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-} as const;
-
-export function createFileResponse(
-  body: Uint8Array,
-  contentType: keyof typeof OFFICE_DOC_CONTENT_TYPE,
-  filename: string,
-) {
-  return new Response(body, {
-    headers: {
-      'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename=${filename}`,
-    },
-  });
-}
-
 const MFO_CODES = {
   BEC: '310100100003000',
   ELLN: '310100100007000',

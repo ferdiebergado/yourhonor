@@ -1,12 +1,12 @@
 import type { Config, Context } from '@netlify/functions';
 
 import { NotFoundError } from '@server/errors';
-import { generateCertification } from '@server/features/honorarium';
-import { createFileResponse } from '@server/features/honorarium/utils';
+import { generateCertification } from '@server/features/honorarium/certification-service';
 import { type HttpMethod } from '@server/http';
 import { withMiddlewares } from '@server/http/middlewares';
 import { parseRouteParams } from '@server/http/parsers';
 import type { AppRequest, NetlifyFunction } from '@server/types';
+import { createFileResponse } from '@server/utils';
 import { ActivityCodeSchema } from '@shared/schemas/activity';
 
 export const config: Config = {

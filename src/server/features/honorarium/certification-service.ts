@@ -1,0 +1,160 @@
+import { db } from '@server/db';
+import { formatName } from '@server/utils';
+import type { ActivityDetail } from '@shared/schemas/activity';
+import type { HonorariumDetail } from '@shared/schemas/honorarium';
+import { formatAmount, formatDate, formatDateRange } from '@shared/utils';
+import { ToWords } from 'to-words';
+import { findActiveActivityDetailByUser } from '../activity/repo';
+import type { ActivityDocDetails, Document } from '../types';
+import { buildReport, formatVenue } from '../utils';
+import { certification } from './certification';
+import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
+
+type CertificationPatches = {
+  payee: string;
+  role: string;
+  activity: string;
+  venue: string;
+  focal: string;
+  position: string;
+  date: string;
+  end_date: string;
+  amount_words: string;
+  amount: string;
+  tax: string;
+};
+
+const certTemplate = Buffer.from(certification, 'base64');
+const amountWordsCache = new Map<number, string>();
+const wordConverter = new ToWords({ localeCode: 'en-PH' });
+
+async function amountToWords(amount: number): Promise<string> {
+  return wordConverter.convert(amount, {
+    currency: true,
+    doNotAddOnly: true,
+  });
+}
+
+async function amountToWordsMemo(amount: number): Promise<string> {
+  const key = Number(amount);
+  const cached = amountWordsCache.get(key);
+  if (cached) return cached;
+  const words = await amountToWords(amount);
+  amountWordsCache.set(key, words);
+  return words;
+}
+
+const buildCertPatches = async (
+  activity: ActivityDocDetails,
+  honorarium: HonorariumDetail,
+): Promise<CertificationPatches> => ({
+  payee: formatName({
+    firstname: honorarium.firstname,
+    mi: honorarium.mi,
+    lastname: honorarium.lastname,
+  }),
+  role: honorarium.role,
+  activity: activity.title,
+  venue: formatVenue(activity.venue, activity.location),
+  end_date: formatDate(new Date()),
+  amount: formatAmount(honorarium.amount),
+  tax: honorarium.taxRate?.toString() ?? '',
+  focal: formatName({
+    firstname: activity.firstname,
+    mi: activity.mi,
+    lastname: activity.lastname,
+  }),
+  position: activity.position,
+  date: formatDateRange(activity.startDate, activity.endDate),
+  amount_words: await amountToWordsMemo(honorarium.amount),
+});
+
+/**
+ * Generate a single certification DOCX by patching the certification template
+ * for each honorarium and merging the results.
+ *
+ * @throws if honoraria is empty or merging fails
+ */
+export async function genCertDoc(
+  activity: ActivityDetail,
+  honoraria: HonorariumDetail[],
+): Promise<Document> {
+  if (!honoraria || honoraria.length === 0)
+    throw new Error(
+      'No honoraria provided for certification document generation.',
+    );
+
+  const { code } = activity;
+  const filename = `certification-${code}-${Date.now()}.docx`;
+
+  const activityDetails: ActivityDocDetails = {
+    title: activity.title,
+    venue: activity.venue,
+    location: activity.location,
+    firstname: activity.firstname,
+    mi: activity.mi,
+    lastname: activity.lastname,
+    position: activity.position,
+    startDate: activity.startDate,
+    endDate: activity.endDate,
+  };
+
+  performance.mark('startPatch');
+  const data = await Promise.all(
+    honoraria.map(
+      async (honorarium) => await buildCertPatches(activityDetails, honorarium),
+    ),
+  );
+  performance.mark('endPatch');
+  performance.measure('Patches built', 'startPatch', 'endPatch');
+
+  performance.mark('startReportBuild');
+  const doc = await buildReport(certTemplate, { data });
+  performance.mark('endReportBuild');
+  performance.measure('Report built', 'startReportBuild', 'endReportBuild');
+
+  return { doc, filename };
+}
+
+export async function generateCertification(
+  activityCode: string,
+  userId: number,
+): Promise<Document | undefined> {
+  performance.mark('startActivityQuery');
+
+  const activity = await findActiveActivityDetailByUser(
+    db,
+    activityCode,
+    userId,
+  );
+  performance.mark('endActivityQuery');
+  performance.measure(
+    'findActiveActivityDetailByUser query',
+    'startActivityQuery',
+    'endActivityQuery',
+  );
+
+  if (!activity) return;
+
+  performance.mark('startHonorariaQuery');
+  const honoraria = await findActiveHonorariaWithAccountByActivity(
+    db,
+    activityCode,
+    userId,
+  );
+  performance.mark('endHonorariaQuery');
+  performance.measure(
+    'findActiveHonorariaWithAccountByActivity query',
+    'startHonorariaQuery',
+    'endHonorariaQuery',
+  );
+  if (!honoraria || honoraria.length === 0) return;
+
+  const doc = await genCertDoc(activity, honoraria);
+  performance.mark('startRecord');
+  await recordUsage(db, 'Certification', userId);
+  performance.mark('endRecord');
+  performance.measure('Usage recorded', 'startRecord', 'endRecord');
+
+  return doc;
+}
