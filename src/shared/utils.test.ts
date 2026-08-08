@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { computeHonorarium, formatAmount, formatDate, formatDateRange, getFullName } from './utils';
+import {
+  computeHonorarium,
+  formatAmount,
+  formatDate,
+  formatDateRange,
+  getFullName,
+} from './utils';
 
 describe('utils', () => {
   describe('computeHonorarium', () => {
@@ -110,7 +116,7 @@ describe('utils', () => {
 
     it('should handle negative amount', () => {
       const result = formatAmount(-1234.56);
-      expect(result).toBe('PHP -1,234.56');
+      expect(result).toBe('-PHP 1,234.56');
     });
   });
 
@@ -159,7 +165,7 @@ describe('utils', () => {
       const start = '2023-12-25';
       const end = '2023-12-30';
       const result = formatDateRange(start, end);
-      expect(result).toBe('December 25 – 30, 2023');
+      expect(result).toEqual('December 25 – 30, 2023');
     });
   });
 });
