@@ -1,7 +1,10 @@
 import type { Client } from '@libsql/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { HonorariumUpdate, NewHonorarium } from '@shared/schemas/honorarium';
+import type {
+  HonorariumUpdate,
+  NewHonorarium,
+} from '@shared/schemas/honorarium';
 import { createTestDB } from '../../tests/helpers/db';
 import { createHonorarium, updateHonorarium } from './repo';
 
@@ -13,39 +16,39 @@ describe('HonorariumRepo', () => {
 
     // Insert required test data for foreign key constraints
     await db.execute(
-      "INSERT INTO users (id, google_id, name, email) VALUES (1, 'google1', 'Test User', 'test@example.com'), (2, 'google2', 'Another User', 'another@example.com')"
+      "INSERT INTO users (id, google_id, name, email) VALUES (1, 'google1', 'Test User', 'test@example.com'), (2, 'google2', 'Another User', 'another@example.com')",
     );
 
     await db.execute(
-      "INSERT INTO positions (id, name, created_by, updated_by) VALUES (1, 'Test Position', 1, 1)"
+      "INSERT INTO positions (id, name, created_by, updated_by) VALUES (1, 'Test Position', 1, 1)",
     );
 
     await db.execute(
-      "INSERT INTO focals (id, firstname, lastname, position_id, created_by, updated_by) VALUES (1, 'John', 'Doe', 1, 1, 1)"
+      "INSERT INTO focals (id, firstname, lastname, position_id, created_by, updated_by) VALUES (1, 'John', 'Doe', 1, 1, 1)",
     );
 
     await db.execute(
-      "INSERT INTO venues (id, name, location, created_by, updated_by) VALUES (1, 'Test Venue', 'Test Location', 1, 1)"
+      "INSERT INTO venues (id, name, location, created_by, updated_by) VALUES (1, 'Test Venue', 'Test Location', 1, 1)",
     );
 
     await db.execute(
-      "INSERT INTO activities (id, title, venue_id, start_date, end_date, code, fund_source, focal_id, created_by, updated_by) VALUES (1, 'Test Activity', 1, '2023-01-01', '2023-01-02', 'AC-01-TEST-ACTIVITY-CODE-001', 'Test Fund', 1, 1, 1)"
+      "INSERT INTO activities (id, title, venue_id, start_date, end_date, code, fund_source, focal_id, created_by, updated_by) VALUES (1, 'Test Activity', 1, '2023-01-01', '2023-01-02', 'AC-01-TEST-ACTIVITY-CODE-001', 'Test Fund', 1, 1, 1)",
     );
 
     await db.execute(
-      "INSERT INTO payees (id, firstname, lastname, created_by, updated_by) VALUES (1, 'Jane', 'Smith', 1, 1)"
+      "INSERT INTO payees (id, firstname, lastname, created_by, updated_by) VALUES (1, 'Jane', 'Smith', 1, 1)",
     );
 
     await db.execute(
-      "INSERT INTO banks (id, name, created_by, updated_by) VALUES (1, 'Test Bank', 1, 1)"
+      "INSERT INTO banks (id, name, created_by, updated_by) VALUES (1, 'Test Bank', 1, 1)",
     );
 
     await db.execute(
-      "INSERT INTO accounts (payee_id, bank_id, details, created_by, updated_by) VALUES (1, 1, X'7b226163636f756e744e756d626572223a2231323334353637383930227d', 1, 1)"
+      "INSERT INTO accounts (payee_id, bank_id, bank_branch, account_name, account_no, account_no_last4, account_no_masked, created_by, updated_by) VALUES (1, 1, 'Test Branch', 'Test Account Name', X'7b226163636f756e744e756d626572223a2231323334353637383930227d', '8901', '****8901', 1, 1)",
     );
 
     await db.execute(
-      "INSERT INTO roles (id, name, created_by, updated_by) VALUES (1, 'Test Role', 1, 1)"
+      "INSERT INTO roles (id, name, created_by, updated_by) VALUES (1, 'Test Role', 1, 1)",
     );
   });
 
@@ -59,7 +62,9 @@ describe('HonorariumRepo', () => {
 
     beforeEach(async () => {
       // Get the auto-generated account ID for use in tests
-      const { rows: accountRows } = await db.execute('SELECT id FROM accounts LIMIT 1');
+      const { rows: accountRows } = await db.execute(
+        'SELECT id FROM accounts LIMIT 1',
+      );
       console.log('Account rows:', accountRows);
       const accountId = accountRows[0]['id'] as number;
       console.log('Account ID:', accountId);
@@ -101,9 +106,10 @@ describe('HonorariumRepo', () => {
       await createHonorarium(db, baseHonorarium);
 
       // Get the inserted honorarium ID
-      const { rows } = await db.execute('SELECT id FROM honoraria WHERE activity_code = ?', [
-        baseHonorarium.activityCode,
-      ]);
+      const { rows } = await db.execute(
+        'SELECT id FROM honoraria WHERE activity_code = ?',
+        [baseHonorarium.activityCode],
+      );
       const id = rows[0].id as number;
 
       // Update the honorarium
@@ -112,7 +118,10 @@ describe('HonorariumRepo', () => {
       expect(result).toBe(true);
 
       // Verify the update in the database
-      const { rows: updatedRows } = await db.execute('SELECT * FROM honoraria WHERE id = ?', [id]);
+      const { rows: updatedRows } = await db.execute(
+        'SELECT * FROM honoraria WHERE id = ?',
+        [id],
+      );
 
       expect(updatedRows).toHaveLength(1);
       expect(updatedRows[0]).toMatchObject({
@@ -140,9 +149,10 @@ describe('HonorariumRepo', () => {
       await createHonorarium(db, baseHonorarium);
 
       // Get the inserted honorarium ID
-      const { rows } = await db.execute('SELECT id FROM honoraria WHERE activity_code = ?', [
-        baseHonorarium.activityCode,
-      ]);
+      const { rows } = await db.execute(
+        'SELECT id FROM honoraria WHERE activity_code = ?',
+        [baseHonorarium.activityCode],
+      );
       const id = rows[0].id as number;
 
       // Mark it as deleted
@@ -161,9 +171,10 @@ describe('HonorariumRepo', () => {
       await createHonorarium(db, baseHonorarium);
 
       // Get the inserted honorarium ID
-      const { rows } = await db.execute('SELECT id FROM honoraria WHERE activity_code = ?', [
-        baseHonorarium.activityCode,
-      ]);
+      const { rows } = await db.execute(
+        'SELECT id FROM honoraria WHERE activity_code = ?',
+        [baseHonorarium.activityCode],
+      );
       const id = rows[0].id as number;
 
       // Try to update it as user 2
