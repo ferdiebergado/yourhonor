@@ -1,9 +1,9 @@
 import type { Client } from '@libsql/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { upsertUser } from '@server/user/repo';
-import type { NewUser } from '@shared/schemas/user';
-import { createTestDB } from '../helpers/db';
+import { upsertUser } from '../../src/server/user/repo';
+import type { NewUser } from '../../src/shared/schemas/user';
+import { createTestDB } from '../db';
 
 describe('UserRepo', () => {
   const user: NewUser = {
@@ -29,7 +29,9 @@ describe('UserRepo', () => {
       expect(userId).toBeTypeOf('number');
       expect(userId).toBeGreaterThan(0);
 
-      const { rows } = await db.execute('SELECT * FROM users WHERE id = ?', [userId]);
+      const { rows } = await db.execute('SELECT * FROM users WHERE id = ?', [
+        userId,
+      ]);
       expect(rows).toHaveLength(1);
 
       const createdUser = rows[0];
@@ -47,7 +49,9 @@ describe('UserRepo', () => {
       const now = Date.now();
       const createdAt = new Date(createdUser.created_at as string).getTime();
       const updatedAt = new Date(createdUser.updated_at as string).getTime();
-      const lastLoginAt = new Date(createdUser.last_login_at as string).getTime();
+      const lastLoginAt = new Date(
+        createdUser.last_login_at as string,
+      ).getTime();
 
       expect(createdAt).toBeCloseTo(now, -2);
       expect(updatedAt).toBeCloseTo(now, -2);
@@ -65,7 +69,9 @@ describe('UserRepo', () => {
 
       expect(updatedUserId).toBe(userId);
 
-      const { rows } = await db.execute('SELECT * FROM users WHERE id = ?', [userId]);
+      const { rows } = await db.execute('SELECT * FROM users WHERE id = ?', [
+        userId,
+      ]);
       expect(rows).toHaveLength(1);
 
       const dbUser = rows[0];
@@ -94,7 +100,9 @@ describe('UserRepo', () => {
         .mockRejectedValueOnce(new Error('Database connection failed'));
 
       // Expect the upsertUser call to throw an error
-      await expect(upsertUser(db, user)).rejects.toThrow('Database connection failed');
+      await expect(upsertUser(db, user)).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Verify the mock was called
       expect(executeSpy).toHaveBeenCalled();
@@ -119,7 +127,9 @@ describe('UserRepo', () => {
 
       expect(updatedUserId).toBe(userId);
 
-      const { rows } = await db.execute('SELECT * FROM users WHERE id = ?', [userId]);
+      const { rows } = await db.execute('SELECT * FROM users WHERE id = ?', [
+        userId,
+      ]);
       expect(rows).toHaveLength(1);
 
       const dbUser = rows[0];
