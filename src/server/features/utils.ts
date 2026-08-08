@@ -1,3 +1,4 @@
+import { getFullName } from '@shared/utils';
 import { TemplateHandler } from 'easy-template-x';
 
 const templateHandler = new TemplateHandler();
@@ -16,4 +17,20 @@ export function formatVenue(venue: string, location: string) {
   return location.toLocaleLowerCase() === 'online'
     ? 'online'
     : `at ${venue}, ${location}`;
+}
+
+export function formatName({
+  firstname,
+  mi,
+  lastname,
+}: {
+  firstname: string;
+  mi?: string | null;
+  lastname: string;
+}) {
+  return getFullName({
+    firstname,
+    mi,
+    lastname,
+  }).toLocaleUpperCase();
 }

@@ -1,7 +1,7 @@
 import type { XMLParser } from 'fast-xml-parser';
 
 import { db } from '@server/db';
-import { formatName, logPerfTime } from '@server/utils';
+import { logPerfTime } from '@server/utils';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatDateRange } from '@shared/utils';
@@ -11,7 +11,7 @@ import {
 } from '../honorarium/repo';
 import { parseActivityCode } from '../honorarium/utils';
 import type { Document } from '../types';
-import { formatVenue } from '../utils';
+import { formatName, formatVenue } from '../utils';
 import { ors } from './ors';
 import { findActiveActivityDetailByUser } from './repo';
 

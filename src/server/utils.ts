@@ -1,4 +1,3 @@
-import { getFullName } from '@shared/utils';
 import logger from './logger';
 
 const OFFICE_DOC_CONTENT_TYPE = {
@@ -17,22 +16,6 @@ export function createFileResponse(
       'Content-Disposition': `attachment; filename=${filename}`,
     },
   });
-}
-
-export function formatName({
-  firstname,
-  mi,
-  lastname,
-}: {
-  firstname: string;
-  mi?: string | null;
-  lastname: string;
-}) {
-  return getFullName({
-    firstname,
-    mi,
-    lastname,
-  }).toLocaleUpperCase();
 }
 
 export function logPerfTime(task: string, start: number): void {

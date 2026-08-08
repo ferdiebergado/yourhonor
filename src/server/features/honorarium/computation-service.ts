@@ -1,12 +1,12 @@
 import { db } from '@server/db';
 import { decrypt } from '@server/security';
-import { formatName, logPerfTime } from '@server/utils';
+import { logPerfTime } from '@server/utils';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, formatDateRange, getMaxSalary } from '@shared/utils';
 import { findActiveActivityDetailByUser } from '../activity/repo';
 import type { Document } from '../types';
-import { buildReport } from '../utils';
+import { buildReport, formatName } from '../utils';
 import { computation } from './computation';
 import { findActiveHonorariaWithAccountByActivity, recordUsage } from './repo';
 
