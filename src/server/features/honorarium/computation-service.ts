@@ -1,6 +1,6 @@
 import { db } from '@server/db';
 import { decrypt } from '@server/security';
-import { formatName } from '@server/utils';
+import { formatName, logPerfTime } from '@server/utils';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, formatDateRange, getMaxSalary } from '@shared/utils';
@@ -120,17 +120,15 @@ export async function genCompDoc(
     endDate: activity.endDate,
   };
 
-  performance.mark('startPatch');
+  const patchStart = performance.now();
   const data = honoraria.map((honorarium) =>
     buildCompPatches(activityDetails, honorarium),
   );
-  performance.mark('endPatch');
-  performance.measure('Patches built', 'startPatch', 'endPatch');
+  logPerfTime('Build Patches', patchStart);
 
-  performance.mark('startBuildReport');
+  const buildStart = performance.now();
   const doc = await buildReport(compTemplate, { data });
-  performance.mark('endBuildReport');
-  performance.measure('Built report', 'startBuildReport', 'endBuildReport');
+  logPerfTime('Build Report', buildStart);
 
   return { doc, filename };
 }
@@ -139,42 +137,30 @@ export async function generateComputation(
   activityCode: string,
   userId: number,
 ): Promise<Document | undefined> {
-  performance.mark('startActivityCompQuery');
-
+  const queryStart = performance.now();
   const activity = await findActiveActivityDetailByUser(
     db,
     activityCode,
     userId,
   );
-  performance.mark('endActivityCompQuery');
-  performance.measure(
-    'findActiveActivityDetailByUser query',
-    'startActivityCompQuery',
-    'endActivityCompQuery',
-  );
+  logPerfTime('Activity Query', queryStart);
 
   if (!activity) return;
 
-  performance.mark('startHonorariaCompQuery');
+  const honorariaQueryStart = performance.now();
   const honoraria = await findActiveHonorariaWithAccountByActivity(
     db,
     activityCode,
     userId,
   );
-  performance.mark('endHonorariaCompQuery');
-  performance.measure(
-    'findActiveHonorariaWithAccountByActivity query',
-    'startHonorariaCompQuery',
-    'endHonorariaCompQuery',
-  );
+  logPerfTime('Honoraria Query', honorariaQueryStart);
 
   if (!honoraria || honoraria.length === 0) return;
 
   const doc = await genCompDoc(activity, honoraria);
-  performance.mark('startRecord');
+  const recordUsageStart = performance.now();
   await recordUsage(db, 'Computation', userId);
-  performance.mark('endRecord');
-  performance.measure('Usage recorded', 'startRecord', 'endRecord');
+  logPerfTime('Record Usage', recordUsageStart);
 
   return doc;
 }

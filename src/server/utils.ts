@@ -1,4 +1,5 @@
 import { getFullName } from '@shared/utils';
+import logger from './logger';
 
 const OFFICE_DOC_CONTENT_TYPE = {
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -32,4 +33,8 @@ export function formatName({
     mi,
     lastname,
   }).toLocaleUpperCase();
+}
+
+export function logPerfTime(task: string, start: number): void {
+  logger.info(`${task}: ${performance.now() - start} ms`);
 }

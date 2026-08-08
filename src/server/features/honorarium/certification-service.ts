@@ -1,5 +1,5 @@
 import { db } from '@server/db';
-import { formatName } from '@server/utils';
+import { formatName, logPerfTime } from '@server/utils';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatAmount, formatDate, formatDateRange } from '@shared/utils';
@@ -99,19 +99,17 @@ export async function genCertDoc(
     endDate: activity.endDate,
   };
 
-  performance.mark('startPatch');
+  const patchStart = performance.now();
   const data = await Promise.all(
     honoraria.map(
       async (honorarium) => await buildCertPatches(activityDetails, honorarium),
     ),
   );
-  performance.mark('endPatch');
-  performance.measure('Patches built', 'startPatch', 'endPatch');
+  logPerfTime('Build Patches', patchStart);
 
-  performance.mark('startReportBuild');
+  const buildStart = performance.now();
   const doc = await buildReport(certTemplate, { data });
-  performance.mark('endReportBuild');
-  performance.measure('Report built', 'startReportBuild', 'endReportBuild');
+  logPerfTime('Build Report', buildStart);
 
   return { doc, filename };
 }
@@ -120,41 +118,28 @@ export async function generateCertification(
   activityCode: string,
   userId: number,
 ): Promise<Document | undefined> {
-  performance.mark('startActivityQuery');
-
+  const queryStart = performance.now();
   const activity = await findActiveActivityDetailByUser(
     db,
     activityCode,
     userId,
   );
-  performance.mark('endActivityQuery');
-  performance.measure(
-    'findActiveActivityDetailByUser query',
-    'startActivityQuery',
-    'endActivityQuery',
-  );
-
+  logPerfTime('Activity Query', queryStart);
   if (!activity) return;
 
-  performance.mark('startHonorariaQuery');
+  const honorariaQueryStart = performance.now();
   const honoraria = await findActiveHonorariaWithAccountByActivity(
     db,
     activityCode,
     userId,
   );
-  performance.mark('endHonorariaQuery');
-  performance.measure(
-    'findActiveHonorariaWithAccountByActivity query',
-    'startHonorariaQuery',
-    'endHonorariaQuery',
-  );
+  logPerfTime('Honoraria Query', honorariaQueryStart);
   if (!honoraria || honoraria.length === 0) return;
 
   const doc = await genCertDoc(activity, honoraria);
-  performance.mark('startRecord');
+  const recordUsageStart = performance.now();
   await recordUsage(db, 'Certification', userId);
-  performance.mark('endRecord');
-  performance.measure('Usage recorded', 'startRecord', 'endRecord');
+  logPerfTime('Record Usage', recordUsageStart);
 
   return doc;
 }

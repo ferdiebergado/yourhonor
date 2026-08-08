@@ -1,7 +1,7 @@
 import type { XMLParser } from 'fast-xml-parser';
 
 import { db } from '@server/db';
-import { formatName } from '@server/utils';
+import { formatName, logPerfTime } from '@server/utils';
 import type { ActivityDetail } from '@shared/schemas/activity';
 import type { HonorariumDetail } from '@shared/schemas/honorarium';
 import { formatDateRange } from '@shared/utils';
@@ -14,8 +14,6 @@ import type { Document } from '../types';
 import { formatVenue } from '../utils';
 import { ors } from './ors';
 import { findActiveActivityDetailByUser } from './repo';
-
-// --- Template cache / lazy init -------------------------------------------------
 
 type TemplateFiles = Record<string, Uint8Array>;
 
@@ -141,17 +139,15 @@ async function ensureOrsTemplate() {
   };
 }
 
-// Clone the cached template files for per-request mutation. Uses slice() to copy contents.
+// Clone the cached template files for per-request mutation.
 function cloneTemplateFiles(files: TemplateFiles): TemplateFiles {
   const copy: TemplateFiles = {};
   for (const [k, v] of Object.entries(files)) {
-    // Uint8Array.slice() returns a copy (fast and efficient)
     copy[k] = v.slice();
   }
   return copy;
 }
 
-// --- Public API -----------------------------------------------------------------
 export async function generateORS(
   activityCode: string,
   userId: number,
@@ -177,15 +173,18 @@ export async function generateORS(
   return doc;
 }
 
-// --- Implementation (uses cached parser, builder, and template files) ------------
 async function genORSDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[],
 ): Promise<Document> {
+  const templateStart = performance.now();
   const ctx = await ensureOrsTemplate();
+  logPerfTime('Template Initialization', templateStart);
 
   // Clone files so we never mutate the cached copy
+  const cloneStart = performance.now();
   const files = cloneTemplateFiles(ctx.templateFiles);
+  logPerfTime('Template Cloning', cloneStart);
 
   const orsPath = ctx.orsPath;
   const dvPath = ctx.dvPath;
@@ -197,6 +196,7 @@ async function genORSDoc(
   const dvObj = ctx.parser.parse(dvXml) as any;
 
   // Data Calculations
+  const dataStart = performance.now();
   const { title, venue, startDate, endDate, code, location } = activity;
   const { firstname, mi, lastname } = honoraria[0];
   let payee = formatName({ firstname, mi, lastname });
@@ -221,25 +221,27 @@ async function genORSDoc(
   setCellValue(dvObj, 11, 6, payee); // Row 11, Col F
   setCellValue(dvObj, 16, 2, particulars); // Row 16, Col B
   setCellValue(dvObj, 17, 29, amount); // Row 17, Col AC
+  logPerfTime('Data Calculations', dataStart);
 
   // Serialize modified worksheets back into files
+  const serializeStart = performance.now();
   files[orsPath] = ctx.textEncoder.encode(ctx.builder.build(orsObj));
   files[dvPath] = ctx.textEncoder.encode(ctx.builder.build(dvObj));
+  logPerfTime('Serialize Worksheets', serializeStart);
 
   // Re-zip files into a single document. Use the shared writer classes from ctx.
+  const zipStart = performance.now();
   const zipWriter = new ctx.ZipWriter(new ctx.Uint8ArrayWriter());
   for (const [filename, data] of Object.entries(files)) {
     // Add expects a reader; we create a fresh reader for each entry
     await zipWriter.add(filename, new ctx.Uint8ArrayReader(data));
   }
-
   const doc = await zipWriter.close();
+  logPerfTime('Zip Files', zipStart);
   const filename = `ORS-${code}.xlsm`;
 
   return { doc, filename };
 }
-
-// --- helpers (unchanged behaviour, optimized to avoid allocations where possible) --
 
 function getColName(col: number): string {
   let name = '';
