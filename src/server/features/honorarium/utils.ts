@@ -6,13 +6,13 @@ const MFO_CODES = {
 
 type Appropriation = 'Current' | 'Continuing';
 type Program = keyof typeof MFO_CODES;
-
-interface FundCluster {
+type MFOCode = (typeof MFO_CODES)[Program];
+type FundCluster = {
   year: number;
   appropriation: Appropriation;
   program: Program;
-  mfoCode: (typeof MFO_CODES)[Program];
-}
+  mfoCode: MFOCode;
+};
 
 export function parseActivityCode(activityCode: string): FundCluster {
   const [_, year, _bureau, _division, pap, code] = activityCode.split('-');
