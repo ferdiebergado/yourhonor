@@ -24,14 +24,18 @@ import { findActiveActivityDetailByUser } from './repo';
 const SHEET = 'PAYROLL';
 const START_ROW = 13;
 const HONORARIUM_COL = 'J';
-const NET_COL = 'L';
-const GROSS_COL_NUM = 10;
-const NET_COL_NUM = 12;
 const TAX_COL = 'K';
+const NET_COL = 'L';
+const GROSS_COL_NUM = 10; // J
+const NET_COL_NUM = 12; // L
 const FONT = 'Book Antiqua';
 const FONT_SIZE = 9;
 const BORDER_STYLE = 'medium' satisfies BorderStyle;
 
+/**
+ * Generate payroll document for the given activity and user.
+ * Returns undefined when activity/honoraria can't be found.
+ */
 export async function generatePayroll(
   activityCode: string,
   userId: number,
@@ -76,26 +80,50 @@ function formatDob(dob: string | null | undefined): string {
 }
 
 /**
- * Safely decrypt account number
+ * Safely decrypt account number.
+ * Accepts ArrayBuffer | Buffer | Uint8Array and returns '' on failure.
  */
-function getDecryptedAccountNo(accountNo: ArrayBuffer): string {
+function getDecryptedAccountNo(
+  accountNo?: ArrayBuffer | Buffer | Uint8Array | null,
+): string {
+  if (!accountNo) return '';
   try {
-    return decrypt(Buffer.from(accountNo));
+    // Buffer.from handles Buffer | ArrayBuffer | Uint8Array
+    return decrypt(Buffer.from(accountNo as any));
   } catch (err) {
-    logger.error(err, 'Failed to decrypt account number');
+    // Log minimal context and avoid leaking sensitive data.
+    logger.error({ err }, 'Failed to decrypt account number');
     return '';
   }
 }
 
 /**
- * Generate payroll Excel document
+ * Shallow merge for plain style objects.
+ * Note: excelforge style builders may return complex objects — only merge when both are plain objects.
+ */
+function mergeStyles(a: Record<string, unknown>, b?: Record<string, unknown>) {
+  if (!b) return a;
+  return { ...a, ...b };
+}
+
+/**
+ * Generate payroll Excel document. Errors are logged with context and rethrown.
  */
 async function genPayrollDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[],
 ): Promise<Document> {
   const { Workbook, style } = await import('@node-projects/excelforge');
-  const workbook = await Workbook.fromBase64(payroll);
+  let workbook;
+  try {
+    workbook = await Workbook.fromBase64(payroll);
+  } catch (err) {
+    logger.error(
+      { err, activityCode: activity.code },
+      'Failed to load payroll workbook',
+    );
+    throw err;
+  }
 
   const sheet = workbook.getSheet(SHEET);
   if (!sheet) throw new Error(`Workbook does not have a sheet named ${SHEET}.`);
@@ -122,8 +150,10 @@ async function genPayrollDoc(
   let currentRow = START_ROW;
 
   for (const [index, honorarium] of honoraria.entries()) {
+    // The template appears to contain two sample rows; insert only when beyond them.
     if (index > 1) sheet.insertRows(currentRow, 1);
 
+    // merge and set bottom border for columns F-G (6-7); preserve existing template merges
     sheet.merge(currentRow, 6, currentRow, 7);
     sheet.setStyle(currentRow, 7, withBottomBorder);
 
@@ -139,13 +169,24 @@ async function genPayrollDoc(
       amount,
       dob,
     } = honorarium;
+
+    // Normalize numeric values defensively
+    const numericAmount = Number(amount ?? 0) || 0;
+    const taxRatePct = Number((honorarium as any).taxRate ?? 0) || 0; // defensive
+
+    const taxMultiplier = taxRatePct / 100;
+    // Limit decimal precision for inline formula to avoid long floats
+    const taxMultiplierStr = Number.isFinite(taxMultiplier)
+      ? taxMultiplier.toFixed(6)
+      : '0';
+
     const cells: Cell[] = [
       // Sequence
       { value: seq },
       // Payee
       { value: formatName({ firstname, mi, lastname }) },
       // Account Number
-      { value: getDecryptedAccountNo(accountNo) },
+      { value: getDecryptedAccountNo(accountNo as any) },
       // Bank
       { value: bank },
       // Bank Branch
@@ -159,20 +200,20 @@ async function genPayrollDoc(
       { value: formatDob(dob) },
       // Gross Honorarium
       {
-        value: amount,
+        value: numericAmount,
         style: decimalFormat,
       },
-      // Tax
+      // Tax (formula uses HONORARIUM_COL * tax rate)
       {
         style: decimalFormat,
-        formula: `${HONORARIUM_COL}${currentRow}*${(honorarium.taxRate / 100).toString()}`,
+        formula: `${HONORARIUM_COL}${currentRow}*${taxMultiplierStr}`,
       },
       // Net Honorarium
       {
         style: decimalFormat,
         formula: `${HONORARIUM_COL}${currentRow}-${TAX_COL}${currentRow}`,
       },
-      // Sequence
+      // Sequence (keep as in template)
       { value: seq },
       // Signature
       {
@@ -184,12 +225,24 @@ async function genPayrollDoc(
     for (const [i, cell] of cells.entries()) {
       let col = i + 1;
 
+      // account for a gap in the template (original code offset)
       if (i >= 5) col = i + 3;
 
-      cell.style = { ...baseStyle, ...cell.style };
+      // Prefer using baseStyle unless a plain object style was provided, then shallow-merge
+      const baseStylePlain =
+        typeof baseStyle === 'object'
+          ? (baseStyle as Record<string, unknown>)
+          : {};
+      const cellStylePlain =
+        typeof cell.style === 'object'
+          ? (cell.style as Record<string, unknown>)
+          : undefined;
+      cell.style = mergeStyles(baseStylePlain, cellStylePlain) as any;
+
       sheet.setCell(currentRow, col, cell);
     }
 
+    // Keep original merge pattern used in template
     sheet.mergeByRef(`E${currentRow}:G${currentRow}`);
     const fillerCell = {
       style: withBottomBorder,
@@ -219,11 +272,21 @@ async function genPayrollDoc(
 
   sheet.markDirty();
 
-  const doc = await workbook.build();
+  let docBuffer: Uint8Array;
+  try {
+    docBuffer = await workbook.build();
+  } catch (err) {
+    logger.error(
+      { err, activityCode: activity.code },
+      'Failed to build payroll workbook',
+    );
+    throw err;
+  }
+
   const filename = `Payroll-${code}-${Date.now()}.xlsx`;
 
   return {
-    doc,
+    doc: docBuffer,
     filename,
   };
 }
