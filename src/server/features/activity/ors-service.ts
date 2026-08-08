@@ -15,66 +15,143 @@ import { formatVenue } from '../utils';
 import { ors } from './ors';
 import { findActiveActivityDetailByUser } from './repo';
 
-type ExcelTextNode = {
-  '#text': string;
-};
+// --- Template cache / lazy init -------------------------------------------------
 
-type ExcelInlineStr = {
-  t: ExcelTextNode;
-};
+type TemplateFiles = Record<string, Uint8Array>;
 
-type ExcelCell = {
-  '@_r': string; // Cell reference (e.g., "E7")
-  '@_t'?: 'inlineStr'; // Type attribute ('inlineStr' for text, omitted for raw numbers)
-  v?: string; // Numeric or raw values
-  is?: ExcelInlineStr; // Inline string structural object
-};
+let initPromise: Promise<void> | null = null;
+let cachedTemplateFiles: TemplateFiles | null = null;
+let cachedOrsPath: string | null = null;
+let cachedDvPath: string | null = null;
 
-type ExcelRow = {
-  '@_r': string; // Row index string (e.g., "7")
-  c?: ExcelCell[];
-};
+let ZipReader: any;
+let ZipWriter: any;
+let Uint8ArrayReader: any;
+let Uint8ArrayWriter: any;
+let parser: XMLParser | null = null;
+let builder: any = null;
+let sharedTextEncoder: TextEncoder | null = null;
+let sharedTextDecoder: TextDecoder | null = null;
 
-type ExcelSheetData = {
-  row?: ExcelRow[];
-};
+async function ensureOrsTemplate() {
+  if (!initPromise) {
+    initPromise = (async () => {
+      // Dynamic imports done once
+      const zip = await import('@zip.js/zip.js');
+      ZipReader = zip.ZipReader;
+      ZipWriter = zip.ZipWriter;
+      Uint8ArrayReader = zip.Uint8ArrayReader;
+      Uint8ArrayWriter = zip.Uint8ArrayWriter;
 
-type ExcelWorksheet = {
-  sheetData?: ExcelSheetData;
-  [key: string]: unknown; // Captures other sheet properties like pageMargins, dimension, etc.
-};
+      const { XMLParser } = await import('fast-xml-parser');
+      const XMLBuilder = (await import('fast-xml-builder')).default;
 
-type ExcelWorksheetRoot = {
-  worksheet?: ExcelWorksheet;
-};
+      parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: '@_',
+        parseAttributeValue: false,
+        textNodeName: '#text',
+        isArray: (name: string) => ['row', 'c'].includes(name),
+      });
 
-// Types for the Workbook Mapping Structure
-type ExcelWorkbookSheetAttr = {
-  '@_name': string;
-  '@_r:id': string;
-  [key: string]: unknown;
-};
+      builder = new XMLBuilder({
+        ignoreAttributes: false,
+        attributeNamePrefix: '@_',
+        textNodeName: '#text',
+        format: false,
+      });
 
-type ExcelWorkbookRoot = {
-  workbook?: {
-    sheets?: {
-      sheet?: ExcelWorkbookSheetAttr | ExcelWorkbookSheetAttr[];
-    };
+      sharedTextEncoder = new TextEncoder();
+      sharedTextDecoder = new TextDecoder();
+
+      // Read and cache template files once
+      const templateBytes = Buffer.from(ors, 'base64');
+      const zipReader = new ZipReader(new Uint8ArrayReader(templateBytes));
+      const entries = await zipReader.getEntries();
+      const files: TemplateFiles = {};
+      for (const entry of entries) {
+        if (!entry.directory)
+          files[entry.filename] = await entry.getData(new Uint8ArrayWriter());
+      }
+      await zipReader.close();
+      cachedTemplateFiles = files;
+
+      // Resolve ORS/DV sheet paths from workbook.xml and workbook.xml.rels
+      const workbookXml = sharedTextDecoder!.decode(
+        cachedTemplateFiles['xl/workbook.xml'],
+      );
+      const workbookObj = parser.parse(workbookXml) as any;
+      const rawSheets = workbookObj.workbook?.sheets?.sheet;
+      const sheetsList = Array.isArray(rawSheets)
+        ? rawSheets
+        : [rawSheets].filter(Boolean);
+
+      const targetORS = (sheetsList as any[]).find(
+        (s) => s['@_name'] === 'ORS',
+      );
+      const targetDV = (sheetsList as any[]).find((s) => s['@_name'] === 'DV');
+      if (!targetORS || !targetDV)
+        throw new Error('Template missing ORS or DV sheets');
+
+      const relsXml = sharedTextDecoder!.decode(
+        cachedTemplateFiles['xl/_rels/workbook.xml.rels'],
+      );
+      const relsObj = parser.parse(relsXml) as any;
+      const relsList = Array.isArray(relsObj.Relationships?.Relationship)
+        ? relsObj.Relationships.Relationship
+        : [relsObj.Relationships?.Relationship].filter(Boolean);
+
+      const rIdORS = targetORS['@_r:id'];
+      const rIdDV = targetDV['@_r:id'];
+      const relORS = relsList.find((r: any) => r['@_Id'] === rIdORS);
+      const relDV = relsList.find((r: any) => r['@_Id'] === rIdDV);
+      if (!relORS || !relDV) throw new Error('Workbook rels missing ORS/DV');
+
+      cachedOrsPath = `xl/${relORS['@_Target']}`;
+      cachedDvPath = `xl/${relDV['@_Target']}`;
+    })();
+  }
+
+  await initPromise;
+
+  if (
+    !cachedTemplateFiles ||
+    !cachedOrsPath ||
+    !cachedDvPath ||
+    !parser ||
+    !builder ||
+    !sharedTextEncoder ||
+    !sharedTextDecoder
+  ) {
+    throw new Error('Template initialization failed');
+  }
+
+  return {
+    ZipReader,
+    ZipWriter,
+    Uint8ArrayReader,
+    Uint8ArrayWriter,
+    parser,
+    builder,
+    textEncoder: sharedTextEncoder,
+    textDecoder: sharedTextDecoder,
+    templateFiles: cachedTemplateFiles,
+    orsPath: cachedOrsPath,
+    dvPath: cachedDvPath,
   };
-};
+}
 
-type ExcelRelationshipAttr = {
-  '@_Id': string;
-  '@_Target': string;
-  [key: string]: unknown;
-};
+// Clone the cached template files for per-request mutation. Uses slice() to copy contents.
+function cloneTemplateFiles(files: TemplateFiles): TemplateFiles {
+  const copy: TemplateFiles = {};
+  for (const [k, v] of Object.entries(files)) {
+    // Uint8Array.slice() returns a copy (fast and efficient)
+    copy[k] = v.slice();
+  }
+  return copy;
+}
 
-type ExcelRelsRoot = {
-  Relationships?: {
-    Relationship?: ExcelRelationshipAttr | ExcelRelationshipAttr[];
-  };
-};
-
+// --- Public API -----------------------------------------------------------------
 export async function generateORS(
   activityCode: string,
   userId: number,
@@ -91,7 +168,7 @@ export async function generateORS(
     activityCode,
     userId,
   );
-  if (honoraria.length === 0) return;
+  if (!honoraria || honoraria.length === 0) return;
 
   const doc = await genORSDoc(activity, honoraria);
 
@@ -100,63 +177,26 @@ export async function generateORS(
   return doc;
 }
 
+// --- Implementation (uses cached parser, builder, and template files) ------------
 async function genORSDoc(
   activity: ActivityDetail,
   honoraria: HonorariumDetail[],
 ): Promise<Document> {
-  // 1. Dynamic imports for zip and XML manipulation
-  const { ZipReader, ZipWriter, Uint8ArrayReader, Uint8ArrayWriter } =
-    await import('@zip.js/zip.js');
-  const { XMLParser } = await import('fast-xml-parser');
-  const { default: XMLBuilder } = await import('fast-xml-builder');
+  const ctx = await ensureOrsTemplate();
 
-  const templateBytes = Buffer.from(ors, 'base64');
+  // Clone files so we never mutate the cached copy
+  const files = cloneTemplateFiles(ctx.templateFiles);
 
-  // 2. Initialize fast-xml-parser with specific configurations to preserve structures
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-    attributeNamePrefix: '@_',
-    parseAttributeValue: false,
-    textNodeName: '#text',
-    isArray: (name) => ['row', 'c'].includes(name),
-  });
+  const orsPath = ctx.orsPath;
+  const dvPath = ctx.dvPath;
 
-  const builder = new XMLBuilder({
-    ignoreAttributes: false,
-    attributeNamePrefix: '@_',
-    textNodeName: '#text',
-    format: false,
-  });
+  const orsXml = ctx.textDecoder.decode(files[orsPath]);
+  const dvXml = ctx.textDecoder.decode(files[dvPath]);
 
-  // 3. Extract and map zip entries
-  const zipReader = new ZipReader(new Uint8ArrayReader(templateBytes));
-  const entries = await zipReader.getEntries();
+  const orsObj = ctx.parser.parse(orsXml) as any;
+  const dvObj = ctx.parser.parse(dvXml) as any;
 
-  // We will hold files in memory. Worksheets will be targeted by their file paths.
-  // Generally, workbook target mappings determine this, but if your sheets are static:
-  // Sheet 'ORS' -> usually 'xl/worksheets/sheet1.xml'
-  // Sheet 'DV'  -> usually 'xl/worksheets/sheet2.xml'
-  // If your template ordering changes, map them using xl/workbook.xml and xl/_rels/workbook.xml.rels
-  const files: Record<string, Uint8Array> = {};
-
-  for (const entry of entries) {
-    if (!entry.directory)
-      files[entry.filename] = await entry.getData(new Uint8ArrayWriter());
-  }
-
-  await zipReader.close();
-
-  const orsPath = getSheetPathByName(parser, files, 'ORS');
-  const dvPath = getSheetPathByName(parser, files, 'DV');
-
-  // Parse worksheet contents
-  const orsXml = new TextDecoder().decode(files[orsPath]);
-  const dvXml = new TextDecoder().decode(files[dvPath]);
-
-  const orsObj = parser.parse(orsXml) as ExcelWorksheetRoot;
-  const dvObj = parser.parse(dvXml) as ExcelWorksheetRoot;
-
-  // 5. Data Calculations
+  // Data Calculations
   const { title, venue, startDate, endDate, code, location } = activity;
   const { firstname, mi, lastname } = honoraria[0];
   let payee = formatName({ firstname, mi, lastname });
@@ -171,39 +211,36 @@ async function genORSDoc(
   const amount = honoraria.reduce((acc, payment) => acc + payment.amount, 0);
   const { mfoCode } = parseActivityCode(code);
 
-  // 6. Execute Surgical Updates
-  // ORS Sheet Modifications
+  // Surgical updates using the same helper logic as before
   setCellValue(orsObj, 7, 5, payee); // Row 7, Col E
   setCellValue(orsObj, 16, 5, particulars); // Row 16, Col E
   setCellValue(orsObj, 16, 14, amount); // Row 16, Col N
   setCellValue(orsObj, 32, 5, code); // Row 32, Col E
   setCellValue(orsObj, 16, 11, mfoCode); // Row 16, Col K
 
-  // DV Sheet Modifications
   setCellValue(dvObj, 11, 6, payee); // Row 11, Col F
   setCellValue(dvObj, 16, 2, particulars); // Row 16, Col B
   setCellValue(dvObj, 17, 29, amount); // Row 17, Col AC
 
-  // 7. Serialize XML back to byte arrays
-  files[orsPath] = new TextEncoder().encode(builder.build(orsObj));
-  files[dvPath] = new TextEncoder().encode(builder.build(dvObj));
+  // Serialize modified worksheets back into files
+  files[orsPath] = ctx.textEncoder.encode(ctx.builder.build(orsObj));
+  files[dvPath] = ctx.textEncoder.encode(ctx.builder.build(dvObj));
 
-  // 8. Re-zip everything back up (this preserves vbaProject.bin automatically since it's unmodified in `files`)
-  const zipWriter = new ZipWriter(new Uint8ArrayWriter());
+  // Re-zip files into a single document. Use the shared writer classes from ctx.
+  const zipWriter = new ctx.ZipWriter(new ctx.Uint8ArrayWriter());
   for (const [filename, data] of Object.entries(files)) {
-    await zipWriter.add(filename, new Uint8ArrayReader(data));
+    // Add expects a reader; we create a fresh reader for each entry
+    await zipWriter.add(filename, new ctx.Uint8ArrayReader(data));
   }
 
   const doc = await zipWriter.close();
   const filename = `ORS-${code}.xlsm`;
 
-  return {
-    doc,
-    filename,
-  };
+  return { doc, filename };
 }
 
-// Helper utility to convert 1-indexed column to Excel column string (e.g., 1 -> A, 27 -> AA)
+// --- helpers (unchanged behaviour, optimized to avoid allocations where possible) --
+
 function getColName(col: number): string {
   let name = '';
   while (col > 0) {
@@ -214,7 +251,13 @@ function getColName(col: number): string {
   return name;
 }
 
-// 4. Surgical injection function for raw sheet XML objects
+type ExcelWorksheetRoot = {
+  worksheet?: {
+    sheetData?: { row?: { '@_r': string; c?: any[] }[] };
+    [key: string]: unknown;
+  };
+};
+
 function setCellValue(
   sheetObj: ExcelWorksheetRoot,
   rowNum: number,
@@ -227,7 +270,10 @@ function setCellValue(
 
   if (!sheetObj.worksheet.sheetData.row) sheetObj.worksheet.sheetData.row = [];
 
-  const rows = sheetObj.worksheet.sheetData.row;
+  const rows = sheetObj.worksheet.sheetData.row as {
+    '@_r': string;
+    c?: any[];
+  }[];
   let row = rows.find((r) => Number.parseInt(r['@_r'], 10) === rowNum);
 
   if (!row) {
@@ -258,40 +304,4 @@ function setCellValue(
     delete cell.v;
     cell.is = { t: { '#text': value } };
   }
-}
-
-// Helper function to resolve dynamic sheet targets from sheet names
-function getSheetPathByName(
-  parser: XMLParser,
-  files: Record<string, Uint8Array>,
-  sheetName: string,
-): string {
-  const workbookXml = new TextDecoder().decode(files['xl/workbook.xml']);
-  const workbookObj = parser.parse(workbookXml) as ExcelWorkbookRoot;
-
-  // Normalize sheets array
-  const rawSheets = workbookObj.workbook?.sheets?.sheet;
-  const sheetsList = Array.isArray(rawSheets)
-    ? rawSheets
-    : [rawSheets].filter(Boolean);
-
-  const targetSheet = sheetsList.find((s) => s['@_name'] === sheetName);
-  if (!targetSheet)
-    throw new Error(`Workbook does not have a sheet named ${sheetName}.`);
-
-  const rId = targetSheet['@_r:id'];
-
-  // Find matching path in relationships
-  const relsXml = new TextDecoder().decode(files['xl/_rels/workbook.xml.rels']);
-  const relsObj = parser.parse(relsXml) as ExcelRelsRoot;
-  const relsList = Array.isArray(relsObj.Relationships?.Relationship)
-    ? relsObj.Relationships.Relationship
-    : [relsObj.Relationships?.Relationship].filter(Boolean);
-
-  const rel = relsList.find((r) => r['@_Id'] === rId);
-  if (!rel)
-    throw new Error(`Relationship target missing for sheet: ${sheetName}`);
-
-  // Resolve relative path (usually targets are like "worksheets/sheet1.xml")
-  return `xl/${rel['@_Target']}`;
 }
