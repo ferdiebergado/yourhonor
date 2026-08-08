@@ -44,30 +44,32 @@ async function amountToWordsMemo(amount: number): Promise<string> {
   return words;
 }
 
-const buildCertPatches = async (
+async function buildCertPatches(
   activity: ActivityDocDetails,
   honorarium: HonorariumDetail,
-): Promise<CertificationPatches> => ({
-  payee: formatName({
-    firstname: honorarium.firstname,
-    mi: honorarium.mi,
-    lastname: honorarium.lastname,
-  }),
-  role: honorarium.role,
-  activity: activity.title,
-  venue: formatVenue(activity.venue, activity.location),
-  end_date: formatDate(new Date()),
-  amount: formatAmount(honorarium.amount),
-  tax: honorarium.taxRate?.toString() ?? '',
-  focal: formatName({
-    firstname: activity.firstname,
-    mi: activity.mi,
-    lastname: activity.lastname,
-  }),
-  position: activity.position,
-  date: formatDateRange(activity.startDate, activity.endDate),
-  amount_words: await amountToWordsMemo(honorarium.amount),
-});
+): Promise<CertificationPatches> {
+  return {
+    payee: formatName({
+      firstname: honorarium.firstname,
+      mi: honorarium.mi,
+      lastname: honorarium.lastname,
+    }),
+    role: honorarium.role,
+    activity: activity.title,
+    venue: formatVenue(activity.venue, activity.location),
+    end_date: formatDate(new Date()),
+    amount: formatAmount(honorarium.amount),
+    tax: honorarium.taxRate?.toString() ?? '',
+    focal: formatName({
+      firstname: activity.firstname,
+      mi: activity.mi,
+      lastname: activity.lastname,
+    }),
+    position: activity.position,
+    date: formatDateRange(activity.startDate, activity.endDate),
+    amount_words: await amountToWordsMemo(honorarium.amount),
+  } satisfies CertificationPatches;
+}
 
 /**
  * Generate a single certification DOCX by patching the certification template
