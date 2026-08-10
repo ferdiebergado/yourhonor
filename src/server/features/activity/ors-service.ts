@@ -22,10 +22,6 @@ let cachedTemplateFiles: TemplateFiles | null = null;
 let cachedOrsPath: string | null = null;
 let cachedDvPath: string | null = null;
 
-let ZipReader: any;
-let ZipWriter: any;
-let Uint8ArrayReader: any;
-let Uint8ArrayWriter: any;
 let parser: XMLParser | null = null;
 let builder: any = null;
 let sharedTextEncoder: TextEncoder | null = null;
@@ -35,12 +31,6 @@ async function ensureOrsTemplate() {
   if (!initPromise) {
     initPromise = (async () => {
       // Dynamic imports done once
-      const zip = await import('@zip.js/zip.js');
-      ZipReader = zip.ZipReader;
-      ZipWriter = zip.ZipWriter;
-      Uint8ArrayReader = zip.Uint8ArrayReader;
-      Uint8ArrayWriter = zip.Uint8ArrayWriter;
-
       const { XMLParser } = await import('fast-xml-parser');
       const XMLBuilder = (await import('fast-xml-builder')).default;
 
@@ -64,15 +54,8 @@ async function ensureOrsTemplate() {
 
       // Read and cache template files once
       const templateBytes = Buffer.from(ors, 'base64');
-      const zipReader = new ZipReader(new Uint8ArrayReader(templateBytes));
-      const entries = await zipReader.getEntries();
-      const files: TemplateFiles = {};
-      for (const entry of entries) {
-        if (!entry.directory)
-          files[entry.filename] = await entry.getData(new Uint8ArrayWriter());
-      }
-      await zipReader.close();
-      cachedTemplateFiles = files;
+      const { unzipSync } = await import('fflate');
+      cachedTemplateFiles = unzipSync(templateBytes);
 
       // Resolve ORS/DV sheet paths from workbook.xml and workbook.xml.rels
       const workbookXml = sharedTextDecoder!.decode(
@@ -125,10 +108,6 @@ async function ensureOrsTemplate() {
   }
 
   return {
-    ZipReader,
-    ZipWriter,
-    Uint8ArrayReader,
-    Uint8ArrayWriter,
     parser,
     builder,
     textEncoder: sharedTextEncoder,
@@ -229,14 +208,10 @@ async function genORSDoc(
   files[dvPath] = ctx.textEncoder.encode(ctx.builder.build(dvObj));
   logPerfTime('Serialize Worksheets', serializeStart);
 
-  // Re-zip files into a single document. Use the shared writer classes from ctx.
+  // Re-zip files into a single document.
   const zipStart = performance.now();
-  const zipWriter = new ctx.ZipWriter(new ctx.Uint8ArrayWriter());
-  for (const [filename, data] of Object.entries(files)) {
-    // Add expects a reader; we create a fresh reader for each entry
-    await zipWriter.add(filename, new ctx.Uint8ArrayReader(data));
-  }
-  const doc = await zipWriter.close();
+  const { zipSync } = await import('fflate');
+  const doc = zipSync(files);
   logPerfTime('Zip Files', zipStart);
   const filename = `ORS-${code}.xlsm`;
 
