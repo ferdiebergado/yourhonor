@@ -13,7 +13,10 @@ export const AccountSchema = z.strictObject({
   accountNo: z.instanceof(ArrayBuffer),
   accountNoLast4: z.string().min(1).max(4),
   accountNoMasked: z.string(),
-  dob: z.iso.date().nullish(),
+  dob: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.string().nullish()
+  ),
 });
 
 export type Account = z.infer<typeof AccountSchema>;
