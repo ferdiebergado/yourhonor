@@ -13,7 +13,7 @@ export const AccountSchema = z.strictObject({
   accountNo: z.instanceof(ArrayBuffer),
   accountNoLast4: z.string().min(1).max(4),
   accountNoMasked: z.string(),
-  dob: z.union([z.string(), z.null(), z.undefined()])
+  dob: z.union([z.string(), z.null()])
     .transform((val) => (val === "" ? null : val)).nullish(),
 });
 
