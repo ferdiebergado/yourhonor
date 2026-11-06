@@ -14,7 +14,7 @@ export const AccountSchema = z.strictObject({
   accountNoLast4: z.string().min(1).max(4),
   accountNoMasked: z.string(),
   dob: z.union([z.string(), z.null(), z.undefined()])
-    .transform((val) => (val === "" ? null : val)),
+    .transform((val) => (val === "" ? null : val)).nullish(),
 });
 
 export type Account = z.infer<typeof AccountSchema>;
